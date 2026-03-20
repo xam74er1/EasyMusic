@@ -102,20 +102,28 @@ def download_video_sync(video_id: str, url: str, overwrite: bool = False):
     }
 
     # Check for dedicated cookies.txt file first (Preferred for VPS)
-    cookies_file = os.path.join(os.path.dirname(__file__), "cookies.txt")
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    cookies_file = os.path.join(backend_dir, "cookies.txt")
+    
+    logger.info(f"YTDLP: Checking for cookies at absolute path: {cookies_file}")
     if os.path.exists(cookies_file):
-        logger.info(f"Using cookies.txt file for yt-dlp at {cookies_file}")
+        file_size = os.path.getsize(cookies_file)
+        logger.info(f"YTDLP: SUCCESS! cookies.txt found (Size: {file_size} bytes). Using it for download.")
         ydl_opts['cookiefile'] = cookies_file
     else:
+        logger.info(f"YTDLP: No cookies.txt found at {cookies_file}. Checking browser fallback...")
         # Fallback to browser-based cookies if specified in .env
         ytdlp_browser = os.getenv("YTDLP_BROWSER")
         ytdlp_profile = os.getenv("YTDLP_BROWSER_PROFILE")
         if ytdlp_browser:
+            logger.info(f"YTDLP: Attempting to extract cookies from {ytdlp_browser} (profile: {ytdlp_profile})")
             if ytdlp_profile:
-                profile_path = os.path.join(os.path.dirname(__file__), ytdlp_profile) if not os.path.isabs(ytdlp_profile) else ytdlp_profile
+                profile_path = os.path.join(backend_dir, ytdlp_profile) if not os.path.isabs(ytdlp_profile) else ytdlp_profile
                 ydl_opts['cookiesfrombrowser'] = (ytdlp_browser, profile_path)
             else:
                 ydl_opts['cookiesfrombrowser'] = (ytdlp_browser,)
+        else:
+            logger.warning("YTDLP: No cookies.txt and no YTDLP_BROWSER set. Download may fail on VPS.")
     
     log_download_event("download_start", video_id, "pending")
     try:

@@ -5,6 +5,7 @@ WORKDIR /app
 # Install system dependencies required for some Python packages and yt-dlp
 RUN apt-get update && apt-get install -y \
     ffmpeg \
+    nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
