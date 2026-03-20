@@ -29,7 +29,7 @@ export default function useAudioDevices() {
     };
 
     useEffect(() => {
-        if (!supported) return;
+        if (!supported || !navigator.mediaDevices) return;
         enumerate();
         navigator.mediaDevices.addEventListener('devicechange', enumerate);
         return () => navigator.mediaDevices.removeEventListener('devicechange', enumerate);
