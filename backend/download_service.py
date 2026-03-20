@@ -84,6 +84,7 @@ def download_video_sync(video_id: str, url: str, overwrite: bool = False):
         
     logger.info(f"Starting download process for {video_id} ('{target.title}'). Overwrite: {overwrite}")
     
+    # Robustness flags for VPS/DataCenter environments
     ydl_opts = {
         'format': 'bestaudio/best',
         'outtmpl': output_tmpl,
@@ -92,19 +93,29 @@ def download_video_sync(video_id: str, url: str, overwrite: bool = False):
             'preferredcodec': 'mp3',
             'preferredquality': '192',
         }],
-        'quiet': True,
-        'no_warnings': True,
+        'quiet': False,  # Turn on more logging for debugging failures
+        'no_warnings': False,
+        'nocheckcertificate': True,
+        'ignoreerrors': False,
+        'no_color': True,
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
     }
-    
-    ytdlp_browser = os.getenv("YTDLP_BROWSER")
-    ytdlp_profile = os.getenv("YTDLP_BROWSER_PROFILE")
-    if ytdlp_browser:
-        if ytdlp_profile:
-            # Join with the backend directory if it's a relative path like 'firefox_profile'
-            profile_path = os.path.join(os.path.dirname(__file__), ytdlp_profile) if not os.path.isabs(ytdlp_profile) else ytdlp_profile
-            ydl_opts['cookiesfrombrowser'] = (ytdlp_browser, profile_path)
-        else:
-            ydl_opts['cookiesfrombrowser'] = (ytdlp_browser,)
+
+    # Check for dedicated cookies.txt file first (Preferred for VPS)
+    cookies_file = os.path.join(os.path.dirname(__file__), "cookies.txt")
+    if os.path.exists(cookies_file):
+        logger.info(f"Using cookies.txt file for yt-dlp at {cookies_file}")
+        ydl_opts['cookiefile'] = cookies_file
+    else:
+        # Fallback to browser-based cookies if specified in .env
+        ytdlp_browser = os.getenv("YTDLP_BROWSER")
+        ytdlp_profile = os.getenv("YTDLP_BROWSER_PROFILE")
+        if ytdlp_browser:
+            if ytdlp_profile:
+                profile_path = os.path.join(os.path.dirname(__file__), ytdlp_profile) if not os.path.isabs(ytdlp_profile) else ytdlp_profile
+                ydl_opts['cookiesfrombrowser'] = (ytdlp_browser, profile_path)
+            else:
+                ydl_opts['cookiesfrombrowser'] = (ytdlp_browser,)
     
     log_download_event("download_start", video_id, "pending")
     try:
