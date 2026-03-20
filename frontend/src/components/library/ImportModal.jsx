@@ -4,6 +4,7 @@ import { useToast } from '../ToastContext';
 import './ImportModal.css';
 import api from '../../api';
 export default function ImportModal({ isOpen, onClose, files, onImportComplete }) {
+    const { addToast } = useToast();
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isFinalizing, setIsFinalizing] = useState(false);
     const [tracks, setTracks] = useState([]);
