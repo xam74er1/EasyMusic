@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: easymusic-backend
     ports:
-      - "8000:8000"
+      - "8082:8082"
     volumes:
       - ./backend:/app
       - /app/.venv

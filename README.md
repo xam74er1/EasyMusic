@@ -7,7 +7,7 @@ A full-stack application featuring a React/Vite frontend and a FastAPI (Python) 
 You can easily start and stop the application using the provided batch scripts:
 
 1. **Start the application**: Double-click `start.bat` from this folder. It will open two new command prompt windows:
-   - One for the backend API (running on `http://localhost:8000`)
+   - One for the backend API (running on `http://localhost:8082`)
    - One for the frontend UI (running on `http://localhost:5173`)
    
 2. **Stop the application**: Double-click `stop.bat` to gracefully close the command prompt windows opened by the start script.

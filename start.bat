@@ -13,7 +13,7 @@ IF NOT EXIST ".venv" (
 )
 
 echo Starting backend service in a new window...
-start "EasyMusic-Backend" cmd /c "call .venv\Scripts\activate.bat && pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+start "EasyMusic-Backend" cmd /c "call .venv\Scripts\activate.bat && pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8082 --reload"
 
 cd ..
 
@@ -33,7 +33,7 @@ cd ..
 
 echo.
 echo Application components are starting in separate windows.
-echo - Backend will be available at: http://localhost:8000
+echo - Backend will be available at: http://localhost:8082
 echo - Frontend will be available at: http://localhost:5173
 echo.
 echo You can use stop.bat to close these windows later.

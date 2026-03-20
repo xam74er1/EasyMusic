@@ -974,5 +974,6 @@ def play_sound_effect(effect_id: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8082, reload=True)
+    port = int(os.getenv("PORT", 8082))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
 

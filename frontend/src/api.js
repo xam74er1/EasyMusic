@@ -1,5 +1,5 @@
-export const API_BASE = 'http://localhost:8082/api';
-export const API_HOST = 'http://localhost:8082';
+export const API_HOST = import.meta.env.VITE_API_HOST || 'http://localhost:8082';
+export const API_BASE = `${API_HOST}/api`;
 
 export const api = {
     // Media URLs
