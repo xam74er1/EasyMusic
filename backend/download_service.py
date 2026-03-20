@@ -86,6 +86,7 @@ def download_video_sync(video_id: str, url: str, overwrite: bool = False):
     
     # Robustness flags for VPS/DataCenter environments
     ydl_opts = {
+        # Try bestaudio, fall back to best if audio-only isn't available
         'format': 'bestaudio/best',
         'outtmpl': output_tmpl,
         'postprocessors': [{
@@ -98,7 +99,16 @@ def download_video_sync(video_id: str, url: str, overwrite: bool = False):
         'nocheckcertificate': True,
         'ignoreerrors': False,
         'no_color': True,
-        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+        # Use player clients whose stream URLs are pre-signed and need NO JS solving.
+        # 'ios' is the most reliable: YouTube serves it raw, unencrypted URLs directly.
+        # 'android_music' is a strong secondary fallback.
+        # 'tv' / 'mweb' are last resorts.
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['ios', 'android_music', 'tv', 'mweb'],
+            }
+        },
     }
 
     # Check for dedicated cookies.txt file first (Preferred for VPS)
