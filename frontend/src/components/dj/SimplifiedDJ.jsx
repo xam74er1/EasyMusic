@@ -4,7 +4,7 @@ import DJLibrary from './DJLibrary';
 import { Edit2, LayoutGrid, Play, Square, Music, Plus, Trash2, Check, X } from 'lucide-react';
 import './SimplifiedDJ.css';
 
-const API_BASE = 'http://localhost:8000/api';
+import api from '../../api';
 
 const DEFAULT_LAYOUT = [
     {
@@ -107,7 +107,7 @@ export default function SimplifiedDJ({ playlist }) {
             return;
         }
 
-        const audioUrl = `${API_BASE}/play/${trackId}`;
+        const audioUrl = api.getPlayUrl(trackId);
 
         let audio = audioRefs.current[buttonId];
         if (!audio) {

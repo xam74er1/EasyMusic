@@ -12,7 +12,7 @@ import ImportModal from './components/library/ImportModal';
 import Documentation from './components/Documentation';
 import { Bot, LibraryBig, Disc3, FolderTree, Settings2, LayoutGrid, Upload, HelpCircle } from 'lucide-react';
 
-const API_BASE = 'http://localhost:8000/api';
+import api from './api';
 
 function App() {
   const [playlist, setPlaylist] = useState([]);
@@ -25,8 +25,7 @@ function App() {
 
   const fetchPlaylist = async () => {
     try {
-      const profileParam = activeProfile?.id ? `?profile_id=${activeProfile.id}` : '';
-      const res = await fetch(`${API_BASE}/playlist${profileParam}`);
+      const res = await api.getPlaylist(activeProfile?.id);
       if (res.ok) {
         const data = await res.json();
         setPlaylist(data);
@@ -149,10 +148,7 @@ function App() {
                     const formData = new FormData();
                     formData.append('file', file);
                     try {
-                      const res = await fetch(`${API_BASE}/import`, {
-                        method: 'POST',
-                        body: formData,
-                      });
+                      const res = await api.importLegacy(formData);
                       const data = await res.json();
                       addToast(data.message || "Imported successfully!", "success");
                       fetchPlaylist();
@@ -166,7 +162,7 @@ function App() {
                   className="btn btn-secondary"
                   onClick={async () => {
                     try {
-                      const res = await fetch(`${API_BASE}/scan-audio`, { method: 'POST' });
+                      const res = await api.scanAudio();
                       const data = await res.json();
                       addToast(`Scan complete: ${data.matches_found} matches found.`, "success");
                       fetchPlaylist();
@@ -181,7 +177,7 @@ function App() {
                 <button
                   className="btn btn-success"
                   onClick={async () => {
-                    await fetch(`${API_BASE}/download/batch`, { method: 'POST' });
+                    await api.downloadBatch();
                     addToast("Batch download started in the background!", "info");
                   }}
                 >
@@ -226,7 +222,7 @@ function App() {
             onUpdateKeybindings={(newB) => updateProfileConfig(activeProfile.id, { keybindings: newB })}
             onPlaySoundEffect={(id) => {
               if (!window.__activeAudioNodes) window.__activeAudioNodes = new Set();
-              const el = new Audio(`${API_BASE}/sound-effects/play/${id}`);
+              const el = new Audio(api.getSoundEffectPlayUrl(id));
               window.__activeAudioNodes.add(el);
               el.onended = () => window.__activeAudioNodes.delete(el);
               el.onerror = () => window.__activeAudioNodes.delete(el);

@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import SpotlightCard from '../reactbits/SpotlightCard';
 import { useToast } from '../ToastContext';
 import './EditModal.css';
-
-const API_BASE = 'http://localhost:8000/api';
+import api from '../../api';
 
 export default function EditModal({ video, onClose, onSave }) {
     const { addToast } = useToast();
@@ -26,13 +25,7 @@ export default function EditModal({ video, onClose, onSave }) {
         };
 
         try {
-            const res = await fetch(`${API_BASE}/playlist/${video.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(updatedVideo)
-            });
+            const res = await api.updateTrack(video.id, updatedVideo);
 
             if (res.ok) {
                 onSave();

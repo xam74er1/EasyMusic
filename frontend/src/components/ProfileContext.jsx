@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
-const API_BASE = 'http://localhost:8000/api';
+import api from '../api';
 
 const ProfileContext = createContext(null);
 
@@ -17,7 +17,7 @@ export function ProfileProvider({ children }) {
 
     const fetchProfiles = useCallback(async () => {
         try {
-            const res = await fetch(`${API_BASE}/profiles`);
+            const res = await api.getProfiles();
             const data = await res.json();
             setProfiles(data.profiles || []);
             // Set active profile from last_profile_id
@@ -37,7 +37,7 @@ export function ProfileProvider({ children }) {
 
     const switchProfile = useCallback(async (profileId) => {
         try {
-            await fetch(`${API_BASE}/profiles/switch/${profileId}`, { method: 'POST' });
+            await api.switchProfile(profileId);
             const found = profiles.find(p => p.id === profileId);
             if (found) setActiveProfile(found);
         } catch (err) {
@@ -47,15 +47,11 @@ export function ProfileProvider({ children }) {
 
     const createProfile = useCallback(async (name) => {
         try {
-            const res = await fetch(`${API_BASE}/profiles`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, config: {} }),
-            });
+            const res = await api.createProfile({ name, config: {} });
             const created = await res.json();
             setProfiles(prev => [...prev, created]);
             // Auto-switch to new profile
-            await fetch(`${API_BASE}/profiles/switch/${created.id}`, { method: 'POST' });
+            await api.switchProfile(created.id);
             setActiveProfile(created);
             return created;
         } catch (err) {
@@ -69,11 +65,7 @@ export function ProfileProvider({ children }) {
         if (!profile) return;
         try {
             const updated = { ...profile, name: newName };
-            const res = await fetch(`${API_BASE}/profiles/${profileId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updated),
-            });
+            const res = await api.renameProfile(profileId, updated);
             const saved = await res.json();
             setProfiles(prev => prev.map(p => p.id === profileId ? saved : p));
             if (activeProfile?.id === profileId) setActiveProfile(saved);
@@ -87,11 +79,7 @@ export function ProfileProvider({ children }) {
         if (!profile) return;
         try {
             const updated = { ...profile, config: { ...profile.config, ...newConfig } };
-            const res = await fetch(`${API_BASE}/profiles/${profileId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updated),
-            });
+            const res = await api.updateProfileConfig(profileId, updated);
             const saved = await res.json();
             setProfiles(prev => prev.map(p => p.id === profileId ? saved : p));
             if (activeProfile?.id === profileId) setActiveProfile(saved);
@@ -102,15 +90,13 @@ export function ProfileProvider({ children }) {
 
     const deleteProfile = useCallback(async (profileId, deleteSetlists = false) => {
         try {
-            await fetch(`${API_BASE}/profiles/${profileId}?delete_setlists=${deleteSetlists}`, {
-                method: 'DELETE',
-            });
+            await api.deleteProfile(profileId, deleteSetlists);
             setProfiles(prev => prev.filter(p => p.id !== profileId));
             if (activeProfile?.id === profileId) {
                 const defaultP = profiles.find(p => p.id === 'default');
                 setActiveProfile(defaultP || profiles[0] || null);
                 if (defaultP) {
-                    await fetch(`${API_BASE}/profiles/switch/${defaultP.id}`, { method: 'POST' });
+                    await api.switchProfile(defaultP.id);
                 }
             }
         } catch (err) {

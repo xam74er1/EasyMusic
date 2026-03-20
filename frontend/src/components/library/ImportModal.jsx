@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { X, Music, Check, Loader2, Bot, AlertCircle, Trash2, Folder } from 'lucide-react';
 import { useToast } from '../ToastContext';
 import './ImportModal.css';
-
 export default function ImportModal({ isOpen, onClose, files, onImportComplete }) {
+    // We already have the imports above, adding api
     const { addToast } = useToast();
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isFinalizing, setIsFinalizing] = useState(false);
@@ -24,10 +24,7 @@ export default function ImportModal({ isOpen, onClose, files, onImportComplete }
         });
 
         try {
-            const response = await fetch(`http://localhost:8000/api/import/analyze?use_ai=${useAI}`, {
-                method: 'POST',
-                body: formData,
-            });
+            const response = await api.importAnalyze(formData, useAI);
 
             if (!response.ok) throw new Error('Failed to analyze files');
             const data = await response.json();
@@ -54,12 +51,8 @@ export default function ImportModal({ isOpen, onClose, files, onImportComplete }
 
             // Simplified: let's re-run with current filenames
             const filenames = tracks.map(t => t.filename);
-            const response = await fetch(`http://localhost:8000/api/chat`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: `Analyze these filenames and tell me the Title and Author for each: ${filenames.join(', ')}`
-                })
+            const response = await api.chat({
+                message: `Analyze these filenames and tell me the Title and Author for each: ${filenames.join(', ')}`
             });
 
             const data = await response.json();
@@ -74,11 +67,7 @@ export default function ImportModal({ isOpen, onClose, files, onImportComplete }
     const handleConfirm = async () => {
         setIsFinalizing(true);
         try {
-            const response = await fetch('http://localhost:8000/api/import/confirm', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ tracks }),
-            });
+            const response = await api.importConfirm({ tracks });
 
             if (!response.ok) throw new Error('Failed to import tracks');
             const data = await response.json();

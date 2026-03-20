@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { Plus, Trash2, ChevronUp, ChevronDown, X, ListMusic, Play, GripVertical, FolderPlus, CheckCircle2 } from 'lucide-react';
 import './SetlistPanel.css';
 
-const API_BASE = 'http://localhost:8000/api';
+import api from '../../api';
 
 export default function SetlistPanel({
     setlists,
@@ -187,8 +187,8 @@ export default function SetlistPanel({
                 </div>
                 {isCurrent && <CheckCircle2 size={12} className="sl-playing-icon" />}
                 <div className="sl-deck-btns">
-                    <button className="load-to-deck deck-a-btn" onClick={() => onLoadToDeck('a', track, `${API_BASE}/play/${track.id}`)}>→ A</button>
-                    <button className="load-to-deck deck-b-btn" onClick={() => onLoadToDeck('b', track, `${API_BASE}/play/${track.id}`)}>→ B</button>
+                    <button className="load-to-deck deck-a-btn" onClick={() => onLoadToDeck('a', track, api.getPlayUrl(track.id))}>→ A</button>
+                    <button className="load-to-deck deck-b-btn" onClick={() => onLoadToDeck('b', track, api.getPlayUrl(track.id))}>→ B</button>
                 </div>
                 <div className="sl-actions">
                     <button disabled={idx === 0} onClick={() => moveTrack(idx, -1, section)} title="Move Up"><ChevronUp size={12} /></button>

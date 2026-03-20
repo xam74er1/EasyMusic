@@ -4,7 +4,7 @@ import VisualKeyboard from './VisualKeyboard';
 import { useToast } from '../ToastContext';
 import './SoundEffectsPanel.css';
 
-const API_BASE = 'http://localhost:8000/api';
+import api, { API_BASE } from '../../api';
 
 export default function SoundEffectsPanel({
     keybindings = {},
@@ -85,7 +85,7 @@ export default function SoundEffectsPanel({
 
     const fetchEffects = async () => {
         try {
-            const res = await fetch(`${API_BASE}/sound-effects`);
+            const res = await api.getSoundEffects();
             const data = await res.json();
             setEffects(data || []);
         } catch (err) {
@@ -99,8 +99,7 @@ export default function SoundEffectsPanel({
 
         setIsSearching(true);
         try {
-            const endpoint = searchSource === 'youtube' ? `${API_BASE}/sound-effects/search/youtube` : `${API_BASE}/sound-effects/search`;
-            const res = await fetch(`${endpoint}?q=${encodeURIComponent(searchQuery)}`);
+            const res = await api.searchSoundEffects(searchQuery, searchSource);
             if (res.ok) {
                 const data = await res.json();
                 setSearchResults(data.hits || []);
@@ -129,7 +128,7 @@ export default function SoundEffectsPanel({
             try {
                 let finalUrl = hit.audio || hit.preview;
                 if (!finalUrl && searchSource === 'youtube') {
-                    const res = await fetch(`${API_BASE}/sound-effects/preview/youtube?video_id=${hit.id}`);
+                    const res = await api.previewYoutubeSfx(hit.id);
                     if (res.ok) {
                         const data = await res.json();
                         finalUrl = data.url;
@@ -167,15 +166,11 @@ export default function SoundEffectsPanel({
             let res;
             if (searchSource === 'youtube') {
                 const downloadName = hit.description || `YouTube-${hit.id}`;
-                res = await fetch(`${API_BASE}/sound-effects/download/youtube?video_id=${encodeURIComponent(hit.id)}&name=${encodeURIComponent(downloadName)}`, {
-                    method: 'POST'
-                });
+                res = await api.downloadYoutubeSfx(hit.id, downloadName);
             } else {
                 const bestAudioUrl = hit.audio || hit.preview;
                 const downloadName = hit.tags ? hit.tags.split(',')[0].trim() : `Pixabay-${hit.id}`;
-                res = await fetch(`${API_BASE}/sound-effects/download?url=${encodeURIComponent(bestAudioUrl)}&name=${encodeURIComponent(downloadName)}`, {
-                    method: 'POST'
-                });
+                res = await api.downloadUrlSfx(bestAudioUrl, downloadName);
             }
 
             if (res.ok) {
@@ -197,9 +192,7 @@ export default function SoundEffectsPanel({
         if (!url) return;
         setDownloading(true);
         try {
-            const res = await fetch(`${API_BASE}/sound-effects/download?url=${encodeURIComponent(url)}`, {
-                method: 'POST'
-            });
+            const res = await api.downloadUrlSfx(url);
             if (res.ok) {
                 setUrl('');
                 fetchEffects();
@@ -217,7 +210,7 @@ export default function SoundEffectsPanel({
     const handleDelete = async (id) => {
         if (!window.confirm('Delete this sound effect?')) return;
         try {
-            await fetch(`${API_BASE}/sound-effects/${id}`, { method: 'DELETE' });
+            await api.deleteSoundEffect(id);
 
             const newBindings = { ...keybindings };
             let updated = false;
@@ -245,11 +238,7 @@ export default function SoundEffectsPanel({
     const saveEdit = async () => {
         if (!editingEffect) return;
         try {
-            await fetch(`${API_BASE}/sound-effects/${editingEffect.id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: editName, category: editCategory })
-            });
+            await api.updateSoundEffect(editingEffect.id, { name: editName, category: editCategory });
             fetchEffects();
         } catch (err) {
             console.error('Edit error:', err);
@@ -268,11 +257,7 @@ export default function SoundEffectsPanel({
         setIsAiLoading(true);
 
         try {
-            const res = await fetch(`${API_BASE}/chat`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userMsg.content, session_id: 'sfx_assistant' })
-            });
+            const res = await api.chat({ message: userMsg.content, session_id: 'sfx_assistant' });
             const data = await res.json();
 
             setChatMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);

@@ -5,7 +5,7 @@ import SetlistPanel from './SetlistPanel';
 import { useProfile } from '../ProfileContext';
 import './VirtualDJ.css';
 
-const API_BASE = 'http://localhost:8000/api';
+import api from '../../api';
 
 const DEFAULT_DECK = {
     track: null,
@@ -46,7 +46,7 @@ export default function VirtualDJ({ playlist }) {
 
     const playSoundEffect = useCallback((id) => {
         if (!window.__activeAudioNodes) window.__activeAudioNodes = new Set();
-        const el = new Audio(`${API_BASE}/sound-effects/play/${id}`);
+        const el = new Audio(api.getSoundEffectPlayUrl(id));
         window.__activeAudioNodes.add(el);
 
         el.onended = () => window.__activeAudioNodes.delete(el);
@@ -97,17 +97,12 @@ export default function VirtualDJ({ playlist }) {
 
     const fetchSetlists = async () => {
         try {
-            const profileParam = activeProfile?.id ? `?profile_id=${activeProfile.id}` : '';
-            const res = await fetch(`${API_BASE}/setlists${profileParam}`);
+            const res = await api.getSetlists(activeProfile?.id);
             const data = await res.json();
             setSetlists(data);
             // Create default setlist if none exists
             if (data.length === 0) {
-                const defaultRes = await fetch(`${API_BASE}/setlists`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: 'Default', tracks: [], sublists: [] }),
-                });
+                const defaultRes = await api.createSetlist({ name: 'Default', tracks: [], sublists: [] });
                 const created = await defaultRes.json();
                 setSetlists([created]);
                 setActiveSetlistId(created.id);
@@ -121,11 +116,7 @@ export default function VirtualDJ({ playlist }) {
 
     const createSetlist = async (name) => {
         try {
-            const res = await fetch(`${API_BASE}/setlists`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, profile_id: activeProfile?.id || 'default', tracks: [], sublists: [] }),
-            });
+            const res = await api.createSetlist({ name, profile_id: activeProfile?.id || 'default', tracks: [], sublists: [] });
             const created = await res.json();
             setSetlists(prev => [...prev, created]);
             setActiveSetlistId(created.id);
@@ -137,11 +128,7 @@ export default function VirtualDJ({ playlist }) {
 
     const updateSetlist = async (updated) => {
         try {
-            const res = await fetch(`${API_BASE}/setlists/${updated.id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updated),
-            });
+            const res = await api.updateSetlist(updated.id, updated);
             const saved = await res.json();
             setSetlists(prev => prev.map(s => s.id === saved.id ? saved : s));
         } catch (err) {
@@ -152,7 +139,7 @@ export default function VirtualDJ({ playlist }) {
     const deleteSetlist = async (id) => {
         if (!confirm('Delete this setlist?')) return;
         try {
-            await fetch(`${API_BASE}/setlists/${id}`, { method: 'DELETE' });
+            await api.deleteSetlist(id);
             setSetlists(prev => prev.filter(s => s.id !== id));
             if (activeSetlistId === id) setActiveSetlistId(setlists.find(s => s.id !== id)?.id || null);
         } catch (err) {
@@ -300,7 +287,7 @@ export default function VirtualDJ({ playlist }) {
         const nextTrack = djPlaylist.find(t => t.id === nextId);
         if (!nextTrack) return;
 
-        const url = `${API_BASE}/play/${nextTrack.id}`;
+        const url = api.getPlayUrl(nextTrack.id);
         // Load and auto-play next track
         loadToDeck(activeDeckSide, nextTrack, url, true);
     }, [deckA.isPlaying, deckB.isPlaying, autoPlay, activeSetlistId, activeDeckSide]);
@@ -323,7 +310,7 @@ export default function VirtualDJ({ playlist }) {
         el.load(); // resets the element
 
         // Always use downloaded file endpoint
-        const playUrl = url || `${API_BASE}/play/${track.id}`;
+        const playUrl = url || api.getPlayUrl(track.id);
         el.src = playUrl;
         el.preload = 'auto';
         el.load();
@@ -506,7 +493,7 @@ export default function VirtualDJ({ playlist }) {
     const dropToDeck = (side, trackId) => {
         const track = djPlaylist.find(t => t.id === trackId);
         if (!track) return;
-        loadToDeck(side, track, `${API_BASE}/play/${track.id}`);
+        loadToDeck(side, track, api.getPlayUrl(track.id));
     };
 
     return (

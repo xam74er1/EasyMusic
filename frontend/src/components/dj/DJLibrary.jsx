@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Folder, FolderOpen, List, Search, ChevronRight, Plus } from 'lucide-react';
 
-const API_BASE = 'http://localhost:8000/api';
+import api from '../../api';
 
 function buildCategoryTree(tracks) {
     const root = {};
@@ -88,7 +88,7 @@ export default function DJLibrary({ playlist, onLoadToDeck, showAddToSetlist = f
     const sortIcon = (col) => sortCol !== col ? ' ↕' : sortDir === 'asc' ? ' ↑' : ' ↓';
 
     // Always use /api/play/ since we only show downloaded tracks
-    const getPlayUrl = (t) => `${API_BASE}/play/${t.id}`;
+    const getPlayUrl = (t) => api.getPlayUrl(t.id);
 
     const handleDragStart = (e, trackId) => {
         e.dataTransfer.setData('text/track-id', trackId);

@@ -8,7 +8,7 @@ import { useToast } from '../ToastContext';
 import { useLibrary } from '../LibraryContext';
 import './Playlist.css';
 
-const API_BASE = 'http://localhost:8000/api';
+import api from '../../api';
 
 export default function Playlist({ playlist, onUpdate }) {
     const [filterCat, setFilterCat] = useState('All');
@@ -67,7 +67,7 @@ export default function Playlist({ playlist, onUpdate }) {
     const handleDelete = async (id) => {
         if (!confirm("Are you sure you want to delete this track?")) return;
         try {
-            await fetch(`${API_BASE}/playlist/${id}`, { method: 'DELETE' });
+            await api.deleteTrack(id);
             onUpdate();
         } catch (err) {
             console.error(err);
@@ -77,7 +77,7 @@ export default function Playlist({ playlist, onUpdate }) {
     const handleDownload = async (id, overwrite = false) => {
         setTrackDownloading(id, true);
         try {
-            const res = await fetch(`${API_BASE}/download/${id}?overwrite=${overwrite}`, { method: 'POST' });
+            const res = await api.downloadTrack(id, overwrite);
 
             if (res.status === 409) {
                 setTrackDownloading(id, false);
@@ -96,7 +96,7 @@ export default function Playlist({ playlist, onUpdate }) {
             const poll = setInterval(async () => {
                 attempts++;
                 try {
-                    const checkRes = await fetch(`${API_BASE}/playlist/${id}`);
+                    const checkRes = await api.getTrack(id);
                     if (checkRes.ok) {
                         const data = await checkRes.json();
                         if (data.is_downloaded) {
@@ -130,7 +130,7 @@ export default function Playlist({ playlist, onUpdate }) {
 
     const handleSync = async (id) => {
         try {
-            const res = await fetch(`${API_BASE}/playlist/${id}/sync`, { method: 'POST' });
+            const res = await api.syncTrack(id);
             if (res.ok) {
                 addToast("YouTube Sync complete!", "success");
                 onUpdate();
@@ -144,7 +144,7 @@ export default function Playlist({ playlist, onUpdate }) {
 
     const handleBatchDownload = async () => {
         try {
-            const res = await fetch(`${API_BASE}/download/batch`, { method: 'POST' });
+            const res = await api.downloadBatch();
             if (res.ok) {
                 addToast("Batch download for missing tracks started in background!", "success");
                 // The polling will naturally update individual tracks eventually if implemented, 
@@ -295,8 +295,8 @@ export default function Playlist({ playlist, onUpdate }) {
 
 function TrackCard({ track, onEdit, onDelete, onDownload, onSync, onExpand, isDownloading }) {
     const playUrl = track.is_downloaded
-        ? `${API_BASE}/play/${track.id}`
-        : (track.youtube_url ? `${API_BASE}/stream/${track.id}` : null);
+        ? api.getPlayUrl(track.id)
+        : (track.youtube_url ? api.getStreamUrl(track.id) : null);
 
     return (
         <div className="track-card">
@@ -410,8 +410,8 @@ function InlineEditable({ value, onSave, className, type = "text", options = [] 
 
 function TrackRow({ track, onEdit, onDelete, onDownload, onSync, onExpand, isDownloading }) {
     const playUrl = track.is_downloaded
-        ? `${API_BASE}/play/${track.id}`
-        : (track.youtube_url ? `${API_BASE}/stream/${track.id}` : null);
+        ? api.getPlayUrl(track.id)
+        : (track.youtube_url ? api.getStreamUrl(track.id) : null);
 
     return (
         <div className="track-row">
@@ -456,8 +456,8 @@ function TrackRow({ track, onEdit, onDelete, onDownload, onSync, onExpand, isDow
 
 function FullscreenCard({ track, onClose, onEdit, onDelete, onDownload, onSync, onUpdate }) {
     const playUrl = track.is_downloaded
-        ? `${API_BASE}/play/${track.id}`
-        : (track.youtube_url ? `${API_BASE}/stream/${track.id}` : null);
+        ? api.getPlayUrl(track.id)
+        : (track.youtube_url ? api.getStreamUrl(track.id) : null);
 
     const handleInlineSave = async (field, newVal) => {
         try {
@@ -467,11 +467,7 @@ function FullscreenCard({ track, onClose, onEdit, onDelete, onDownload, onSync, 
                 updated.tags = newVal.split(',').map(t => t.trim()).filter(t => t);
             }
 
-            await fetch(`${API_BASE}/playlist/${track.id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updated)
-            });
+            await api.updateTrack(track.id, updated);
             onUpdate();
         } catch (err) {
             console.error("Failed to save inline edit", err);

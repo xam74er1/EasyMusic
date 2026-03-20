@@ -5,6 +5,7 @@ import { Folder, Music, Edit2, GripVertical, Search, X, ChevronRight, FolderOpen
 import './LibraryManager.css';
 import ZipDownloadModal from './ZipDownloadModal';
 import ImportModal from './ImportModal';
+import api from '../../api';
 
 // Build a nested tree from track categories
 function buildCategoryTree(tracks) {
@@ -202,14 +203,10 @@ export default function LibraryManager() {
         // In a real app we might pass the active profile ID. We will leave it empty as backend supports it.
         const profileId = '';
 
-        let url = `/api/download/zip?flat=${flatStructure}`;
-        if (profileId) url += `&profile_id=${encodeURIComponent(profileId)}`;
-        if (folderId) url += `&folder_id=${encodeURIComponent(folderId)}`;
-
         // Trigger file download
         const a = document.createElement('a');
         a.style.display = 'none';
-        a.href = `http://localhost:8000${url}`;
+        a.href = api.getZipDownloadUrl(flatStructure, profileId, folderId);
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -225,7 +222,7 @@ export default function LibraryManager() {
         // Trigger file download
         const a = document.createElement('a');
         a.style.display = 'none';
-        a.href = `http://localhost:8000/api/download/file/${track.id}`;
+        a.href = api.getDownloadFileUrl(track.id);
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

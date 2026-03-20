@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import PreviewChangesModal from './PreviewChangesModal';
 import './Chatbot.css';
 
-const API_BASE = 'http://localhost:8000/api';
+import api from '../api';
 
 export default function Chatbot({ onUpdate }) {
     const [messages, setMessages] = useState([
@@ -33,13 +33,7 @@ export default function Chatbot({ onUpdate }) {
         setIsLoading(true);
 
         try {
-            const res = await fetch(`${API_BASE}/chat`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message: userMessage })
-            });
+            const res = await api.chat({ message: userMessage });
 
             const data = await res.json();
 
@@ -65,11 +59,7 @@ export default function Chatbot({ onUpdate }) {
     const confirmPlan = async () => {
         setIsProcessingPlan(true);
         try {
-            const res = await fetch(`${API_BASE}/library/reorganize`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ plan: pendingPlan })
-            });
+            const res = await api.libraryReorganize({ plan: pendingPlan });
             if (res.ok) {
                 setPendingPlan(null);
                 setLastUndoAvailable(true);
@@ -85,7 +75,7 @@ export default function Chatbot({ onUpdate }) {
 
     const undoPlan = async () => {
         try {
-            const res = await fetch(`${API_BASE}/library/undo`, { method: 'POST' });
+            const res = await api.libraryUndo();
             if (res.ok) {
                 setLastUndoAvailable(false);
                 setMessages(prev => [...prev, { role: 'bot', text: 'Successfully reversed the last reorganization.' }]);

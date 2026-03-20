@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { useProfile } from './ProfileContext';
 
 const LibraryContext = createContext();
-const API_BASE = 'http://localhost:8000/api';
+import api from '../api';
 
 export function LibraryProvider({ children }) {
     const { activeProfile } = useProfile();
@@ -15,9 +15,9 @@ export function LibraryProvider({ children }) {
         try {
             const profileParam = `?profile_id=${activeProfile.id}`;
             const [foldersRes, setlistsRes, tracksRes] = await Promise.all([
-                fetch(`${API_BASE}/folders${profileParam}`),
-                fetch(`${API_BASE}/setlists${profileParam}`),
-                fetch(`${API_BASE}/playlist${profileParam}`)
+                api.getFolders(activeProfile.id),
+                api.getSetlists(activeProfile.id),
+                api.getPlaylist(activeProfile.id)
             ]);
 
             if (foldersRes.ok) setFolders(await foldersRes.json());
@@ -34,11 +34,7 @@ export function LibraryProvider({ children }) {
 
     // Actions
     const createFolder = async (name, parentId = null) => {
-        const res = await fetch(`${API_BASE}/folders`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, parent_id: parentId, profile_id: activeProfile.id })
-        });
+        const res = await api.createFolder({ name, parent_id: parentId, profile_id: activeProfile.id });
         if (res.ok) fetchLibraryData();
     };
 
@@ -49,16 +45,12 @@ export function LibraryProvider({ children }) {
         // Optimistic
         setFolders(prev => prev.map(f => f.id === id ? { ...f, ...updates } : f));
 
-        const res = await fetch(`${API_BASE}/folders/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...folder, ...updates })
-        });
+        const res = await api.updateFolder(id, { ...folder, ...updates });
         if (!res.ok) fetchLibraryData();
     };
 
     const deleteFolder = async (id, action = 'archive') => {
-        const res = await fetch(`${API_BASE}/folders/${id}?action=${action}`, { method: 'DELETE' });
+        const res = await api.deleteFolder(id, action);
         if (res.ok) fetchLibraryData();
     };
 
@@ -69,20 +61,12 @@ export function LibraryProvider({ children }) {
         // Optimistic update
         setSetlists(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
 
-        const res = await fetch(`${API_BASE}/setlists/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...setlist, ...updates })
-        });
+        const res = await api.updateSetlist(id, { ...setlist, ...updates });
         if (!res.ok) fetchLibraryData();
     };
 
     const createSetlist = async (name, folderId = null) => {
-        const res = await fetch(`${API_BASE}/setlists`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, folder_id: folderId, profile_id: activeProfile.id })
-        });
+        const res = await api.createSetlist({ name, folder_id: folderId, profile_id: activeProfile.id });
         if (res.ok) fetchLibraryData();
     };
 
@@ -90,9 +74,7 @@ export function LibraryProvider({ children }) {
         // Optimistic
         setTracks(prev => prev.map(t => t.id === trackId ? { ...t, category: newCategory } : t));
 
-        const res = await fetch(`${API_BASE}/playlist/${trackId}/category?category=${encodeURIComponent(newCategory)}`, {
-            method: 'PUT'
-        });
+        const res = await api.updateTrackCategory(trackId, newCategory);
         if (!res.ok) fetchLibraryData();
     };
 
@@ -106,11 +88,7 @@ export function LibraryProvider({ children }) {
             return t;
         }));
 
-        const res = await fetch(`${API_BASE}/playlist/category`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ old_category: oldCategory, new_category: newCategory })
-        });
+        const res = await api.renameCategory({ old_category: oldCategory, new_category: newCategory });
         if (!res.ok) fetchLibraryData();
     };
 
