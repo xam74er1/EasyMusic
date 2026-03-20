@@ -1,4 +1,5 @@
-export const API_HOST = import.meta.env.VITE_API_HOST || 'http://localhost:8082';
+// Automatically detect the server's IP address based on the browser's URL
+export const API_HOST = import.meta.env.VITE_API_HOST || `${window.location.protocol}//${window.location.hostname}:8082`;
 export const API_BASE = `${API_HOST}/api`;
 
 export const api = {
