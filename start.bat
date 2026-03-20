@@ -1,0 +1,40 @@
+@echo off
+echo Starting EasyMusic Application...
+
+echo.
+echo =====================
+echo Starting Backend API
+echo =====================
+cd backend
+
+IF NOT EXIST ".venv" (
+    echo Creating virtual environment...
+    python -m venv .venv
+)
+
+echo Starting backend service in a new window...
+start "EasyMusic-Backend" cmd /c "call .venv\Scripts\activate.bat && pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+
+cd ..
+
+echo.
+echo =====================
+echo Starting Frontend
+echo =====================
+cd frontend
+
+echo Installing frontend dependencies if needed...
+call npm install
+
+echo Starting frontend service in a new window...
+start "EasyMusic-Frontend" cmd /c "npm run dev"
+
+cd ..
+
+echo.
+echo Application components are starting in separate windows.
+echo - Backend will be available at: http://localhost:8000
+echo - Frontend will be available at: http://localhost:5173
+echo.
+echo You can use stop.bat to close these windows later.
+pause

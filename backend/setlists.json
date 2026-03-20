@@ -1,0 +1,25 @@
+{
+    "setlists": [
+        {
+            "id": "6e428da5-4ac9-414b-8ce3-e35a5e16de68",
+            "name": "default",
+            "profile_id": "default",
+            "folder_id": null,
+            "tracks": [
+                "768f1840-0a79-4ae5-bce0-3d64f2685d3b",
+                "c2955663-a2c4-437b-bd74-a46f46370819",
+                "8393a6a0-486a-48fe-a2be-9921ca8ae993",
+                "75c3a8dd-283d-452e-b9fd-7cd549ab03b5"
+            ],
+            "sublists": []
+        },
+        {
+            "id": "2178dff7-724f-4442-9255-bc1d0e79d74c",
+            "name": "test",
+            "profile_id": "master",
+            "folder_id": null,
+            "tracks": [],
+            "sublists": []
+        }
+    ]
+}

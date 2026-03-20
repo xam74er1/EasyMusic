@@ -1,0 +1,125 @@
+/* ── Audio Output Picker ──────────────────────────────────────── */
+.aop-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.aop-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted, #888);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.18s ease;
+    flex-shrink: 0;
+}
+
+.aop-btn:hover,
+.aop-btn.open {
+    background: rgba(157, 78, 221, 0.15);
+    border-color: rgba(157, 78, 221, 0.4);
+    color: #9D4EDD;
+    box-shadow: 0 0 10px rgba(157, 78, 221, 0.25);
+}
+
+.aop-btn.active-device {
+    color: #00F5D4;
+    border-color: rgba(0, 245, 212, 0.3);
+    background: rgba(0, 245, 212, 0.07);
+}
+
+/* Dropdown */
+.aop-dropdown {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(18, 18, 28, 0.97);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(20px);
+    min-width: 200px;
+    max-width: 280px;
+    z-index: 9999;
+    overflow: hidden;
+    animation: aopFadeIn 0.15s ease;
+}
+
+@keyframes aopFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.aop-dropdown-header {
+    padding: 8px 14px 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted, #888);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.aop-device-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 14px;
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.12s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.aop-device-item:hover {
+    background: rgba(157, 78, 221, 0.12);
+    color: white;
+}
+
+.aop-device-item.selected {
+    color: #00F5D4;
+    background: rgba(0, 245, 212, 0.07);
+}
+
+.aop-device-item .aop-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+}
+
+.aop-device-item.selected .aop-dot {
+    background: #00F5D4;
+    border-color: #00F5D4;
+    box-shadow: 0 0 6px #00F5D4;
+}
+
+.aop-no-devices {
+    padding: 10px 14px;
+    font-size: 0.75rem;
+    color: var(--text-muted, #888);
+    text-align: center;
+}

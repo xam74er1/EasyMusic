@@ -1,0 +1,2919 @@
+[
+    {
+        "id": "f2d85c23-038d-4247-a713-2d61d23dbda9",
+        "title": "Fanfare d'Ouverture C\u00e9r\u00e9moniale",
+        "author": "Compositeur Inconnu",
+        "youtube_url": "",
+        "category": "Ambiance/C\u00e9r\u00e9moniale",
+        "speed": "Medium",
+        "tags": [
+            "Majestueux",
+            "Solennel",
+            "Triomphal",
+            "\u00c9pique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\C\u00e9r\u00e9moniale\\Fanfare d'Ouverture C\u00e9r\u00e9moniale - Compositeur Inconnu - Majestueux, Solennel, Triomphal, \u00c9pique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "341e52eb-d33b-41c8-bf67-bc157c7c8329",
+        "title": "God Save the Queen",
+        "author": "Traditional",
+        "youtube_url": "",
+        "category": "Ambiance/C\u00e9r\u00e9moniale",
+        "speed": "Medium",
+        "tags": [
+            "Hymne",
+            "National",
+            "C\u00e9r\u00e9monial",
+            "Officiel",
+            "Majestueux"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\C\u00e9r\u00e9moniale\\God Save the Queen - Traditional - Hymne, National, C\u00e9r\u00e9monial, Officiel, Majestueux.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "b2afa32a-abcc-41ea-aed4-298e0414e806",
+        "title": "Hymne am\u00e9ricain",
+        "author": "Traditionnel",
+        "youtube_url": "",
+        "category": "Ambiance/C\u00e9r\u00e9moniale",
+        "speed": "Medium",
+        "tags": [
+            "Patriotique",
+            "Solennel",
+            "Grand",
+            "C\u00e9r\u00e9monial"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\C\u00e9r\u00e9moniale\\Hymne am\u00e9ricain - Traditionnel - Patriotique, Solennel, Grand, C\u00e9r\u00e9monial.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "84ea7e59-a3ef-4241-b022-77f970e9f392",
+        "title": "Hymne russe",
+        "author": "Alexander Alexandrov",
+        "youtube_url": "",
+        "category": "Ambiance/C\u00e9r\u00e9moniale",
+        "speed": "Medium",
+        "tags": [
+            "C\u00e9r\u00e9monial",
+            "S\u00e9rieux",
+            "Patriotique",
+            "Majestueux",
+            "Solennel"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\C\u00e9r\u00e9moniale\\Hymne russe - Alexander Alexandrov - C\u00e9r\u00e9monial, S\u00e9rieux, Patriotique, Majestueux, Solennel.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "24251bf4-8a5b-44a8-8589-a789b76c15fc",
+        "title": "La Marseillaise",
+        "author": "Claude Joseph Rouget de Lisle",
+        "youtube_url": "",
+        "category": "Ambiance/C\u00e9r\u00e9moniale",
+        "speed": "Medium",
+        "tags": [
+            "Patriotique",
+            "Historique",
+            "\u00c9pique",
+            "C\u00e9l\u00e9bration",
+            "National"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\C\u00e9r\u00e9moniale\\La Marseillaise - Claude Joseph Rouget de Lisle - Patriotique, Historique, \u00c9pique, C\u00e9l\u00e9bration, National.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "c230ce39-b6dc-4ed4-909f-62abcd637d59",
+        "title": "Sonnerie aux morts",
+        "author": "Traditionnel",
+        "youtube_url": "",
+        "category": "Ambiance/C\u00e9r\u00e9moniale/Fun\u00e8bre",
+        "speed": "Medium",
+        "tags": [
+            "Fun\u00e8bre",
+            "C\u00e9r\u00e9monial",
+            "Militaire",
+            "Solennel",
+            "Triste"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\C\u00e9r\u00e9moniale\\Fun\u00e8bre\\Sonnerie aux morts - Traditionnel - Fun\u00e8bre, C\u00e9r\u00e9monial, Militaire, Solennel, Triste.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "228b0af5-5f50-4f53-a341-6354b2826e6d",
+        "title": "Africa",
+        "author": "Toto",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate",
+        "speed": "Medium",
+        "tags": [
+            "Classique",
+            "Iconique",
+            "Dansant",
+            "Ambiance",
+            "\u00c9nergique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\Africa - Toto - Classique, Iconique, Dansant, Ambiance, \u00c9nergique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "b6a9a7db-3f91-4487-a2b9-cc206fd06329",
+        "title": "Born This Way",
+        "author": "Lady Gaga",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate",
+        "speed": "Medium",
+        "tags": [
+            "Pop",
+            "Empouvoirement",
+            "Fiert\u00e9",
+            "Inclusif",
+            "C\u00e9l\u00e9bration"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\Born This Way - Lady Gaga - Pop, Empouvoirement, Fiert\u00e9, Inclusif, C\u00e9l\u00e9bration.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "628be0e6-7490-4ac0-bcd1-b06e652d22dc",
+        "title": "La Cucaracha",
+        "author": "Artiste traditionnel mexicain",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate",
+        "speed": "Medium",
+        "tags": [
+            "mexicain",
+            "populaire",
+            "traditionnel",
+            "f\u00eate",
+            "entra\u00eenant"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\La Cucaracha - Artiste traditionnel mexicain - mexicain, populaire, traditionnel, f\u00eate, entra\u00eenant.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "f08d7c12-1f63-42b1-90c1-345cb63764ef",
+        "title": "Marcia Ba\u00efla",
+        "author": "Les Rita Mitsouko",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate",
+        "speed": "Medium",
+        "tags": [
+            "Dansant",
+            "Excentrique",
+            "Latino",
+            "Festif"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\Marcia Ba\u00efla - Les Rita Mitsouko - Dansant, Excentrique, Latino, Festif.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "56a10d20-c2c2-482d-a9df-d11850a25498",
+        "title": "Rasputin",
+        "author": "Boney M.",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate",
+        "speed": "Medium",
+        "tags": [
+            "Disco",
+            "\u00c9nergique",
+            "Histoire",
+            "Myst\u00e9rieux",
+            "Th\u00e9\u00e2tral"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\Rasputin - Boney M. - Disco, \u00c9nergique, Histoire, Myst\u00e9rieux, Th\u00e9\u00e2tral.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "213815a5-782d-4189-b8ff-d0344324a1c6",
+        "title": "Scatman (Ski-Ba-Bop-Ba-Dop-Bop)",
+        "author": "Scatman John",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate",
+        "speed": "Medium",
+        "tags": [
+            "Scat",
+            "Danse",
+            "Eurodance",
+            "Optimiste",
+            "\u00c9nergique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\Scatman (Ski-Ba-Bop-Ba-Dop-Bop) - Scatman John - Scat, Danse, Eurodance, Optimiste, \u00c9nergique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "31dd87eb-ed8a-4941-bcde-f676ab15f0f5",
+        "title": "Thunder",
+        "author": "AC-DC",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate",
+        "speed": "Medium",
+        "tags": [
+            "Entra\u00eenant",
+            "Positif",
+            "Pop",
+            "Accrocheur",
+            "Rythmique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\Thunder - AC-DC - Entra\u00eenant, Positif, Pop, Accrocheur, Rythmique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "1dde6382-27df-47e0-a550-6802c9c51593",
+        "title": "We Will Rock You",
+        "author": "Queen",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate",
+        "speed": "Medium",
+        "tags": [
+            "Stade",
+            "Puissant",
+            "Rythmique",
+            "Iconique",
+            "Enthousiasmant"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\We Will Rock You - Queen - Stade, Puissant, Rythmique, Iconique, Enthousiasmant.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "54d4cd0e-ca7b-4744-afc8-63c79e924e3d",
+        "title": "Dans les yeux d'\u00c9milie",
+        "author": "bandas",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate/Bandas",
+        "speed": "Medium",
+        "tags": [
+            "Joe Dassin - Populaire",
+            "Bandas",
+            "Sud",
+            "Soleil",
+            "Festif"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\Bandas\\Dans les yeux d'\u00c9milie - bandas - Joe Dassin - Populaire, Bandas, Sud, Soleil, Festif.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "1fa62674-aa7d-4113-84d4-85e2097b3a22",
+        "title": "FANFARE",
+        "author": "FREED FROM DESIRE",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate/Bandas",
+        "speed": "Medium",
+        "tags": [
+            "Gala - \u00c9nergique",
+            "Festif",
+            "Rythm\u00e9",
+            "C\u00e9l\u00e9bration",
+            "Ouverture"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\Bandas\\FANFARE - FREED FROM DESIRE - Gala - \u00c9nergique, Festif, Rythm\u00e9, C\u00e9l\u00e9bration, Ouverture.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "4ced80df-1fd9-428c-852b-1f8bc9fb87a3",
+        "title": "Sous le soleil de Bodega",
+        "author": "Les Flagrants D\u00e9lires",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate/Dance",
+        "speed": "Medium",
+        "tags": [
+            "Festif",
+            "Espagnol",
+            "\u00c9t\u00e9",
+            "Danse",
+            "Exotique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\Dance\\Sous le soleil de Bodega - Les Flagrants D\u00e9lires - Festif, Espagnol, \u00c9t\u00e9, Danse, Exotique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "dadbc7d0-ebda-4886-97ea-b405ac7f3a34",
+        "title": "Uptown Funk",
+        "author": "Mark Ronson ft. Bruno Mars",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate/Dance",
+        "speed": "Medium",
+        "tags": [
+            "Groove",
+            "Funk",
+            "Dansant",
+            "R\u00e9tro",
+            "Joyeux"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\Dance\\Uptown Funk - Mark Ronson ft. Bruno Mars - Groove, Funk, Dansant, R\u00e9tro, Joyeux.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "9a86c91d-8ad6-41be-beeb-ed0cc4bf990e",
+        "title": "What Is Love",
+        "author": "Haddaway",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate/Dance",
+        "speed": "Medium",
+        "tags": [
+            "Amour",
+            "Ann\u00e9es 90",
+            "Dance",
+            "\u00c9nergique",
+            "Optimiste"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\Dance\\What Is Love - Haddaway - Amour, Ann\u00e9es 90, Dance, \u00c9nergique, Optimiste.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "d4513d7b-f444-4f35-a8ab-9c6fb62f94ac",
+        "title": "All I Want for Christmas Is You",
+        "author": "Mariah Carey",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate/No\u00ebl",
+        "speed": "Medium",
+        "tags": [
+            "No\u00ebl",
+            "Joyeux",
+            "Festif",
+            "Pop"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\No\u00ebl\\All I Want for Christmas Is You - Mariah Carey - No\u00ebl, Joyeux, Festif, Pop.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "ce21a4b9-fdfe-47d8-ac09-446f0197c90e",
+        "title": "Douce Nuit, Sainte Nuit",
+        "author": "Traditionnel",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate/No\u00ebl",
+        "speed": "Medium",
+        "tags": [
+            "Traditionnel",
+            "Paix",
+            "Calme",
+            "Hiver",
+            "Solennel"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\No\u00ebl\\Douce Nuit, Sainte Nuit - Traditionnel - Traditionnel, Paix, Calme, Hiver, Solennel.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "ede55450-9045-4d75-909b-43a9c65a81bc",
+        "title": "Jingle Bells",
+        "author": "Traditionnel",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate/No\u00ebl",
+        "speed": "Medium",
+        "tags": [
+            "Festif",
+            "Joyeux",
+            "Traditionnel",
+            "Hivernal",
+            "No\u00ebl"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\No\u00ebl\\Jingle Bells - Traditionnel - Festif, Joyeux, Traditionnel, Hivernal, No\u00ebl.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "b3bf5c1d-829b-4bb0-ac92-4cd3f3a7f72d",
+        "title": "Mon beau sapin",
+        "author": "Traditionnel",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate/No\u00ebl",
+        "speed": "Medium",
+        "tags": [
+            "Traditionnel",
+            "No\u00ebl",
+            "F\u00eate",
+            "Sapin",
+            "Chaleureux"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\No\u00ebl\\Mon beau sapin - Traditionnel - Traditionnel, No\u00ebl, F\u00eate, Sapin, Chaleureux.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "b1c3fd9b-c043-433e-bb9b-6e675a62e918",
+        "title": "Petit Papa No\u00ebl",
+        "author": "Tino Rossi",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate/No\u00ebl",
+        "speed": "Medium",
+        "tags": [
+            "Enfants",
+            "Magie",
+            "Attente",
+            "R\u00eave",
+            "Tendresse"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\No\u00ebl\\Petit Papa No\u00ebl - Tino Rossi - Enfants, Magie, Attente, R\u00eave, Tendresse.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "9d12f404-afeb-4585-b9a4-dfcb40330844",
+        "title": "Vive le vent",
+        "author": "Traditionnel",
+        "youtube_url": "",
+        "category": "Ambiance/F\u00eate/No\u00ebl",
+        "speed": "Medium",
+        "tags": [
+            "Joyeux",
+            "Festif",
+            "No\u00ebl",
+            "Hiver",
+            "Enfants"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\F\u00eate\\No\u00ebl\\Vive le vent - Traditionnel - Joyeux, Festif, No\u00ebl, Hiver, Enfants.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "5aef298b-3aae-4f15-9b55-41c167bed2f1",
+        "title": "Le Chant des Partisans",
+        "author": "Anna Marly",
+        "youtube_url": "",
+        "category": "Ambiance/Historique/Guerre",
+        "speed": "Medium",
+        "tags": [
+            "R\u00e9sistance",
+            "Seconde Guerre Mondiale",
+            "Patriotisme",
+            "Courage",
+            "Libert\u00e9"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Historique\\Guerre\\Le Chant des Partisans - Anna Marly - R\u00e9sistance, Seconde Guerre Mondiale, Patriotisme, Courage, Libert\u00e9.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "9ae89363-27df-48cc-a9f5-388b7a35d306",
+        "title": "Ce matin va \u00eatre une pure soir\u00e9e",
+        "author": "Oldelaf",
+        "youtube_url": "",
+        "category": "Ambiance/Humoristique",
+        "speed": "Medium",
+        "tags": [
+            "Ambiance",
+            "Festif",
+            "Humoristique",
+            "Exag\u00e9r\u00e9",
+            "Danse"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Humoristique\\Ce matin va \u00eatre une pure soir\u00e9e - Oldelaf - Ambiance, Festif, Humoristique, Exag\u00e9r\u00e9, Danse.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "5d87fa5c-1109-411d-a9ed-a79355fd0292",
+        "title": "Epic Sax Guy (Sunstroke Project",
+        "author": "Run Away)",
+        "youtube_url": "",
+        "category": "Ambiance/Humoristique",
+        "speed": "Medium",
+        "tags": [
+            "SunStroke Project - Saxophone",
+            "\u00c9lectronique",
+            "Danse",
+            "Viral",
+            "Festif"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Humoristique\\Epic Sax Guy (Sunstroke Project - Run Away) - SunStroke Project - Saxophone, \u00c9lectronique, Danse, Viral, Festif.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "f90a22d6-5624-4737-9b79-e00269252ef8",
+        "title": "Fous ta cagoule",
+        "author": "Fatal Bazooka",
+        "youtube_url": "",
+        "category": "Ambiance/Humoristique",
+        "speed": "Medium",
+        "tags": [
+            "Parodie",
+            "Comique",
+            "Hivernal",
+            "Rap fran\u00e7ais",
+            "Absurde"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Humoristique\\Fous ta cagoule - Fatal Bazooka - Parodie, Comique, Hivernal, Rap fran\u00e7ais, Absurde.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "98442eb7-2dcd-46aa-b9c3-5240af33a328",
+        "title": "OSS 117",
+        "author": "Bambino",
+        "youtube_url": "",
+        "category": "Ambiance/Humoristique",
+        "speed": "Medium",
+        "tags": [
+            "Dalida - Joyeux",
+            "Humoristique",
+            "Espionnage",
+            "L\u00e9ger",
+            "Exotique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Humoristique\\OSS 117 - Bambino - Dalida - Joyeux, Humoristique, Espionnage, L\u00e9ger, Exotique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "6d9517b4-0bcf-4ed6-af81-dcf1bc228b89",
+        "title": "Parle \u00e0 ma main",
+        "author": "Fatal Bazooka featuring Yelle",
+        "youtube_url": "",
+        "category": "Ambiance/Humoristique",
+        "speed": "Medium",
+        "tags": [
+            "Comique",
+            "Parodie",
+            "Absurde",
+            "Pop Fran\u00e7aise",
+            "Humour"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Humoristique\\Parle \u00e0 ma main - Fatal Bazooka featuring Yelle - Comique, Parodie, Absurde, Pop Fran\u00e7aise, Humour.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "4d6827ad-74ec-474d-9247-585f301fcea5",
+        "title": "The Real Slim Shady",
+        "author": "Eminem",
+        "youtube_url": "",
+        "category": "Ambiance/Humoristique",
+        "speed": "Medium",
+        "tags": [
+            "Iconique",
+            "Dr\u00f4le",
+            "Controvers\u00e9",
+            "Rap festif",
+            "Culture pop"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Humoristique\\The Real Slim Shady - Eminem - Iconique, Dr\u00f4le, Controvers\u00e9, Rap festif, Culture pop.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "ded41dc0-6dcd-4c3f-91a4-f01e4f94f943",
+        "title": "Trololo Song",
+        "author": "Eduard Khil",
+        "youtube_url": "",
+        "category": "Ambiance/Humoristique",
+        "speed": "Medium",
+        "tags": [
+            "Viral",
+            "M\u00e8me",
+            "Humour",
+            "Comique",
+            "Chant Russe"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Humoristique\\Trololo Song - Eduard Khil - Viral, M\u00e8me, Humour, Comique, Chant Russe.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "e027930b-dc24-4cec-a1ab-af8247ecfde0",
+        "title": "Without Me",
+        "author": "Eminem",
+        "youtube_url": "",
+        "category": "Ambiance/Humoristique",
+        "speed": "Medium",
+        "tags": [
+            "Ironique",
+            "Entra\u00eenant",
+            "Rebelle",
+            "Humoristique",
+            "Populaire"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Humoristique\\Without Me - Eminem - Ironique, Entra\u00eenant, Rebelle, Humoristique, Populaire.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "c8bb347a-a6c9-4982-94cf-8981f1881cd7",
+        "title": "Ave Maria",
+        "author": "Franz Schubert",
+        "youtube_url": "",
+        "category": "Ambiance/Spirituelle/Religieuse",
+        "speed": "Medium",
+        "tags": [
+            "Instrumental",
+            "Ambiance",
+            "\u00c9motion",
+            "M\u00e9lancolie",
+            "Cin\u00e9matique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Spirituelle\\Religieuse\\Ave Maria - Franz Schubert - Instrumental, Ambiance, \u00c9motion, M\u00e9lancolie, Cin\u00e9matique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "b2b00afd-1026-4b1a-9b21-1bd11af42462",
+        "title": "Waka Waka (This Time for Africa)",
+        "author": "Shakira",
+        "youtube_url": "",
+        "category": "Ambiance/Sportive",
+        "speed": "Medium",
+        "tags": [
+            "C\u00e9l\u00e9bration",
+            "Joie",
+            "Afrique",
+            "Motivation",
+            "F\u00eate"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Sportive\\Waka Waka (This Time for Africa) - Shakira - C\u00e9l\u00e9bration, Joie, Afrique, Motivation, F\u00eate.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "daffc1d2-b07b-4c27-9fe6-1f9daf6ff615",
+        "title": "Another One Bites the Dust",
+        "author": "Queen",
+        "youtube_url": "",
+        "category": "Ambiance/Tension",
+        "speed": "Medium",
+        "tags": [
+            "Funk",
+            "Groove",
+            "Dansant",
+            "Urbain",
+            "Myst\u00e9rieux"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Tension\\Another One Bites the Dust - Queen - Funk, Groove, Dansant, Urbain, Myst\u00e9rieux.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "59ed4f91-fccf-4951-aef1-392e429b6b2b",
+        "title": "Santiano",
+        "author": "Hugues Aufray",
+        "youtube_url": "",
+        "category": "Ambiance/Traditionnelle/Chant de Marin",
+        "speed": "Medium",
+        "tags": [
+            "Marin",
+            "Folklore",
+            "Aventure",
+            "Voyage",
+            "Entra\u00eenant"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Traditionnelle\\Chant de Marin\\Santiano - Hugues Aufray - Marin, Folklore, Aventure, Voyage, Entra\u00eenant.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "d58fa20c-27b0-40b2-bc91-4ad9ae95f205",
+        "title": "Cornemuses",
+        "author": "Musique traditionnelle",
+        "youtube_url": "",
+        "category": "Ambiance/Traditionnelle/G\u00e9n\u00e9ral",
+        "speed": "Medium",
+        "tags": [
+            "Cornemuses",
+            "\u00c9cosse",
+            "Traditionnel",
+            "Folklorique",
+            "Celtique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Traditionnelle\\G\u00e9n\u00e9ral\\Cornemuses - Musique traditionnelle - Cornemuses, \u00c9cosse, Traditionnel, Folklorique, Celtique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "8589981f-03f6-4470-8c51-d76a97faac97",
+        "title": "Bella Ciao",
+        "author": "Traditionnel italien",
+        "youtube_url": "",
+        "category": "Ambiance/Traditionnelle/R\u00e9gionale/G\u00e9n\u00e9ral",
+        "speed": "Medium",
+        "tags": [
+            "La Casa de Papel",
+            "Italien",
+            "R\u00e9sistance",
+            "Folklorique",
+            "C\u00e9l\u00e8bre"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Traditionnelle\\R\u00e9gionale\\G\u00e9n\u00e9ral\\Bella Ciao - Traditionnel italien - La Casa de Papel, Italien, R\u00e9sistance, Folklorique, C\u00e9l\u00e8bre.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "68fc53e0-5d55-4647-8aaf-2b2c32279170",
+        "title": "Cielito Lindo",
+        "author": "Traditionnel Mexicain",
+        "youtube_url": "",
+        "category": "Ambiance/Traditionnelle/R\u00e9gionale/Mexicaine",
+        "speed": "Medium",
+        "tags": [
+            "Mariachi",
+            "Joyeux",
+            "Traditionnel",
+            "F\u00eate",
+            "C\u00e9l\u00e8bre"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Traditionnelle\\R\u00e9gionale\\Mexicaine\\Cielito Lindo - Traditionnel Mexicain - Mariachi, Joyeux, Traditionnel, F\u00eate, C\u00e9l\u00e8bre.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "d4150e07-301d-4307-aa23-2987453b33bb",
+        "title": "Contrabando y Traici\u00f3n",
+        "author": "Los Tigres del Norte",
+        "youtube_url": "",
+        "category": "Ambiance/Traditionnelle/R\u00e9gionale/Mexicaine",
+        "speed": "Medium",
+        "tags": [
+            "Corrido",
+            "Narration",
+            "Drame",
+            "R\u00e9cit",
+            "Trag\u00e9die"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Traditionnelle\\R\u00e9gionale\\Mexicaine\\Contrabando y Traici\u00f3n - Los Tigres del Norte - Corrido, Narration, Drame, R\u00e9cit, Trag\u00e9die.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "7b38c798-11f5-4f52-9ed9-936d59bc0e05",
+        "title": "El Rey",
+        "author": "Jos\u00e9 Alfredo Jim\u00e9nez",
+        "youtube_url": "",
+        "category": "Ambiance/Traditionnelle/R\u00e9gionale/Mexicaine",
+        "speed": "Medium",
+        "tags": [
+            "Ranchera",
+            "Fiert\u00e9",
+            "Dramatique",
+            "Classique",
+            "Vengeance"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Traditionnelle\\R\u00e9gionale\\Mexicaine\\El Rey - Jos\u00e9 Alfredo Jim\u00e9nez - Ranchera, Fiert\u00e9, Dramatique, Classique, Vengeance.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "083ec58d-d27e-4a9f-9b7d-f2d66dd95160",
+        "title": "La Bamba",
+        "author": "Ritchie Valens",
+        "youtube_url": "",
+        "category": "Ambiance/Traditionnelle/R\u00e9gionale/Mexicaine",
+        "speed": "Medium",
+        "tags": [
+            "Son Jarocho",
+            "Danse",
+            "Rythm\u00e9",
+            "\u00c9nergie",
+            "Veracruz"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Traditionnelle\\R\u00e9gionale\\Mexicaine\\La Bamba - Ritchie Valens - Son Jarocho, Danse, Rythm\u00e9, \u00c9nergie, Veracruz.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "7b56f16a-4267-4b47-8d19-26ef15ef5fc8",
+        "title": "Funkytown",
+        "author": "Lipps Inc.",
+        "youtube_url": "",
+        "category": "Ambiance/Urbaine",
+        "speed": "Medium",
+        "tags": [
+            "Funk",
+            "Disco",
+            "Joyeux",
+            "Dansant",
+            "Urbain"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Urbaine\\Funkytown - Lipps Inc. - Funk, Disco, Joyeux, Dansant, Urbain.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "b51789af-0dbb-4d09-9e61-866077af231e",
+        "title": "Clap Your Hands",
+        "author": "Kungs",
+        "youtube_url": "",
+        "category": "Ambiance/Vari\u00e9e",
+        "speed": "Medium",
+        "tags": [
+            "\u00c9nergique",
+            "Motivation",
+            "Ann\u00e9es 80",
+            "Joyeux",
+            "Rythm\u00e9"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Vari\u00e9e\\Clap Your Hands - Kungs - \u00c9nergique, Motivation, Ann\u00e9es 80, Joyeux, Rythm\u00e9.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "2486c531-64b6-4984-8c5e-446ed4a2fd5c",
+        "title": "Never Gonna Give You Up",
+        "author": "Rick Astley",
+        "youtube_url": "",
+        "category": "Ambiance/Vari\u00e9e",
+        "speed": "Medium",
+        "tags": [
+            "Pop",
+            "Ann\u00e9es 80",
+            "Culte",
+            "Joyeux",
+            "Entra\u00eenant"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Ambiance\\Vari\u00e9e\\Never Gonna Give You Up - Rick Astley - Pop, Ann\u00e9es 80, Culte, Joyeux, Entra\u00eenant.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "2a767fc8-3ff7-437d-a0fa-8d992430fbe0",
+        "title": "D\u00e9part Mario Kart",
+        "author": "Nintendo",
+        "youtube_url": "",
+        "category": "Effet Sonore/D\u00e9part",
+        "speed": "Medium",
+        "tags": [
+            "Jeu Vid\u00e9o",
+            "Course",
+            "D\u00e9part",
+            "Acc\u00e9l\u00e9ration",
+            "Dynamique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Effet Sonore\\D\u00e9part\\D\u00e9part Mario Kart - Nintendo - Jeu Vid\u00e9o, Course, D\u00e9part, Acc\u00e9l\u00e9ration, Dynamique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "56f42790-1143-4743-ad86-28df9cb42756",
+        "title": "Acc\u00e8s Restreint",
+        "author": "Bruitage Intro",
+        "youtube_url": "",
+        "category": "Film/Action",
+        "speed": "Medium",
+        "tags": [
+            "Artiste inconnu - Tension",
+            "Industriel",
+            "Pr\u00e9lude",
+            "\u00c9lectronique",
+            "Dynamique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Action\\Acc\u00e8s Restreint - Bruitage Intro - Artiste inconnu - Tension, Industriel, Pr\u00e9lude, \u00c9lectronique, Dynamique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "207701a7-d8d1-4275-9ffc-2f1b0bed5dcc",
+        "title": "Master of Puppets",
+        "author": "Metallica",
+        "youtube_url": "",
+        "category": "Film/Action",
+        "speed": "Medium",
+        "tags": [
+            "\u00c9pique",
+            "Intense",
+            "Complexe",
+            "Puissant",
+            "Classique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Action\\Master of Puppets - Metallica - \u00c9pique, Intense, Complexe, Puissant, Classique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "5a04fb78-3591-4f46-811e-6c0369f36916",
+        "title": "Mission Impossible Theme",
+        "author": "Lalo Schifrin",
+        "youtube_url": "",
+        "category": "Film/Action",
+        "speed": "Medium",
+        "tags": [
+            "Espion",
+            "Action",
+            "Suspense"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Action\\Mission Impossible Theme - Lalo Schifrin - Espion, Action, Suspense.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "c75919a1-f33d-4618-a6f7-f3870ee4defd",
+        "title": "Mombasa",
+        "author": "Hans Zimmer",
+        "youtube_url": "",
+        "category": "Film/Action",
+        "speed": "Medium",
+        "tags": [
+            "Tension",
+            "Course-poursuite",
+            "Adr\u00e9naline",
+            "Urgence",
+            "\u00c9pique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Action\\Mombasa - Hans Zimmer - Tension, Course-poursuite, Adr\u00e9naline, Urgence, \u00c9pique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "a4a404be-cb88-483e-b1db-5d0fd7d2e3bb",
+        "title": "Pirates des Cara\u00efbes",
+        "author": "Klaus Badelt",
+        "youtube_url": "",
+        "category": "Film/Action",
+        "speed": "Medium",
+        "tags": [
+            "Pirate",
+            "Aventure",
+            "H\u00e9ro\u00efque",
+            "\u00c9pique",
+            "Action"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Action\\Pirates des Cara\u00efbes - Klaus Badelt - Pirate, Aventure, H\u00e9ro\u00efque, \u00c9pique, Action.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "350f1ec7-60c8-4a86-9b8f-cae8f7db1016",
+        "title": "Sabotage",
+        "author": "Beastie Boys",
+        "youtube_url": "",
+        "category": "Film/Action",
+        "speed": "Medium",
+        "tags": [
+            "\u00c9nergique",
+            "Rythm\u00e9",
+            "Dynamique",
+            "Intense",
+            "Rebelle"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Action\\Sabotage - Beastie Boys - \u00c9nergique, Rythm\u00e9, Dynamique, Intense, Rebelle.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "44228856-65b3-40ab-8e0a-23dea326292e",
+        "title": "Smooth Criminal",
+        "author": "Michael Jackson",
+        "youtube_url": "",
+        "category": "Film/Action",
+        "speed": "Medium",
+        "tags": [
+            "\u00c9nergie",
+            "Danse",
+            "Thriller",
+            "Gangster",
+            "Unique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Action\\Smooth Criminal - Michael Jackson - \u00c9nergie, Danse, Thriller, Gangster, Unique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "70b4bd8b-f121-4042-8b48-460f4d1e3089",
+        "title": "Hallelujah",
+        "author": "Leonard Cohen",
+        "youtube_url": "",
+        "category": "Film/Ambiance/M\u00e9lancolie",
+        "speed": "Medium",
+        "tags": [
+            "Doux",
+            "R\u00eaverie",
+            "Nostalgie",
+            "Magique",
+            "Apaisant"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Ambiance\\M\u00e9lancolie\\Hallelujah - Leonard Cohen - Doux, R\u00eaverie, Nostalgie, Magique, Apaisant.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "c1667ac6-dd97-4e77-a9b1-50513336f838",
+        "title": "Indiana Jones",
+        "author": "John Williams",
+        "youtube_url": "",
+        "category": "Film/Aventure",
+        "speed": "Medium",
+        "tags": [
+            "Aventure",
+            "H\u00e9ro\u00efque",
+            "Exotique",
+            "Action",
+            "\u00c9pique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Aventure\\Indiana Jones - John Williams - Aventure, H\u00e9ro\u00efque, Exotique, Action, \u00c9pique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "e5bed954-811e-4a18-8c97-cefe283b12d0",
+        "title": "Jurassic Park Theme",
+        "author": "John Williams",
+        "youtube_url": "",
+        "category": "Film/Aventure",
+        "speed": "Medium",
+        "tags": [
+            "Majestueux",
+            "\u00c9merveillement",
+            "Fantastique",
+            "C\u00e9l\u00e8bre"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Aventure\\Jurassic Park Theme - John Williams - Majestueux, \u00c9merveillement, Fantastique, C\u00e9l\u00e8bre.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "0a2356f0-19a4-4779-97d9-155205c2d23f",
+        "title": "Raiders March (Indiana Jones)",
+        "author": "John Williams",
+        "youtube_url": "",
+        "category": "Film/Aventure",
+        "speed": "Medium",
+        "tags": [
+            "H\u00e9ro\u00efque",
+            "Aventure",
+            "\u00c9pique",
+            "Exotique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Aventure\\Raiders March (Indiana Jones) - John Williams - H\u00e9ro\u00efque, Aventure, \u00c9pique, Exotique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "3ac5564d-5b52-4310-9a42-66eaa44579f8",
+        "title": "Le Festin",
+        "author": "Ratatouille",
+        "youtube_url": "",
+        "category": "Film/Com\u00e9die",
+        "speed": "Medium",
+        "tags": [
+            "Camille - Paris",
+            "Cuisine",
+            "\u00c9l\u00e9gant",
+            "Charmant",
+            "Joyeux"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Com\u00e9die\\Le Festin - Ratatouille - Camille - Paris, Cuisine, \u00c9l\u00e9gant, Charmant, Joyeux.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "7f33fad1-21b1-4255-ac58-a29413f3f988",
+        "title": "Pink Panther Theme",
+        "author": "Henry Mancini",
+        "youtube_url": "",
+        "category": "Film/Com\u00e9die",
+        "speed": "Medium",
+        "tags": [
+            "Myst\u00e8re",
+            "Com\u00e9die",
+            "Jazzy",
+            "Espionnage",
+            "Ludique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Com\u00e9die\\Pink Panther Theme - Henry Mancini - Myst\u00e8re, Com\u00e9die, Jazzy, Espionnage, Ludique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "a2f9b28c-5d74-4bbc-9958-451a93e1f927",
+        "title": "Ce R\u00eave bleu",
+        "author": "Paolo Domingo et Karine Costa",
+        "youtube_url": "",
+        "category": "Film/Disney",
+        "speed": "Medium",
+        "tags": [
+            "Romance",
+            "Magie",
+            "Vol",
+            "Nuit",
+            "\u00c9merveillement"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Disney\\Ce R\u00eave bleu - Paolo Domingo et Karine Costa - Romance, Magie, Vol, Nuit, \u00c9merveillement.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "9c0c94b6-795f-4efb-9a9d-be280a105112",
+        "title": "Discours de Scar",
+        "author": "Jean Piat",
+        "youtube_url": "",
+        "category": "Film/Disney",
+        "speed": "Medium",
+        "tags": [
+            "Manipulateur",
+            "Sombre",
+            "Th\u00e9\u00e2tral",
+            "Mal\u00e9fique",
+            "Dramatique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Disney\\Discours de Scar - Jean Piat - Manipulateur, Sombre, Th\u00e9\u00e2tral, Mal\u00e9fique, Dramatique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "8d626044-567f-41c1-9c68-28f3759d7f2d",
+        "title": "Hakuna Matata",
+        "author": "Nathan Lane, Ernie Sabella, Jason Weaver & Joseph Williams",
+        "youtube_url": "",
+        "category": "Film/Disney",
+        "speed": "Medium",
+        "tags": [
+            "Joyeux",
+            "Aventure",
+            "Afrique",
+            "Amiti\u00e9",
+            "Insouciance"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Disney\\Hakuna Matata - Nathan Lane, Ernie Sabella, Jason Weaver & Joseph Williams - Joyeux, Aventure, Afrique, Amiti\u00e9, Insouciance.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "9a4b078d-cafc-455e-8460-dadfae5dcf45",
+        "title": "Histoire \u00c9ternelle",
+        "author": "C\u00e9line Dion & Peabo Bryson",
+        "youtube_url": "",
+        "category": "Film/Disney",
+        "speed": "Medium",
+        "tags": [
+            "Romantique",
+            "Classique",
+            "Conte de f\u00e9es",
+            "Amour",
+            "\u00c9motionnel"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Disney\\Histoire \u00c9ternelle - C\u00e9line Dion & Peabo Bryson - Romantique, Classique, Conte de f\u00e9es, Amour, \u00c9motionnel.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "040ccf57-8903-4a11-837e-cb256cb8aa82",
+        "title": "L'Histoire de la Vie",
+        "author": "Elton John",
+        "youtube_url": "",
+        "category": "Film/Disney",
+        "speed": "Medium",
+        "tags": [
+            "\u00c9pique",
+            "Nature",
+            "Cycle",
+            "Sagesse",
+            "Grandeur"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Disney\\L'Histoire de la Vie - Elton John - \u00c9pique, Nature, Cycle, Sagesse, Grandeur.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "46605b6a-1c64-4381-ad21-09e96a2d5f5b",
+        "title": "Lib\u00e9r\u00e9e, d\u00e9livr\u00e9e",
+        "author": "Ana\u00efs Delva",
+        "youtube_url": "",
+        "category": "Film/Disney",
+        "speed": "Medium",
+        "tags": [
+            "\u00c9pique",
+            "Magie",
+            "Hiver",
+            "Puissant",
+            "Ind\u00e9pendance"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Disney\\Lib\u00e9r\u00e9e, d\u00e9livr\u00e9e - Ana\u00efs Delva - \u00c9pique, Magie, Hiver, Puissant, Ind\u00e9pendance.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "583bdc4c-df91-4b1b-bff2-ff011e8beb78",
+        "title": "Sous l'oc\u00e9an",
+        "author": "Henri Salvador",
+        "youtube_url": "",
+        "category": "Film/Disney",
+        "speed": "Medium",
+        "tags": [
+            "F\u00eate",
+            "Oc\u00e9an",
+            "Exotique",
+            "Joie",
+            "Danse"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Disney\\Sous l'oc\u00e9an - Henri Salvador - F\u00eate, Oc\u00e9an, Exotique, Joie, Danse.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "14f1b89e-c8a9-4877-9723-3183401846f9",
+        "title": "You've Got a Friend in Me",
+        "author": "Randy Newman",
+        "youtube_url": "",
+        "category": "Film/Disney",
+        "speed": "Medium",
+        "tags": [
+            "Amiti\u00e9",
+            "Joyeux",
+            "Iconique",
+            "Enfance"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Disney\\You've Got a Friend in Me - Randy Newman - Amiti\u00e9, Joyeux, Iconique, Enfance.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "4a1cf70f-3300-401f-9224-b9a9e63443c1",
+        "title": "One",
+        "author": "Metallica",
+        "youtube_url": "",
+        "category": "Film/Drame",
+        "speed": "Medium",
+        "tags": [
+            "Guerre",
+            "Progression",
+            "Intensit\u00e9 croissante",
+            "Sombre",
+            "Puissant"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Drame\\One - Metallica - Guerre, Progression, Intensit\u00e9 croissante, Sombre, Puissant.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "0e66c20e-6c35-4ff2-be44-076f318366dc",
+        "title": "Schindler's List Main Theme",
+        "author": "John Williams",
+        "youtube_url": "",
+        "category": "Film/Drame",
+        "speed": "Medium",
+        "tags": [
+            "Triste",
+            "\u00c9mouvant",
+            "M\u00e9lancolique",
+            "Poignant"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Drame\\Schindler's List Main Theme - John Williams - Triste, \u00c9mouvant, M\u00e9lancolique, Poignant.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "ba8365b7-b2ec-4498-b5c5-6c8f11792544",
+        "title": "James Bond Theme",
+        "author": "Monty Norman",
+        "youtube_url": "",
+        "category": "Film/Espionnage",
+        "speed": "Medium",
+        "tags": [
+            "Classique",
+            "Action",
+            "Intrigue",
+            "\u00c9pique",
+            "C\u00e9l\u00e8bre"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Espionnage\\James Bond Theme - Monty Norman - Classique, Action, Intrigue, \u00c9pique, C\u00e9l\u00e8bre.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "0d2fe02c-24e5-494a-bcb4-d5ab7066ff94",
+        "title": "The Man from U.N.C.L.E. Theme",
+        "author": "Jerry Goldsmith",
+        "youtube_url": "",
+        "category": "Film/Espionnage",
+        "speed": "Medium",
+        "tags": [
+            "Ann\u00e9es 60",
+            "\u00c9l\u00e9gant",
+            "Groovy",
+            "Intrigue",
+            "Chic"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Espionnage\\The Man from U.N.C.L.E. Theme - Jerry Goldsmith - Ann\u00e9es 60, \u00c9l\u00e9gant, Groovy, Intrigue, Chic.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "86bc4c36-9ec2-4c60-b5b1-fdbd85e96991",
+        "title": "Hedwig's Theme (Harry Potter)",
+        "author": "John Williams",
+        "youtube_url": "",
+        "category": "Film/Fantastique",
+        "speed": "Medium",
+        "tags": [
+            "Magique",
+            "Myst\u00e9rieux",
+            "Enchant\u00e9",
+            "Aventure"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Fantastique\\Hedwig's Theme (Harry Potter) - John Williams - Magique, Myst\u00e9rieux, Enchant\u00e9, Aventure.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "2df518bf-16c6-4a99-8ac5-95d62c038a2f",
+        "title": "L'\u00c9trange No\u00ebl de Monsieur Jack",
+        "author": "Danny Elfman",
+        "youtube_url": "",
+        "category": "Film/Fantastique",
+        "speed": "Medium",
+        "tags": [
+            "No\u00ebl",
+            "Halloween",
+            "Fantastique",
+            "Sombre",
+            "\u00c9trange"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Fantastique\\L'\u00c9trange No\u00ebl de Monsieur Jack - Danny Elfman - No\u00ebl, Halloween, Fantastique, Sombre, \u00c9trange.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "fbf6eef0-cdae-401d-beb1-07f6456e13ee",
+        "title": "Pouding Ars\u00e9nic",
+        "author": "Les Cowboys Fringants",
+        "youtube_url": "",
+        "category": "Film/Fantastique",
+        "speed": "Medium",
+        "tags": [
+            "Myst\u00e9rieux",
+            "Fantastique",
+            "\u00c9nigmatique",
+            "Ludique",
+            "Aventure"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Fantastique\\Pouding Ars\u00e9nic - Les Cowboys Fringants - Myst\u00e9rieux, Fantastique, \u00c9nigmatique, Ludique, Aventure.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "98b7363d-02a1-4f03-9d3d-b80c6ac1d24f",
+        "title": "Song of Durin",
+        "author": "Eurielle",
+        "youtube_url": "",
+        "category": "Film/Fantastique",
+        "speed": "Medium",
+        "tags": [
+            "Magique",
+            "F\u00e9erique",
+            "R\u00e9cit",
+            "Curiosit\u00e9",
+            "\u00c9vocateur"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Fantastique\\Song of Durin - Eurielle - Magique, F\u00e9erique, R\u00e9cit, Curiosit\u00e9, \u00c9vocateur.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "f5f20c70-dc9c-4f11-a570-591aa5f96774",
+        "title": "Tu t'envoles (Peter Pan)",
+        "author": "La Troupe de Peter Pan",
+        "youtube_url": "",
+        "category": "Film/Fantastique",
+        "speed": "Medium",
+        "tags": [
+            "Vol",
+            "Enfance",
+            "R\u00eave",
+            "Magie",
+            "Fantaisie"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Fantastique\\Tu t'envoles (Peter Pan) - La Troupe de Peter Pan - Vol, Enfance, R\u00eave, Magie, Fantaisie.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "41f4f675-d55a-4a5b-85ff-73d342048af6",
+        "title": "Le Cercle de la Vie",
+        "author": "Elton John",
+        "youtube_url": "",
+        "category": "Film/G\u00e9n\u00e9rique",
+        "speed": "Medium",
+        "tags": [
+            "\u00c9pique",
+            "Majestueux",
+            "Aventure",
+            "Naissance"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\G\u00e9n\u00e9rique\\Le Cercle de la Vie - Elton John - \u00c9pique, Majestueux, Aventure, Naissance.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "076f6166-5343-4250-9719-4afaba979e83",
+        "title": "Thriller",
+        "author": "Michael Jackson",
+        "youtube_url": "",
+        "category": "Film/Horreur",
+        "speed": "Medium",
+        "tags": [
+            "Halloween",
+            "Zombies",
+            "Classique",
+            "Divertissant",
+            "Spectaculaire"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Horreur\\Thriller - Michael Jackson - Halloween, Zombies, Classique, Divertissant, Spectaculaire.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "17949834-7b7d-4a3c-a2e9-62ee7797bee8",
+        "title": "Lose Yourself",
+        "author": "Eminem",
+        "youtube_url": "",
+        "category": "Film/Motivation",
+        "speed": "Medium",
+        "tags": [
+            "Motivation",
+            "R\u00e9ussite",
+            "Intense",
+            "Hip-hop",
+            "Cin\u00e9ma"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Motivation\\Lose Yourself - Eminem - Motivation, R\u00e9ussite, Intense, Hip-hop, Cin\u00e9ma.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "d55b6862-f94f-4068-9801-774d3e122b2b",
+        "title": "Shallow",
+        "author": "Lady Gaga & Bradley Cooper",
+        "youtube_url": "",
+        "category": "Film/Romance",
+        "speed": "Medium",
+        "tags": [
+            "Film",
+            "\u00c9motionnel",
+            "Ballade",
+            "Duo",
+            "Romance"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Romance\\Shallow - Lady Gaga & Bradley Cooper - Film, \u00c9motionnel, Ballade, Duo, Romance.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "90ff4f89-ff76-4da5-8ca2-7fa99f03bd1e",
+        "title": "Stayin' Alive",
+        "author": "Bee Gees",
+        "youtube_url": "",
+        "category": "Film/R\u00e9tro",
+        "speed": "Medium",
+        "tags": [
+            "Disco",
+            "C\u00e9l\u00e8bre",
+            "Optimiste",
+            "Groove",
+            "Film"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\R\u00e9tro\\Stayin' Alive - Bee Gees - Disco, C\u00e9l\u00e8bre, Optimiste, Groove, Film.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "57219dce-cd14-4654-8c36-e7009aede294",
+        "title": "E.T. the Extra-Terrestrial Main Theme",
+        "author": "John Williams",
+        "youtube_url": "",
+        "category": "Film/Science-fiction",
+        "speed": "Medium",
+        "tags": [
+            "\u00c9merveillement",
+            "Magique",
+            "\u00c9mouvant",
+            "Innocence"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Science-fiction\\E.T. the Extra-Terrestrial Main Theme - John Williams - \u00c9merveillement, Magique, \u00c9mouvant, Innocence.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "f9efa9d3-479b-4bb8-aec1-a9224b096fa3",
+        "title": "Radioactive",
+        "author": "Imagine Dragons",
+        "youtube_url": "",
+        "category": "Film/Science-fiction",
+        "speed": "Medium",
+        "tags": [
+            "\u00c9pique",
+            "Puissant",
+            "Futuriste",
+            "Sombre",
+            "Apocalyptique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Science-fiction\\Radioactive - Imagine Dragons - \u00c9pique, Puissant, Futuriste, Sombre, Apocalyptique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "1166f1a9-7bf3-453a-aee8-784f4370fd17",
+        "title": "The Expanse",
+        "author": "Clinton Shorter",
+        "youtube_url": "",
+        "category": "Film/Science-fiction",
+        "speed": "Medium",
+        "tags": [
+            "\u00c9pique",
+            "Introspection",
+            "Profond",
+            "Spatial",
+            "Science-fiction"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Science-fiction\\The Expanse - Clinton Shorter - \u00c9pique, Introspection, Profond, Spatial, Science-fiction.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "00127867-8637-4b44-97f2-f347998351e0",
+        "title": "The Imperial March (Darth Vader's Theme)",
+        "author": "John Williams",
+        "youtube_url": "",
+        "category": "Film/Science-fiction",
+        "speed": "Medium",
+        "tags": [
+            "Sombre",
+            "Mena\u00e7ant",
+            "Puissant",
+            "C\u00e9l\u00e8bre",
+            "Marche",
+            "\u00c9pique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Science-fiction\\The Imperial March (Darth Vader's Theme) - John Williams - Sombre, Mena\u00e7ant, Puissant, C\u00e9l\u00e8bre, Marche, \u00c9pique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "ea8b8810-1b6f-431b-8dee-25e9e3383787",
+        "title": "Chariots of Fire",
+        "author": "Vangelis",
+        "youtube_url": "",
+        "category": "Film/Sportif",
+        "speed": "Medium",
+        "tags": [
+            "Athl\u00e9tique",
+            "Inspirant",
+            "Triomphant",
+            "M\u00e9lodique",
+            "Progressif"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Sportif\\Chariots of Fire - Vangelis - Athl\u00e9tique, Inspirant, Triomphant, M\u00e9lodique, Progressif.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "a8acf8f8-d838-4810-bfe5-fa2542af8fc8",
+        "title": "L'Extase de l'Or",
+        "author": "Ennio Morricone",
+        "youtube_url": "",
+        "category": "Film/Western",
+        "speed": "Medium",
+        "tags": [
+            "Dynamique",
+            "Course-poursuite",
+            "Fr\u00e9n\u00e9sie",
+            "H\u00e9ro\u00efque",
+            "Aventure"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Western\\L'Extase de l'Or - Ennio Morricone - Dynamique, Course-poursuite, Fr\u00e9n\u00e9sie, H\u00e9ro\u00efque, Aventure.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "ef61b452-5303-458e-b2d9-ccf5d3deaf20",
+        "title": "L'Homme \u00e0 l'harmonica",
+        "author": "Ennio Morricone",
+        "youtube_url": "",
+        "category": "Film/Western",
+        "speed": "Medium",
+        "tags": [
+            "M\u00e9lancolique",
+            "Tragique",
+            "Suspense",
+            "Harmonica",
+            "\u00c9pique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Western\\L'Homme \u00e0 l'harmonica - Ennio Morricone - M\u00e9lancolique, Tragique, Suspense, Harmonica, \u00c9pique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "37f0897d-054a-4485-a6fd-49daf4cb9990",
+        "title": "Le Bon, la Brute et le Truand",
+        "author": "Ennio Morricone",
+        "youtube_url": "",
+        "category": "Film/Western",
+        "speed": "Medium",
+        "tags": [
+            "Iconique",
+            "Western",
+            "Tension",
+            "Classique",
+            "Duel"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\Western\\Le Bon, la Brute et le Truand - Ennio Morricone - Iconique, Western, Tension, Classique, Duel.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "c2085435-e216-4e55-9007-75bfee41cab3",
+        "title": "Conquest of Paradise",
+        "author": "Vangelis",
+        "youtube_url": "",
+        "category": "Film/\u00c9pique",
+        "speed": "Medium",
+        "tags": [
+            "\u00c9pique",
+            "H\u00e9ro\u00efque",
+            "Orchestral",
+            "Dramatique",
+            "Inspirant"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Film\\\u00c9pique\\Conquest of Paradise - Vangelis - \u00c9pique, H\u00e9ro\u00efque, Orchestral, Dramatique, Inspirant.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "0bfe404d-7b6c-4567-9724-b8366a0059ab",
+        "title": "La Tribu de Dana",
+        "author": "Manau",
+        "youtube_url": "",
+        "category": "Musique/Celtique",
+        "speed": "Medium",
+        "tags": [
+            "Celtique",
+            "Rap fran\u00e7ais",
+            "\u00c9pique",
+            "Festif",
+            "Ann\u00e9es 90"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Celtique\\La Tribu de Dana - Manau - Celtique, Rap fran\u00e7ais, \u00c9pique, Festif, Ann\u00e9es 90.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "3ae4b2d7-c3d4-481e-ae2b-a47a4d2af579",
+        "title": "Lamb\u00e9 An Dro",
+        "author": "Red Cardell",
+        "youtube_url": "",
+        "category": "Musique/Celtique",
+        "speed": "Medium",
+        "tags": [
+            "Festif",
+            "Breton",
+            "\u00c9nergique",
+            "Dansant",
+            "Rassembleur"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Celtique\\Lamb\u00e9 An Dro - Red Cardell - Festif, Breton, \u00c9nergique, Dansant, Rassembleur.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "22d32f3e-dc13-4ca9-a70c-50b20c7868e1",
+        "title": "La Faute \u00e0 Voltaire",
+        "author": "Georges Brassens",
+        "youtube_url": "",
+        "category": "Musique/Chanson Fran\u00e7aise",
+        "speed": "Medium",
+        "tags": [
+            "po\u00e9tique",
+            "engagement",
+            "rue",
+            "gai",
+            "accord\u00e9on"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Chanson Fran\u00e7aise\\La Faute \u00e0 Voltaire - Georges Brassens - po\u00e9tique, engagement, rue, gai, accord\u00e9on.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "ca53eda1-1610-44fc-9a54-0ac84c222713",
+        "title": "Hymne \u00e0 la joie",
+        "author": "Ludwig van Beethoven",
+        "youtube_url": "",
+        "category": "Musique/Classique",
+        "speed": "Medium",
+        "tags": [
+            "Joyeux",
+            "C\u00e9l\u00e8bre",
+            "Classique",
+            "Euphorique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Classique\\Hymne \u00e0 la joie - Ludwig van Beethoven - Joyeux, C\u00e9l\u00e8bre, Classique, Euphorique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "9484b23e-0f86-48b1-971f-57c4878d6c2c",
+        "title": "In the Hall of the Mountain King",
+        "author": "Edvard Grieg",
+        "youtube_url": "",
+        "category": "Musique/Classique/Dramatique",
+        "speed": "Medium",
+        "tags": [
+            "Dramatique",
+            "Progression",
+            "Classique",
+            "Mena\u00e7ant",
+            "\u00c9nergique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Classique\\Dramatique\\In the Hall of the Mountain King - Edvard Grieg - Dramatique, Progression, Classique, Mena\u00e7ant, \u00c9nergique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "55176b1f-e2b9-43fb-bf50-bc8ca13a464b",
+        "title": "Carmen Habanera (L'amour est un oiseau rebelle)",
+        "author": "Georges Bizet",
+        "youtube_url": "",
+        "category": "Musique/Classique/Op\u00e9ra",
+        "speed": "Medium",
+        "tags": [
+            "Romantique",
+            "Sensuel",
+            "Danse",
+            "Op\u00e9ra",
+            "Passion"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Classique\\Op\u00e9ra\\Carmen Habanera (L'amour est un oiseau rebelle) - Georges Bizet - Romantique, Sensuel, Danse, Op\u00e9ra, Passion.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "424ad9b1-b56c-47de-b65c-8923c47f39b7",
+        "title": "Chanson du Tor\u00e9ador (Votre toast, je peux vous le rendre)",
+        "author": "Georges Bizet",
+        "youtube_url": "",
+        "category": "Musique/Classique/Op\u00e9ra",
+        "speed": "Medium",
+        "tags": [
+            "H\u00e9ro\u00efsme",
+            "Fiert\u00e9",
+            "Courage",
+            "Triomphal",
+            "Op\u00e9ra"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Classique\\Op\u00e9ra\\Chanson du Tor\u00e9ador (Votre toast, je peux vous le rendre) - Georges Bizet - H\u00e9ro\u00efsme, Fiert\u00e9, Courage, Triomphal, Op\u00e9ra.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "7fb3e99e-6d58-42f5-85e6-1e83c6dad801",
+        "title": "Libiamo ne' lieti calici (Brindisi)",
+        "author": "Giuseppe Verdi",
+        "youtube_url": "",
+        "category": "Musique/Classique/Op\u00e9ra",
+        "speed": "Medium",
+        "tags": [
+            "Joyeux",
+            "Festif",
+            "C\u00e9l\u00e9bration",
+            "Entra\u00eenant",
+            "Op\u00e9ra"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Classique\\Op\u00e9ra\\Libiamo ne' lieti calici (Brindisi) - Giuseppe Verdi - Joyeux, Festif, C\u00e9l\u00e9bration, Entra\u00eenant, Op\u00e9ra.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "42309bce-a165-4a5b-a617-b812e0d069ab",
+        "title": "Une Souris Verte",
+        "author": "Traditionnel",
+        "youtube_url": "",
+        "category": "Musique/Enfant",
+        "speed": "Medium",
+        "tags": [
+            "Enfant",
+            "Vert",
+            "Chanson",
+            "Comptine",
+            "Joyeux"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Enfant\\Une Souris Verte - Traditionnel - Enfant, Vert, Chanson, Comptine, Joyeux.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "d029606b-0e3f-4590-9769-a4f54450e912",
+        "title": "Gangsta's Paradise",
+        "author": "Coolio",
+        "youtube_url": "",
+        "category": "Musique/Hip-Hop",
+        "speed": "Medium",
+        "tags": [
+            "Classique",
+            "Urbain",
+            "M\u00e9lancolique",
+            "Iconique",
+            "Film"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Hip-Hop\\Gangsta's Paradise - Coolio - Classique, Urbain, M\u00e9lancolique, Iconique, Film.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "5811459f-28fc-48d0-b137-adefdb0995d5",
+        "title": "It Was a Good Day",
+        "author": "Ice Cube",
+        "youtube_url": "",
+        "category": "Musique/Hip-Hop",
+        "speed": "Medium",
+        "tags": [
+            "Relaxant",
+            "Californien",
+            "R\u00e9cit",
+            "Optimiste"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Hip-Hop\\It Was a Good Day - Ice Cube - Relaxant, Californien, R\u00e9cit, Optimiste.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "23450645-d0b9-4ed2-9cc5-2fd93ac8f437",
+        "title": "La Secte Phon\u00e9tik",
+        "author": "Bienvenue dans la Secte",
+        "youtube_url": "",
+        "category": "Musique/Hip-Hop",
+        "speed": "Medium",
+        "tags": [
+            "La Secte Phon\u00e9tik - Rap",
+            "Boom Bap",
+            "Underground",
+            "Textes",
+            "Fran\u00e7ais"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Hip-Hop\\La Secte Phon\u00e9tik - Bienvenue dans la Secte - La Secte Phon\u00e9tik - Rap, Boom Bap, Underground, Textes, Fran\u00e7ais.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "542864fa-4df9-47fb-8326-19d4a0942af8",
+        "title": "Regulate",
+        "author": "Warren G feat. Nate Dogg",
+        "youtube_url": "",
+        "category": "Musique/Hip-Hop",
+        "speed": "Medium",
+        "tags": [
+            "D\u00e9tente",
+            "Narration",
+            "Groovy",
+            "Iconique",
+            "Ann\u00e9es 90"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Hip-Hop\\Regulate - Warren G feat. Nate Dogg - D\u00e9tente, Narration, Groovy, Iconique, Ann\u00e9es 90.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "ad6acd89-b672-4041-b62b-504766856ee2",
+        "title": "Still D.R.E.",
+        "author": "Dr. Dre",
+        "youtube_url": "",
+        "category": "Musique/Hip-Hop",
+        "speed": "Medium",
+        "tags": [
+            "West Coast",
+            "Entra\u00eenant",
+            "L\u00e9gendaire",
+            "Groove"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Hip-Hop\\Still D.R.E. - Dr. Dre - West Coast, Entra\u00eenant, L\u00e9gendaire, Groove.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "ed553e5b-59dc-40d2-9365-e485c24518fd",
+        "title": "Billie Jean",
+        "author": "Michael Jackson",
+        "youtube_url": "",
+        "category": "Musique/Pop",
+        "speed": "Medium",
+        "tags": [
+            "R&B",
+            "Danse",
+            "Myst\u00e8re",
+            "Iconique",
+            "Ann\u00e9es 80"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Pop\\Billie Jean - Michael Jackson - R&B, Danse, Myst\u00e8re, Iconique, Ann\u00e9es 80.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "98cc15f9-10b7-4846-8362-9de9ba0ff880",
+        "title": "Paparazzi",
+        "author": "Lady Gaga",
+        "youtube_url": "",
+        "category": "Musique/Pop",
+        "speed": "Medium",
+        "tags": [
+            "Pop",
+            "C\u00e9l\u00e9brit\u00e9",
+            "Dramatique",
+            "Poursuite",
+            "Glamour"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Pop\\Paparazzi - Lady Gaga - Pop, C\u00e9l\u00e9brit\u00e9, Dramatique, Poursuite, Glamour.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "3a0f0246-9d59-4136-98a2-eb80c32a8e18",
+        "title": "Sweet Dreams (Are Made of This)",
+        "author": "Eurythmics",
+        "youtube_url": "",
+        "category": "Musique/Pop",
+        "speed": "Medium",
+        "tags": [
+            "\u00c9lectronique",
+            "Iconique",
+            "Entra\u00eenant",
+            "Pop",
+            "R\u00e9tro"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Pop\\Sweet Dreams (Are Made of This) - Eurythmics - \u00c9lectronique, Iconique, Entra\u00eenant, Pop, R\u00e9tro.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "54a1bd7f-b080-4dfe-9e7b-57d7cf15a7af",
+        "title": "Bad Romance",
+        "author": "Lady Gaga",
+        "youtube_url": "",
+        "category": "Musique/Pop/Dance",
+        "speed": "Medium",
+        "tags": [
+            "Pop",
+            "Dance",
+            "\u00c9nergique",
+            "C\u00e9l\u00e8bre",
+            "Rythm\u00e9e"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Pop\\Dance\\Bad Romance - Lady Gaga - Pop, Dance, \u00c9nergique, C\u00e9l\u00e8bre, Rythm\u00e9e.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "4f134fd5-47cf-4dc2-b608-d56336c5c035",
+        "title": "Blue (Da Ba Dee)",
+        "author": "Eiffel 65",
+        "youtube_url": "",
+        "category": "Musique/Pop/Dance",
+        "speed": "Medium",
+        "tags": [
+            "Pop",
+            "Dance",
+            "Festif",
+            "\u00c9nergique",
+            "Ann\u00e9es 90"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Pop\\Dance\\Blue (Da Ba Dee) - Eiffel 65 - Pop, Dance, Festif, \u00c9nergique, Ann\u00e9es 90.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "bb23005c-f35d-4ecb-8f0c-9f638a3117a2",
+        "title": "Gangnam Style",
+        "author": "PSY",
+        "youtube_url": "",
+        "category": "Musique/Pop/K-Pop",
+        "speed": "Medium",
+        "tags": [
+            "Cor\u00e9en",
+            "Pop",
+            "Danse",
+            "\u00c9nergique",
+            "Humoristique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Pop\\K-Pop\\Gangnam Style - PSY - Cor\u00e9en, Pop, Danse, \u00c9nergique, Humoristique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "01f240f2-27c6-483b-b0d4-1fb0206a4a1a",
+        "title": "Hips Don't Lie",
+        "author": "Shakira",
+        "youtube_url": "",
+        "category": "Musique/Pop/Latino",
+        "speed": "Medium",
+        "tags": [
+            "Danse",
+            "\u00c9nergique",
+            "F\u00eate",
+            "Sensuel",
+            "Rythm\u00e9"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Pop\\Latino\\Hips Don't Lie - Shakira - Danse, \u00c9nergique, F\u00eate, Sensuel, Rythm\u00e9.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "250d47cb-b998-485d-b857-b9b54f18d326",
+        "title": "Poker Face",
+        "author": "Lady Gaga",
+        "youtube_url": "",
+        "category": "Musique/Pop/\u00c9lectro",
+        "speed": "Medium",
+        "tags": [
+            "Pop",
+            "\u00c9lectro",
+            "Festif",
+            "Iconique",
+            "Rythm\u00e9"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Pop\\\u00c9lectro\\Poker Face - Lady Gaga - Pop, \u00c9lectro, Festif, Iconique, Rythm\u00e9.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "63b0bf05-cf38-432b-8bbe-a808b73904bc",
+        "title": "Don't You Want Me",
+        "author": "The Human League",
+        "youtube_url": "",
+        "category": "Musique/Pop Rock",
+        "speed": "Medium",
+        "tags": [
+            "Ann\u00e9es 80",
+            "\u00c9lectro-pop",
+            "R\u00e9tro",
+            "Dramatique",
+            "Entra\u00eenant"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Pop Rock\\Don't You Want Me - The Human League - Ann\u00e9es 80, \u00c9lectro-pop, R\u00e9tro, Dramatique, Entra\u00eenant.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "f1331972-f205-4f49-a0c2-538d2bb3fede",
+        "title": "Hungry Like the Wolf",
+        "author": "Duran Duran",
+        "youtube_url": "",
+        "category": "Musique/Pop Rock",
+        "speed": "Medium",
+        "tags": [
+            "\u00c9nergie",
+            "Danse",
+            "Aventure",
+            "Pop-Rock",
+            "Entra\u00eenant"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Pop Rock\\Hungry Like the Wolf - Duran Duran - \u00c9nergie, Danse, Aventure, Pop-Rock, Entra\u00eenant.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "8dab0803-56ba-473e-96b6-91453237f40c",
+        "title": "Seven Nation Army",
+        "author": "The White Stripes",
+        "youtube_url": "",
+        "category": "Musique/Pop Rock",
+        "speed": "Medium",
+        "tags": [
+            "\u00c9nergique",
+            "Rythmique",
+            "C\u00e9l\u00e8bre",
+            "Anthem",
+            "Populaire"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Pop Rock\\Seven Nation Army - The White Stripes - \u00c9nergique, Rythmique, C\u00e9l\u00e8bre, Anthem, Populaire.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "edb79694-fa99-4793-a062-42394196655e",
+        "title": "Take On Me",
+        "author": "A-ha",
+        "youtube_url": "",
+        "category": "Musique/Pop Rock",
+        "speed": "Medium",
+        "tags": [
+            "Synth-pop",
+            "Ann\u00e9es 80",
+            "Entra\u00eenant",
+            "Joyeux",
+            "Iconique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Pop Rock\\Take On Me - A-ha - Synth-pop, Ann\u00e9es 80, Entra\u00eenant, Joyeux, Iconique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "98ab261f-2213-4e59-b7c9-1a286e6557f2",
+        "title": "Un autre monde",
+        "author": "T\u00e9l\u00e9phone",
+        "youtube_url": "",
+        "category": "Musique/Pop Rock",
+        "speed": "Medium",
+        "tags": [
+            "Rock Classique",
+            "\u00c9vasion",
+            "Hymne",
+            "\u00c9nergique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Pop Rock\\Un autre monde - T\u00e9l\u00e9phone - Rock Classique, \u00c9vasion, Hymne, \u00c9nergique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "05eecbe7-29bb-4988-9c10-46d71393a421",
+        "title": "Whenever, Wherever",
+        "author": "Shakira",
+        "youtube_url": "",
+        "category": "Musique/Pop Rock Latino",
+        "speed": "Medium",
+        "tags": [
+            "Aventure",
+            "Voyage",
+            "\u00c9nergique",
+            "Passion",
+            "Libert\u00e9"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Pop Rock Latino\\Whenever, Wherever - Shakira - Aventure, Voyage, \u00c9nergique, Passion, Libert\u00e9.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "fdf5ef2f-cfa5-4296-89e5-8383b15e156c",
+        "title": "Dig in the Hole (Version M\u00e9tal)",
+        "author": "Inconnu",
+        "youtube_url": "",
+        "category": "Musique/Rock/Metal",
+        "speed": "Medium",
+        "tags": [
+            "Agressif",
+            "Distorsion",
+            "\u00c9nergique",
+            "M\u00e9tal",
+            "Lourd"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Rock\\Metal\\Dig in the Hole (Version M\u00e9tal) - Inconnu - Agressif, Distorsion, \u00c9nergique, M\u00e9tal, Lourd.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "05363b30-93a5-4da6-ac6f-846dd4fec146",
+        "title": "Enter Sandman",
+        "author": "Metallica",
+        "youtube_url": "",
+        "category": "Musique/Rock/Metal",
+        "speed": "Medium",
+        "tags": [
+            "Iconique",
+            "Riff puissant",
+            "Sombre",
+            "Rythmique",
+            "Entra\u00eenant"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Rock\\Metal\\Enter Sandman - Metallica - Iconique, Riff puissant, Sombre, Rythmique, Entra\u00eenant.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "cd038460-9f42-485b-bd52-e6ab3f6e8b97",
+        "title": "Highway to Hell",
+        "author": "AC-DC",
+        "youtube_url": "",
+        "category": "Musique/Rock/Metal",
+        "speed": "Medium",
+        "tags": [
+            "Rock",
+            "\u00c9nergique",
+            "Puissant",
+            "Classique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Rock\\Metal\\Highway to Hell - AC-DC - Rock, \u00c9nergique, Puissant, Classique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "2f3997ce-19c8-4ef6-8eb6-a11169de3fab",
+        "title": "Kammthaar",
+        "author": "Inconnu",
+        "youtube_url": "",
+        "category": "Musique/Rock/Metal",
+        "speed": "Medium",
+        "tags": [
+            "M\u00e9tal",
+            "\u00c9nergique",
+            "Lourd",
+            "Humoristique",
+            "Provocateur"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Rock\\Metal\\Kammthaar - Inconnu - M\u00e9tal, \u00c9nergique, Lourd, Humoristique, Provocateur.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "02f47e85-88b0-446d-9797-1a0327a07165",
+        "title": "Seek & Destroy",
+        "author": "Metallica",
+        "youtube_url": "",
+        "category": "Musique/Rock/Metal",
+        "speed": "Medium",
+        "tags": [
+            "\u00c9nergie",
+            "Brutal",
+            "Rapide",
+            "Hymne",
+            "Classique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Rock\\Metal\\Seek & Destroy - Metallica - \u00c9nergie, Brutal, Rapide, Hymne, Classique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "22396825-63dd-4f27-9da2-d1120a8033e9",
+        "title": "Chantaje",
+        "author": "Shakira & Maluma",
+        "youtube_url": "",
+        "category": "Musique/Urbaine Latino",
+        "speed": "Medium",
+        "tags": [
+            "Urbain",
+            "S\u00e9duction",
+            "Danse",
+            "Sensuel",
+            "Latino"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Urbaine Latino\\Chantaje - Shakira & Maluma - Urbain, S\u00e9duction, Danse, Sensuel, Latino.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "2334cc25-41b8-40e0-a90b-d82d25d6180e",
+        "title": "Objection (Tango)",
+        "author": "Traditionnel",
+        "youtube_url": "",
+        "category": "Musique/Urbaine Latino",
+        "speed": "Medium",
+        "tags": [
+            "Dramatique",
+            "Tango",
+            "Passion",
+            "Force",
+            "D\u00e9ception"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Urbaine Latino\\Objection (Tango) - Traditionnel - Dramatique, Tango, Passion, Force, D\u00e9ception.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "06cde72b-94bc-4abe-815d-53449893bd66",
+        "title": "J't'emm\u00e8ne au vent",
+        "author": "Louise Attaque",
+        "youtube_url": "",
+        "category": "Musique/Vari\u00e9t\u00e9 Fran\u00e7aise",
+        "speed": "Medium",
+        "tags": [
+            "Optimisme",
+            "L\u00e9g\u00e8ret\u00e9",
+            "Voyage",
+            "Libert\u00e9",
+            "Entra\u00eenante"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Vari\u00e9t\u00e9 Fran\u00e7aise\\J't'emm\u00e8ne au vent - Louise Attaque - Optimisme, L\u00e9g\u00e8ret\u00e9, Voyage, Libert\u00e9, Entra\u00eenante.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "60e09aec-967a-45ab-92b2-e77124d4bbb5",
+        "title": "L'Aventurier",
+        "author": "Indochine",
+        "youtube_url": "",
+        "category": "Musique/Vari\u00e9t\u00e9 Fran\u00e7aise",
+        "speed": "Medium",
+        "tags": [
+            "New Wave",
+            "Aventureux",
+            "R\u00e9tro",
+            "\u00c9nergique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Vari\u00e9t\u00e9 Fran\u00e7aise\\L'Aventurier - Indochine - New Wave, Aventureux, R\u00e9tro, \u00c9nergique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "23420950-f447-44f4-9e2c-2dc73c7f4090",
+        "title": "L'hymne de nos campagnes",
+        "author": "Tryo",
+        "youtube_url": "",
+        "category": "Musique/Vari\u00e9t\u00e9 Fran\u00e7aise",
+        "speed": "Medium",
+        "tags": [
+            "Nature",
+            "Amiti\u00e9",
+            "D\u00e9tente",
+            "Simple",
+            "Positif"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Vari\u00e9t\u00e9 Fran\u00e7aise\\L'hymne de nos campagnes - Tryo - Nature, Amiti\u00e9, D\u00e9tente, Simple, Positif.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "c151849b-2c6b-4025-8505-821cce87f3bc",
+        "title": "Quand la ville dort",
+        "author": "Niagara",
+        "youtube_url": "",
+        "category": "Musique/Vari\u00e9t\u00e9 Fran\u00e7aise",
+        "speed": "Medium",
+        "tags": [
+            "Myst\u00e9rieux",
+            "Urbain",
+            "Atmosph\u00e9rique",
+            "M\u00e9lancolique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Vari\u00e9t\u00e9 Fran\u00e7aise\\Quand la ville dort - Niagara - Myst\u00e9rieux, Urbain, Atmosph\u00e9rique, M\u00e9lancolique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "a6ab651d-8952-4ddd-8586-a0dc195f7c4b",
+        "title": "Toute Premi\u00e8re Fois",
+        "author": "Vanessa Paradis",
+        "youtube_url": "",
+        "category": "Musique/Vari\u00e9t\u00e9 Fran\u00e7aise/Pop",
+        "speed": "Medium",
+        "tags": [
+            "Romantique",
+            "P\u00e9tillant",
+            "R\u00e9tro",
+            "Joyeux",
+            "Synth-pop"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\Musique\\Vari\u00e9t\u00e9 Fran\u00e7aise\\Pop\\Toute Premi\u00e8re Fois - Vanessa Paradis - Romantique, P\u00e9tillant, R\u00e9tro, Joyeux, Synth-pop.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "875049d0-4a2d-4e7d-aef1-0a731379cd23",
+        "title": "Can't Help Falling in Love",
+        "author": "Elvis Presley",
+        "youtube_url": "",
+        "category": "\u00c9motion/Amour",
+        "speed": "Medium",
+        "tags": [
+            "Romance",
+            "Classique Am\u00e9ricain",
+            "D\u00e9claration",
+            "Douceur"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\\u00c9motion\\Amour\\Can't Help Falling in Love - Elvis Presley - Romance, Classique Am\u00e9ricain, D\u00e9claration, Douceur.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "e55ad91c-4809-4bf0-b469-862e5feb3f5c",
+        "title": "Je l'aime \u00e0 mourir",
+        "author": "Francis Cabrel",
+        "youtube_url": "",
+        "category": "\u00c9motion/Amour",
+        "speed": "Medium",
+        "tags": [
+            "Chanson Fran\u00e7aise",
+            "Romantique",
+            "Sentimental",
+            "Intense",
+            "Amour"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\\u00c9motion\\Amour\\Je l'aime \u00e0 mourir - Francis Cabrel - Chanson Fran\u00e7aise, Romantique, Sentimental, Intense, Amour.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "78696461-f86d-4efa-8522-16b1753b008d",
+        "title": "La Vie en rose",
+        "author": "\u00c9dith Piaf",
+        "youtube_url": "",
+        "category": "\u00c9motion/Amour",
+        "speed": "Medium",
+        "tags": [
+            "Chanson Fran\u00e7aise",
+            "Tendresse",
+            "\u00c9motion",
+            "Romance",
+            "Classique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\\u00c9motion\\Amour\\La Vie en rose - \u00c9dith Piaf - Chanson Fran\u00e7aise, Tendresse, \u00c9motion, Romance, Classique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "342e90d4-fd4e-408f-95a2-dcc7772ccd38",
+        "title": "Somebody to Love",
+        "author": "Queen",
+        "youtube_url": "",
+        "category": "\u00c9motion/Amour",
+        "speed": "Medium",
+        "tags": [
+            "Gospel",
+            "\u00c2me",
+            "Puissant",
+            "Romantique",
+            "Vocal"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\\u00c9motion\\Amour\\Somebody to Love - Queen - Gospel, \u00c2me, Puissant, Romantique, Vocal.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "f6d1f53d-ef95-40dd-b73b-9e5c6c2a8e2b",
+        "title": "Ti Amo",
+        "author": "Umberto Tozzi",
+        "youtube_url": "",
+        "category": "\u00c9motion/Amour",
+        "speed": "Medium",
+        "tags": [
+            "Chanson Italienne",
+            "Romance",
+            "Passion",
+            "D\u00e9claration"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\\u00c9motion\\Amour\\Ti Amo - Umberto Tozzi - Chanson Italienne, Romance, Passion, D\u00e9claration.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "bc60ac92-d50f-4a72-8e83-4098bd3df543",
+        "title": "Your Song",
+        "author": "Elton John",
+        "youtube_url": "",
+        "category": "\u00c9motion/Amour",
+        "speed": "Medium",
+        "tags": [
+            "Ballade Pop",
+            "Sinc\u00e9rit\u00e9",
+            "Tendresse",
+            "Offrande"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\\u00c9motion\\Amour\\Your Song - Elton John - Ballade Pop, Sinc\u00e9rit\u00e9, Tendresse, Offrande.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "d394c34e-580b-48a5-9704-cd3a732b0c07",
+        "title": "Nothing Else Matters",
+        "author": "Metallica",
+        "youtube_url": "",
+        "category": "\u00c9motion/Intimit\u00e9",
+        "speed": "Medium",
+        "tags": [
+            "\u00c9motionnel",
+            "M\u00e9lancolique",
+            "Acoustique",
+            "Profond"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\\u00c9motion\\Intimit\u00e9\\Nothing Else Matters - Metallica - \u00c9motionnel, M\u00e9lancolique, Acoustique, Profond.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "c60cb42f-de9f-464b-b215-d85b84ad7e2a",
+        "title": "Can't Stop The Feeling!",
+        "author": "Justin Timberlake",
+        "youtube_url": "",
+        "category": "\u00c9motion/Joie",
+        "speed": "Medium",
+        "tags": [
+            "Joyeux",
+            "Optimiste",
+            "Danse",
+            "Moderne",
+            "\u00c9nergique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\\u00c9motion\\Joie\\Can't Stop The Feeling! - Justin Timberlake - Joyeux, Optimiste, Danse, Moderne, \u00c9nergique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "069e03a2-244f-479f-accd-57236392bb68",
+        "title": "Don't Stop Me Now",
+        "author": "Queen",
+        "youtube_url": "",
+        "category": "\u00c9motion/Joie",
+        "speed": "Medium",
+        "tags": [
+            "\u00c9nergique",
+            "Exaltant",
+            "Rock",
+            "Libert\u00e9",
+            "Classique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\\u00c9motion\\Joie\\Don't Stop Me Now - Queen - \u00c9nergique, Exaltant, Rock, Libert\u00e9, Classique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "3accfb1c-c8f3-4213-b293-dee1fa7f1e46",
+        "title": "'Till I Collapse",
+        "author": "Eminem",
+        "youtube_url": "",
+        "category": "\u00c9motion/Motivation",
+        "speed": "Medium",
+        "tags": [
+            "Puissant",
+            "D\u00e9termination",
+            "Entra\u00eenement",
+            "Hip-hop",
+            "Inspiration"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\\u00c9motion\\Motivation\\'Till I Collapse - Eminem - Puissant, D\u00e9termination, Entra\u00eenement, Hip-hop, Inspiration.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "b5930e0c-50c6-4780-95e1-2a0abdd2e229",
+        "title": "Believer",
+        "author": "Imagine Dragons",
+        "youtube_url": "",
+        "category": "\u00c9motion/Motivation",
+        "speed": "Medium",
+        "tags": [
+            "Inspirant",
+            "Puissant",
+            "R\u00e9silient",
+            "\u00c9nergique",
+            "Pop-rock"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\\u00c9motion\\Motivation\\Believer - Imagine Dragons - Inspirant, Puissant, R\u00e9silient, \u00c9nergique, Pop-rock.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "80ff4c4e-96be-4c24-98a9-e2ce4899f7e9",
+        "title": "I Will Survive",
+        "author": "Gloria Gaynor",
+        "youtube_url": "",
+        "category": "\u00c9motion/Motivation",
+        "speed": "Medium",
+        "tags": [
+            "Disco",
+            "Hymne",
+            "Force",
+            "Espoir",
+            "Lib\u00e9ration"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\\u00c9motion\\Motivation\\I Will Survive - Gloria Gaynor - Disco, Hymne, Force, Espoir, Lib\u00e9ration.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "e9d761ce-3114-4e50-a301-8a433e2f9927",
+        "title": "Demons",
+        "author": "AC-DC",
+        "youtube_url": "",
+        "category": "\u00c9motion/M\u00e9lancolie",
+        "speed": "Medium",
+        "tags": [
+            "Doux",
+            "R\u00e9fl\u00e9chi",
+            "\u00c9motionnel",
+            "Introspectif",
+            "Sombre"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\\u00c9motion\\M\u00e9lancolie\\Demons - AC-DC - Doux, R\u00e9fl\u00e9chi, \u00c9motionnel, Introspectif, Sombre.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "4351f096-9601-4ae2-bcbe-42eaa1359328",
+        "title": "Marche fun\u00e8bre de Chopin",
+        "author": "Fr\u00e9d\u00e9ric Chopin",
+        "youtube_url": "",
+        "category": "\u00c9motion/Tristesse",
+        "speed": "Medium",
+        "tags": [
+            "Classique",
+            "Fun\u00e8bre",
+            "Triste",
+            "Solennel",
+            "M\u00e9lancolique"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\\u00c9motion\\Tristesse\\Marche fun\u00e8bre de Chopin - Fr\u00e9d\u00e9ric Chopin - Classique, Fun\u00e8bre, Triste, Solennel, M\u00e9lancolique.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    },
+    {
+        "id": "e9668139-94b1-4d2a-bbdf-6e2f10fa9529",
+        "title": "Bohemian Rhapsody",
+        "author": "Queen",
+        "youtube_url": "",
+        "category": "\u00c9motion/\u00c9pique",
+        "speed": "Medium",
+        "tags": [
+            "Op\u00e9ra",
+            "Rock",
+            "Dramatique",
+            "\u00c9pique",
+            "Complexe"
+        ],
+        "duration": "00:00",
+        "is_downloaded": true,
+        "local_file": "C:\\Users\\xam74\\PycharmProjects\\LaBriqueMusique\\completed\\\u00c9motion\\\u00c9pique\\Bohemian Rhapsody - Queen - Op\u00e9ra, Rock, Dramatique, \u00c9pique, Complexe.mp3",
+        "thumbnail": "",
+        "youtube_data": {}
+    }
+]

@@ -1,0 +1,1396 @@
+/* ================================================================
+   VIRTUAL DJ — Premium Hardware-Style UI
+   ================================================================ */
+
+/* ── Root ─────────────────────────────────────────────────────── */
+.vdj-root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    background: radial-gradient(ellipse at center top, rgba(20, 10, 40, 0.95) 0%, #07071a 100%);
+}
+
+/* ── Decks Row ────────────────────────────────────────────────── */
+.vdj-decks-row {
+    display: flex;
+    gap: 0;
+    flex-shrink: 0;
+    position: relative;
+}
+
+/* ── Individual Deck ──────────────────────────────────────────── */
+.vdj-deck {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 14px 18px 12px;
+    gap: 8px;
+    position: relative;
+    background: rgba(14, 10, 28, 0.97);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    transition: box-shadow 0.3s ease;
+}
+
+.vdj-deck::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+    transition: opacity 0.3s ease;
+}
+
+.vdj-deck.deck-a::before {
+    background: linear-gradient(90deg, transparent, #9D4EDD, #c97aff, transparent);
+    box-shadow: 0 0 20px rgba(157, 78, 221, 0.8);
+}
+
+.vdj-deck.deck-b::before {
+    background: linear-gradient(90deg, transparent, #00F5D4, #00c8ae, transparent);
+    box-shadow: 0 0 20px rgba(0, 245, 212, 0.8);
+}
+
+.vdj-deck.deck-a {
+    border-right: 1px solid rgba(157, 78, 221, 0.2);
+    box-shadow: inset 4px 0 50px rgba(157, 78, 221, 0.04);
+}
+
+.vdj-deck.deck-b {
+    border-left: 1px solid rgba(0, 245, 212, 0.2);
+    box-shadow: inset -4px 0 50px rgba(0, 245, 212, 0.04);
+}
+
+/* Drop target highlight when dragging a track onto a deck */
+.vdj-deck.deck-a.deck-drop-target {
+    box-shadow: inset 0 0 60px rgba(157, 78, 221, 0.25), 0 0 30px rgba(157, 78, 221, 0.2);
+    border-color: rgba(157, 78, 221, 0.7);
+}
+
+.vdj-deck.deck-b.deck-drop-target {
+    box-shadow: inset 0 0 60px rgba(0, 245, 212, 0.2), 0 0 30px rgba(0, 245, 212, 0.15);
+    border-color: rgba(0, 245, 212, 0.7);
+}
+
+/* Deck playing state — stronger glow */
+.vdj-deck.deck-a.is-playing {
+    box-shadow: inset 4px 0 50px rgba(157, 78, 221, 0.1), 0 0 40px rgba(157, 78, 221, 0.08);
+}
+
+.vdj-deck.deck-b.is-playing {
+    box-shadow: inset -4px 0 50px rgba(0, 245, 212, 0.1), 0 0 40px rgba(0, 245, 212, 0.08);
+}
+
+/* ── Master Center Panel ──────────────────────────────────────── */
+.vdj-master {
+    width: 100px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 6px;
+    background: rgba(8, 8, 20, 0.98);
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    position: relative;
+}
+
+.vdj-master::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #9D4EDD, #00F5D4);
+    box-shadow: 0 0 14px rgba(157, 78, 221, 0.5), 0 0 14px rgba(0, 245, 212, 0.5);
+}
+
+/* ── Deck Header ──────────────────────────────────────────────── */
+.deck-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.deck-label {
+    font-size: 1.3rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    font-family: 'Courier New', monospace;
+}
+
+.deck-a .deck-label {
+    background: linear-gradient(135deg, #9D4EDD, #e0a0ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(157, 78, 221, 0.7));
+}
+
+.deck-b .deck-label {
+    background: linear-gradient(135deg, #00F5D4, #00fff0);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(0, 245, 212, 0.7));
+}
+
+.deck-thumb {
+    width: 38px;
+    height: 38px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.deck-a .deck-thumb {
+    border-color: rgba(157, 78, 221, 0.3);
+}
+
+.deck-b .deck-thumb {
+    border-color: rgba(0, 245, 212, 0.3);
+}
+
+.deck-track-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.deck-track-info .track-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.2px;
+}
+
+.deck-track-info .track-author {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+}
+
+/* ── Waveform ─────────────────────────────────────────────────── */
+.dj-waveform-wrapper {
+    width: 100%;
+    border-radius: 8px !important;
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+}
+
+.deck-a .dj-waveform-wrapper {
+    border: 1px solid rgba(157, 78, 221, 0.2) !important;
+}
+
+.deck-b .dj-waveform-wrapper {
+    border: 1px solid rgba(0, 245, 212, 0.2) !important;
+}
+
+/* ── Time Row ─────────────────────────────────────────────────── */
+.deck-time-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.time-display {
+    font-size: 0.68rem;
+    color: #888;
+    font-variant-numeric: tabular-nums;
+    font-family: 'Courier New', monospace;
+    flex-shrink: 0;
+    min-width: 32px;
+    letter-spacing: 0.5px;
+}
+
+.deck-a .time-display {
+    color: rgba(201, 122, 255, 0.7);
+}
+
+.deck-b .time-display {
+    color: rgba(0, 245, 212, 0.65);
+}
+
+.progress-bar {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    outline: none;
+    transition: height 0.15s ease;
+}
+
+.progress-bar:hover {
+    height: 6px;
+}
+
+.deck-a .progress-bar {
+    background: linear-gradient(to right, rgba(157, 78, 221, 0.6), rgba(255, 255, 255, 0.08));
+}
+
+.deck-b .progress-bar {
+    background: linear-gradient(to right, rgba(0, 245, 212, 0.6), rgba(255, 255, 255, 0.08));
+}
+
+.deck-a .progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #c97aff;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(157, 78, 221, 0.9), 0 0 2px rgba(157, 78, 221, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.deck-b .progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #00F5D4;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(0, 245, 212, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.deck-a .progress-bar::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: none;
+    background: #c97aff;
+    box-shadow: 0 0 8px rgba(157, 78, 221, 0.9);
+}
+
+.deck-b .progress-bar::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: none;
+    background: #00F5D4;
+    box-shadow: 0 0 8px rgba(0, 245, 212, 0.9);
+}
+
+/* ── Bottom Row (Transport + Faders) ─────────────────────────── */
+.deck-bottom-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 2px;
+}
+
+/* ── Transport Buttons ────────────────────────────────────────── */
+.deck-transport {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 5px 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ctrl-btn {
+    border-radius: 7px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 800;
+    transition: all 0.15s ease;
+    padding: 5px 9px;
+    gap: 4px;
+    letter-spacing: 0.6px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #666;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    white-space: nowrap;
+    text-transform: uppercase;
+}
+
+.ctrl-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ccc;
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.ctrl-btn:disabled {
+    opacity: 0.25;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* PLAY button — large and prominent */
+.ctrl-btn.play-btn {
+    padding: 6px 14px;
+    font-size: 0.65rem;
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #aaa;
+    border-radius: 8px;
+    min-width: 62px;
+}
+
+.deck-a .ctrl-btn.play-btn.active {
+    background: rgba(157, 78, 221, 0.3);
+    border-color: #9D4EDD;
+    color: #e0a0ff;
+    box-shadow: 0 0 16px rgba(157, 78, 221, 0.5), inset 0 0 10px rgba(157, 78, 221, 0.1);
+    animation: playPulseA 1.8s ease-in-out infinite;
+}
+
+.deck-b .ctrl-btn.play-btn.active {
+    background: rgba(0, 245, 212, 0.2);
+    border-color: #00F5D4;
+    color: #00F5D4;
+    box-shadow: 0 0 16px rgba(0, 245, 212, 0.5), inset 0 0 10px rgba(0, 245, 212, 0.08);
+    animation: playPulseB 1.8s ease-in-out infinite;
+}
+
+@keyframes playPulseA {
+
+    0%,
+    100% {
+        box-shadow: 0 0 14px rgba(157, 78, 221, 0.5), inset 0 0 10px rgba(157, 78, 221, 0.1);
+    }
+
+    50% {
+        box-shadow: 0 0 28px rgba(157, 78, 221, 0.8), inset 0 0 16px rgba(157, 78, 221, 0.2);
+    }
+}
+
+@keyframes playPulseB {
+
+    0%,
+    100% {
+        box-shadow: 0 0 14px rgba(0, 245, 212, 0.5), inset 0 0 8px rgba(0, 245, 212, 0.08);
+    }
+
+    50% {
+        box-shadow: 0 0 28px rgba(0, 245, 212, 0.8), inset 0 0 16px rgba(0, 245, 212, 0.15);
+    }
+}
+
+.ctrl-btn.loop-btn.active {
+    background: rgba(255, 200, 0, 0.18);
+    border-color: #ffc800;
+    color: #ffc800;
+    box-shadow: 0 0 10px rgba(255, 200, 0, 0.35);
+}
+
+.ctrl-btn.cue-btn {
+    background: rgba(255, 42, 109, 0.08);
+    border-color: rgba(255, 42, 109, 0.25);
+    color: rgba(255, 80, 120, 0.8);
+}
+
+.ctrl-btn.cue-btn:hover:not(:disabled) {
+    background: rgba(255, 42, 109, 0.2);
+    color: #ff5070;
+    box-shadow: 0 0 8px rgba(255, 42, 109, 0.3);
+}
+
+.cue-marker {
+    font-size: 0.55rem;
+    color: #ff5070;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    font-family: 'Courier New', monospace;
+    background: rgba(255, 42, 109, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 42, 109, 0.2);
+}
+
+/* ── Faders ───────────────────────────────────────────────────── */
+.deck-faders {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    justify-content: flex-end;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 5px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.fader-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.fader-label {
+    font-size: 0.5rem;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.fader-val {
+    font-size: 0.55rem;
+    color: #666;
+    font-variant-numeric: tabular-nums;
+    min-width: 28px;
+    text-align: right;
+    font-family: 'Courier New', monospace;
+}
+
+.fader-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+    transition: height 0.1s;
+}
+
+.fader-slider:hover {
+    height: 6px;
+}
+
+.fader-slider.vol-slider {
+    width: 70px;
+    background: linear-gradient(to right, var(--primary) var(--val, 80%), rgba(255, 255, 255, 0.1) var(--val, 80%));
+}
+
+.deck-b .fader-slider.vol-slider {
+    background: linear-gradient(to right, var(--secondary) var(--val, 80%), rgba(255, 255, 255, 0.1) var(--val, 80%));
+}
+
+.fader-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 13px;
+    height: 13px;
+    border-radius: 2px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(200, 200, 200, 0.7));
+    cursor: pointer;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.fader-slider::-moz-range-thumb {
+    width: 13px;
+    height: 13px;
+    border-radius: 2px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(200, 200, 200, 0.7));
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+}
+
+.speed-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 70px;
+    height: 4px;
+    border-radius: 4px;
+    background: rgba(255, 200, 0, 0.15);
+    outline: none;
+    cursor: pointer;
+    border: 1px solid rgba(255, 200, 0, 0.15);
+}
+
+.speed-slider:hover {
+    height: 6px;
+}
+
+.speed-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 13px;
+    height: 13px;
+    border-radius: 2px;
+    background: linear-gradient(135deg, #ffd700, #ffc800);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(255, 200, 0, 0.6);
+    border: 1px solid rgba(255, 230, 100, 0.4);
+}
+
+.speed-slider::-moz-range-thumb {
+    width: 13px;
+    height: 13px;
+    border-radius: 2px;
+    background: linear-gradient(135deg, #ffd700, #ffc800);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 0 8px rgba(255, 200, 0, 0.6);
+}
+
+.speed-val {
+    color: #ffc800 !important;
+    font-weight: 800;
+    text-shadow: 0 0 6px rgba(255, 200, 0, 0.5);
+}
+
+/* ── Master Panel ─────────────────────────────────────────────── */
+.master-label {
+    font-size: 0.5rem;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #444;
+}
+
+.bpm-display {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: #ffc800;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    text-shadow: 0 0 12px rgba(255, 200, 0, 0.6);
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+}
+
+.bpm-unit {
+    font-size: 0.45rem;
+    color: #444;
+    text-align: center;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* ── Master Volume — Hardware Fader ──────────────────────────── */
+.master-vol-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    padding: 6px 0 4px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    margin-top: 4px;
+}
+
+.master-vol-label {
+    font-size: 0.45rem;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 800;
+}
+
+/* The horizontal container: [ticks] [slider] [ticks] */
+.master-fader-rail {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 80px;
+    position: relative;
+}
+
+/* Tick mark column */
+.master-fader-ticks {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 80px;
+    padding: 4px 0;
+    gap: 0;
+    pointer-events: none;
+}
+
+.fader-tick {
+    width: 5px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 1px;
+    flex-shrink: 0;
+}
+
+.fader-tick-major {
+    width: 8px;
+    height: 1.5px;
+    background: rgba(255, 200, 0, 0.45);
+}
+
+/* Vertical slider — the fader track */
+.master-vol-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    writing-mode: vertical-lr;
+    direction: rtl;
+    width: 6px;
+    height: 80px;
+    cursor: pointer;
+    outline: none;
+    /* Narrow dark rail */
+    background: linear-gradient(to right,
+            rgba(0, 0, 0, 0.6) 0%,
+            rgba(40, 40, 40, 0.8) 50%,
+            rgba(0, 0, 0, 0.6) 100%);
+    border-radius: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* The fader cap — wide 3D rectangular knob */
+.master-vol-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    /* Wide cap that spans across the track */
+    width: 24px;
+    height: 10px;
+    border-radius: 3px;
+    background: linear-gradient(to bottom,
+            rgba(255, 255, 255, 0.9) 0%,
+            rgba(220, 220, 220, 0.95) 20%,
+            rgba(180, 180, 190, 0.9) 45%,
+            rgba(160, 160, 170, 0.85) 50%,
+            rgba(180, 180, 190, 0.9) 55%,
+            rgba(220, 220, 220, 0.95) 80%,
+            rgba(255, 255, 255, 0.9) 100%);
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.7),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(60, 60, 60, 0.4);
+    cursor: grab;
+    /* Ridges: three thin lines across the cap */
+    background-image:
+        linear-gradient(to bottom,
+            rgba(255, 255, 255, 0.9) 0%, rgba(220, 220, 220, 0.95) 20%,
+            rgba(180, 180, 190, 0.9) 45%, rgba(160, 160, 170, 0.85) 50%,
+            rgba(180, 180, 190, 0.9) 55%, rgba(220, 220, 220, 0.95) 80%,
+            rgba(255, 255, 255, 0.9) 100%),
+        repeating-linear-gradient(transparent 0px, transparent 2px,
+            rgba(0, 0, 0, 0.08) 2px, rgba(0, 0, 0, 0.08) 3px);
+}
+
+.master-vol-slider::-moz-range-thumb {
+    width: 24px;
+    height: 10px;
+    border-radius: 3px;
+    background: linear-gradient(to bottom,
+            rgba(255, 255, 255, 0.9) 0%,
+            rgba(220, 220, 220, 0.95) 20%,
+            rgba(180, 180, 190, 0.9) 45%,
+            rgba(160, 160, 170, 0.85) 50%,
+            rgba(180, 180, 190, 0.9) 55%,
+            rgba(220, 220, 220, 0.95) 80%,
+            rgba(255, 255, 255, 0.9) 100%);
+    border: 1px solid rgba(60, 60, 60, 0.4);
+    cursor: grab;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.master-vol-val {
+    font-size: 0.5rem;
+    color: #ffc800;
+    font-variant-numeric: tabular-nums;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    text-shadow: 0 0 6px rgba(255, 200, 0, 0.4);
+}
+
+/* ── Zebra Striping on all lists ──────────────────────────────── */
+/* Setlist tracks */
+.sl-track-row:nth-child(even) {
+    background: rgba(255, 255, 255, 0.018);
+}
+
+/* DJ Library tracks */
+.lib-track-row:nth-child(even) {
+    background: rgba(255, 255, 255, 0.018);
+}
+
+/* DJ Library list-view table rows */
+.lib-list-table tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.018);
+}
+
+/* Hover always wins over zebra */
+.sl-track-row:nth-child(even):hover {
+    background: rgba(157, 78, 221, 0.07);
+}
+
+.lib-track-row:nth-child(even):hover {
+    background: rgba(157, 78, 221, 0.07);
+}
+
+.lib-list-table tbody tr:nth-child(even):hover {
+    background: rgba(157, 78, 221, 0.06);
+}
+
+.vu-meter {
+    width: 8px;
+    height: 70px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.vu-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transition: height 0.04s linear;
+    border-radius: 2px;
+    background: linear-gradient(to top, #05FF00 0%, #80ff00 40%, #ffc800 70%, #FF2A6D 100%);
+    box-shadow: 0 0 4px rgba(5, 255, 0, 0.4);
+}
+
+.vu-row {
+    display: flex;
+    gap: 3px;
+    align-items: flex-end;
+}
+
+/* ── Crossfader Section ───────────────────────────────────────── */
+.vdj-crossfader-section {
+    background: rgba(8, 6, 18, 0.99);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 10px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.vdj-crossfader-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right, rgba(157, 78, 221, 0.4), rgba(255, 255, 255, 0.05) 50%, rgba(0, 245, 212, 0.4));
+}
+
+.xfader-label {
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    font-family: 'Courier New', monospace;
+}
+
+.xfader-label.label-a {
+    color: #9D4EDD;
+    text-shadow: 0 0 10px rgba(157, 78, 221, 0.7);
+}
+
+.xfader-label.label-b {
+    color: #00F5D4;
+    text-shadow: 0 0 10px rgba(0, 245, 212, 0.7);
+}
+
+/* The crossfader track */
+.crossfader-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 6px;
+    background: linear-gradient(to right,
+            rgba(157, 78, 221, 0.8),
+            rgba(157, 78, 221, 0.3) 50%,
+            rgba(0, 245, 212, 0.3) 50%,
+            rgba(0, 245, 212, 0.8));
+    outline: none;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.crossfader-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+    background: linear-gradient(135deg, #e0a0ff, #9D4EDD 50%, #00F5D4);
+    cursor: pointer;
+    box-shadow:
+        0 0 14px rgba(157, 78, 221, 0.6),
+        0 0 14px rgba(0, 245, 212, 0.3),
+        0 2px 6px rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    transition: box-shadow 0.15s;
+}
+
+.crossfader-slider::-webkit-slider-thumb:hover {
+    box-shadow:
+        0 0 22px rgba(157, 78, 221, 0.9),
+        0 0 22px rgba(0, 245, 212, 0.5),
+        0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.crossfader-slider::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+    background: linear-gradient(135deg, #e0a0ff, #9D4EDD 50%, #00F5D4);
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 14px rgba(157, 78, 221, 0.6), 0 0 14px rgba(0, 245, 212, 0.3);
+}
+
+/* ── Global Play / Pause Button ───────────────────────────────── */
+.global-play-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    color: #888;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.global-play-btn:hover {
+    background: rgba(157, 78, 221, 0.18);
+    border-color: rgba(157, 78, 221, 0.5);
+    color: #c97aff;
+    box-shadow: 0 0 16px rgba(157, 78, 221, 0.3);
+    transform: scale(1.08);
+}
+
+.global-play-btn--playing {
+    border-color: rgba(0, 245, 212, 0.5);
+    background: rgba(0, 245, 212, 0.1);
+    color: #00F5D4;
+    box-shadow: 0 0 14px rgba(0, 245, 212, 0.25);
+    animation: global-play-pulse 2s ease-in-out infinite;
+}
+
+@keyframes global-play-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 10px rgba(0, 245, 212, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 0 22px rgba(0, 245, 212, 0.45);
+    }
+}
+
+.xfader-center-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    color: #555;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 0.58rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.xfader-center-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #aaa;
+    border-color: rgba(255, 255, 255, 0.18);
+    transform: translateY(-1px);
+}
+
+/* Active state — SETLIST (purple) */
+.xfader-btn-active {
+    background: rgba(157, 78, 221, 0.2) !important;
+    border-color: rgba(157, 78, 221, 0.55) !important;
+    color: #c97aff !important;
+    box-shadow: 0 0 10px rgba(157, 78, 221, 0.25);
+}
+
+/* Active state — LIBRARY (cyan) */
+.xfader-btn-active.xfader-btn-lib {
+    background: rgba(0, 245, 212, 0.12) !important;
+    border-color: rgba(0, 245, 212, 0.4) !important;
+    color: #00F5D4 !important;
+    box-shadow: 0 0 10px rgba(0, 245, 212, 0.2);
+}
+
+/* ── Library Panel ────────────────────────────────────────────── */
+.vdj-library {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+    background: rgba(10, 8, 22, 0.98);
+}
+
+.library-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
+    background: rgba(12, 10, 25, 0.95);
+    flex-wrap: wrap;
+}
+
+.library-title {
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #444;
+    flex-shrink: 0;
+}
+
+.lib-view-btn {
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(255, 255, 255, 0.03);
+    color: #555;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.63rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    letter-spacing: 0.3px;
+}
+
+.lib-view-btn.active {
+    background: rgba(157, 78, 221, 0.18);
+    border-color: rgba(157, 78, 221, 0.5);
+    color: #c97aff;
+    box-shadow: 0 0 8px rgba(157, 78, 221, 0.2);
+}
+
+.lib-view-btn:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.07);
+    color: #aaa;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.lib-search {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 20px;
+    color: white;
+    padding: 5px 14px;
+    font-size: 0.75rem;
+    outline: none;
+    flex: 1;
+    min-width: 100px;
+    transition: all 0.2s;
+}
+
+.lib-search::placeholder {
+    color: #444;
+}
+
+.lib-search:focus {
+    border-color: rgba(157, 78, 221, 0.5);
+    background: rgba(157, 78, 221, 0.05);
+    box-shadow: 0 0 8px rgba(157, 78, 221, 0.2);
+}
+
+.lib-filter {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: rgba(20, 16, 36, 0.95);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #c0b4d8;
+    padding: 5px 28px 5px 9px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.lib-filter:hover {
+    border-color: rgba(0, 245, 212, 0.4);
+    background-color: rgba(20, 30, 40, 0.98);
+}
+
+.lib-filter:focus {
+    border-color: rgba(0, 245, 212, 0.6);
+    box-shadow: 0 0 0 2px rgba(0, 245, 212, 0.15);
+}
+
+.lib-filter option {
+    background: #111820;
+    color: #8ce1d3;
+    padding: 4px 8px;
+}
+
+.lib-count {
+    font-size: 0.58rem;
+    color: #444;
+    white-space: nowrap;
+    font-family: 'Courier New', monospace;
+}
+
+.library-body {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+/* ── List View Table ──────────────────────────────────────────── */
+.lib-list-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+}
+
+.lib-list-table thead th {
+    padding: 7px 10px;
+    text-align: left;
+    font-size: 0.55rem;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #444;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(8, 6, 18, 0.95);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    transition: color 0.15s;
+}
+
+.lib-list-table thead th:hover {
+    color: #888;
+}
+
+.lib-list-table thead th.sorted {
+    color: #9D4EDD;
+}
+
+.lib-list-table tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    transition: background 0.1s;
+    cursor: pointer;
+}
+
+.lib-list-table tbody tr:hover {
+    background: rgba(157, 78, 221, 0.06);
+}
+
+.lib-list-table td {
+    padding: 6px 10px;
+    color: #bbb;
+    vertical-align: middle;
+}
+
+.lib-list-table td.col-title {
+    font-weight: 600;
+    color: #ddd;
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lib-list-table td.col-author {
+    color: #666;
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lib-list-table td.col-tags {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+    max-width: 160px;
+}
+
+.lib-list-table td.col-actions {
+    white-space: nowrap;
+}
+
+/* ── Folder View ──────────────────────────────────────────────── */
+.folder-group {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.folder-header {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.12s;
+}
+
+.folder-header:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.folder-icon {
+    font-size: 0.85rem;
+    transition: transform 0.2s ease;
+    display: flex;
+    color: #555;
+}
+
+.folder-icon.open {
+    transform: rotate(90deg);
+    color: #9D4EDD;
+}
+
+.folder-name {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #ccc;
+    flex: 1;
+}
+
+.folder-count {
+    font-size: 0.54rem;
+    background: rgba(157, 78, 221, 0.15);
+    color: rgba(201, 122, 255, 0.7);
+    border-radius: 20px;
+    padding: 2px 7px;
+    font-weight: 700;
+    border: 1px solid rgba(157, 78, 221, 0.2);
+}
+
+/* ── Track Row (Library) ──────────────────────────────────────── */
+.lib-track-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 16px 5px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    transition: background 0.12s;
+    cursor: grab;
+}
+
+.lib-track-row:hover {
+    background: rgba(157, 78, 221, 0.07);
+}
+
+.lib-track-row:active {
+    cursor: grabbing;
+}
+
+.lib-track-thumb {
+    width: 30px;
+    height: 30px;
+    border-radius: 5px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.lib-track-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.lib-track-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #ddd;
+}
+
+.lib-track-author {
+    font-size: 0.62rem;
+    color: #555;
+    margin-top: 1px;
+}
+
+.lib-track-tags {
+    display: flex;
+    gap: 3px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    max-width: 130px;
+}
+
+.lib-load-btns {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.load-to-deck {
+    border: 1px solid transparent;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.58rem;
+    font-weight: 800;
+    padding: 3px 9px;
+    transition: all 0.12s ease;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.load-to-deck:disabled {
+    opacity: 0.2;
+    cursor: default;
+}
+
+.load-to-deck.deck-a-btn {
+    background: rgba(157, 78, 221, 0.12);
+    border-color: rgba(157, 78, 221, 0.3);
+    color: #c97aff;
+}
+
+.load-to-deck.deck-a-btn:hover:not(:disabled) {
+    background: rgba(157, 78, 221, 0.3);
+    box-shadow: 0 0 8px rgba(157, 78, 221, 0.4);
+    transform: translateY(-1px);
+}
+
+.load-to-deck.deck-b-btn {
+    background: rgba(0, 245, 212, 0.08);
+    border-color: rgba(0, 245, 212, 0.25);
+    color: var(--secondary);
+}
+
+.load-to-deck.deck-b-btn:hover:not(:disabled) {
+    background: rgba(0, 245, 212, 0.22);
+    box-shadow: 0 0 8px rgba(0, 245, 212, 0.3);
+    transform: translateY(-1px);
+}
+
+/* ── Setlist add button ───────────────────────────────────────── */
+.sl-add-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    color: #666;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.12s;
+}
+
+.sl-add-btn:hover {
+    background: rgba(157, 78, 221, 0.2);
+    border-color: rgba(157, 78, 221, 0.4);
+    color: #c97aff;
+}
+
+/* ── Badges ───────────────────────────────────────────────────── */
+.dj-badge {
+    font-size: 0.54rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 20px;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+    display: inline-block;
+}
+
+.badge-cat {
+    background: rgba(157, 78, 221, 0.12);
+    color: rgba(201, 122, 255, 0.8);
+    border: 1px solid rgba(157, 78, 221, 0.25);
+}
+
+.badge-speed {
+    background: rgba(0, 245, 212, 0.08);
+    color: rgba(0, 245, 212, 0.7);
+    border: 1px solid rgba(0, 245, 212, 0.2);
+}
+
+.badge-dl {
+    background: rgba(5, 255, 0, 0.08);
+    color: #05bb00;
+    border: 1px solid rgba(5, 255, 0, 0.15);
+}
+
+.badge-yt {
+    background: rgba(255, 200, 0, 0.08);
+    color: rgba(255, 200, 0, 0.8);
+    border: 1px solid rgba(255, 200, 0, 0.2);
+}
+
+.badge-na {
+    background: rgba(255, 42, 109, 0.08);
+    color: rgba(255, 80, 120, 0.8);
+    border: 1px solid rgba(255, 42, 109, 0.18);
+}
+
+.badge-tag {
+    background: rgba(157, 78, 221, 0.07);
+    color: rgba(201, 122, 255, 0.6);
+    border: 1px solid rgba(157, 78, 221, 0.12);
+    font-size: 0.5rem;
+    padding: 0px 5px;
+}
+
+/* ── Empty States ─────────────────────────────────────────────── */
+.no-tracks-msg {
+    padding: 32px;
+    text-align: center;
+    color: #444;
+    font-size: 0.78rem;
+}
+
+/* ── Scrollbars ───────────────────────────────────────────────── */
+.library-body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.library-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.library-body::-webkit-scrollbar-thumb {
+    background: rgba(157, 78, 221, 0.25);
+    border-radius: 4px;
+}
+
+.library-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(157, 78, 221, 0.45);
+}

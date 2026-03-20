@@ -1,0 +1,440 @@
+/* ======================== SETLIST PANEL ======================== */
+.setlist-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: rgba(12, 10, 22, 0.95);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+}
+
+/* Header */
+.sl-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+    color: var(--text-muted);
+}
+
+.sl-header-title {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    flex: 1;
+}
+
+.sl-autoplay-toggle {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-size: 0.58rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-muted);
+}
+
+.sl-autoplay-toggle span.on {
+    color: #05FF00;
+}
+
+.sl-autoplay-toggle:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Selector */
+.sl-selector {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    flex-shrink: 0;
+}
+
+.sl-select {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: rgba(20, 16, 36, 0.95);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #c0b4d8;
+    padding: 5px 28px 5px 9px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.sl-select:hover {
+    border-color: rgba(157, 78, 221, 0.4);
+    background-color: rgba(30, 22, 50, 0.98);
+}
+
+.sl-select:focus {
+    border-color: rgba(157, 78, 221, 0.6);
+    box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.15);
+}
+
+/* Style the option list background (supported in Firefox and Chromium) */
+.sl-select option {
+    background: #1a1228;
+    color: #c0b4d8;
+    padding: 4px 8px;
+}
+
+.sl-icon-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    border-radius: 4px;
+    padding: 3px 5px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.6rem;
+    font-weight: 600;
+    transition: all 0.15s;
+}
+
+.sl-icon-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.sl-delete-btn {
+    color: var(--danger);
+    border-color: rgba(255, 42, 109, 0.2);
+}
+
+.sl-delete-btn:hover {
+    background: rgba(255, 42, 109, 0.15);
+}
+
+.sl-clear-btn {
+    color: var(--text-muted);
+}
+
+.sl-clear-btn:hover {
+    color: var(--danger);
+}
+
+/* New row input */
+.sl-new-row {
+    display: flex;
+    gap: 4px;
+    padding: 4px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.sl-new-input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    color: white;
+    padding: 3px 8px;
+    font-size: 0.72rem;
+    outline: none;
+}
+
+.sl-new-input:focus {
+    border-color: var(--primary);
+}
+
+/* Body */
+.sl-body {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.sl-body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sl-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sl-body::-webkit-scrollbar-thumb {
+    background: rgba(157, 78, 221, 0.3);
+    border-radius: 4px;
+}
+
+/* Toolbar */
+.sl-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.sl-section-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    flex: 1;
+}
+
+/* Track list container */
+.sl-track-list {
+    min-height: 40px;
+}
+
+/* Track row */
+.sl-track-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.025);
+    transition: background 0.1s;
+    cursor: default;
+}
+
+.sl-track-row:hover {
+    background: rgba(157, 78, 221, 0.05);
+}
+
+.sl-track-row.sl-current {
+    background: rgba(157, 78, 221, 0.12);
+    border-left: 2px solid var(--primary);
+}
+
+.sl-track-row.sl-drop-target {
+    background: rgba(157, 78, 221, 0.15);
+    box-shadow: inset 0 -2px 0 var(--primary);
+}
+
+.sl-track-row.sl-missing {
+    opacity: 0.4;
+}
+
+.sl-drag-handle {
+    cursor: grab;
+    color: var(--text-muted);
+    opacity: 0.3;
+    display: flex;
+}
+
+.sl-track-row:hover .sl-drag-handle {
+    opacity: 0.7;
+}
+
+.sl-num {
+    font-size: 0.58rem;
+    color: var(--text-muted);
+    min-width: 14px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.sl-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 3px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.sl-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.sl-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-main);
+}
+
+.sl-author {
+    font-size: 0.58rem;
+    color: var(--text-muted);
+}
+
+.sl-playing-icon {
+    color: #05FF00;
+    flex-shrink: 0;
+    animation: sl-pulse 1.5s infinite;
+}
+
+@keyframes sl-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
+
+.sl-actions {
+    display: flex;
+    gap: 1px;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.sl-track-row:hover .sl-actions {
+    opacity: 1;
+}
+
+.sl-actions button {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 3px;
+    display: flex;
+}
+
+.sl-actions button:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.sl-actions button:disabled {
+    opacity: 0.2;
+    cursor: default;
+}
+
+.sl-remove-btn {
+    color: var(--danger) !important;
+}
+
+.sl-remove-btn:hover {
+    background: rgba(255, 42, 109, 0.15) !important;
+}
+
+/* Sublist */
+.sl-sublist {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sl-sublist-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    background: rgba(255, 255, 255, 0.015);
+}
+
+/* Empty states */
+.sl-empty {
+    padding: 14px;
+    text-align: center;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    opacity: 0.4;
+    border: 1px dashed rgba(255, 255, 255, 0.06);
+    margin: 4px 8px;
+    border-radius: 6px;
+}
+
+.sl-empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    opacity: 0.4;
+}
+
+/* ======================== SPLIT LAYOUT ======================== */
+.library-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.library-split .setlist-panel {
+    border-right: 1px solid rgba(157, 78, 221, 0.2);
+}
+
+/* Resize handle between panels */
+.split-resize-handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    cursor: col-resize;
+    z-index: 10;
+    left: 50%;
+    transform: translateX(-50%);
+    background: transparent;
+    transition: background 0.15s;
+}
+
+.split-resize-handle:hover,
+.split-resize-handle:active {
+    background: rgba(157, 78, 221, 0.4);
+}
+
+/* Deck load buttons in setlist track rows */
+.sl-deck-btns {
+    display: flex;
+    gap: 2px;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.sl-track-row:hover .sl-deck-btns {
+    opacity: 1;
+}
+
+/* Add-to-setlist button on library track rows */
+.sl-add-btn {
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.55rem;
+    font-weight: 800;
+    padding: 2px 5px;
+    background: rgba(157, 78, 221, 0.1);
+    border: 1px solid rgba(157, 78, 221, 0.25);
+    color: #c97aff;
+    transition: all 0.12s;
+    flex-shrink: 0;
+}
+
+.sl-add-btn:hover {
+    background: rgba(157, 78, 221, 0.25);
+    box-shadow: 0 0 6px rgba(157, 78, 221, 0.3);
+}
+
+.sl-add-btn:disabled {
+    opacity: 0.2;
+    cursor: default;
+}

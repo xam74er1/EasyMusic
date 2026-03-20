@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+pydantic
+google-genai
+google-api-python-client
+yt-dlp
+python-dotenv
+pandas
+openpyxl
+python-multipart
+thefuzz
+python-Levenshtein
+mutagen
+pathvalidate
+sqlalchemy

@@ -1,0 +1,111 @@
+@keyframes calmPulse {
+
+    0%,
+    100% {
+        opacity: 0.2;
+        transform: scaleY(0.9);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scaleY(1.1);
+    }
+}
+
+.custom-player {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.play-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--glow-primary);
+    transition: var(--transition);
+}
+
+.play-btn:hover {
+    transform: scale(1.1);
+    filter: brightness(1.1);
+}
+
+.waveform-wrapper {
+    position: relative;
+    flex: 1;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+}
+
+.fake-waveform {
+    width: 100%;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    gap: 1.5px;
+    opacity: 0.7;
+    animation: calmPulse 3s infinite ease-in-out;
+}
+
+.fake-bar {
+    flex: 1;
+    background: linear-gradient(180deg, var(--primary), var(--secondary));
+    border-radius: 1px;
+    min-height: 2px;
+}
+
+.waveform-container {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+.waveform-container.loaded {
+    opacity: 1;
+}
+
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.volume-control input[type=range] {
+    flex: 1;
+    height: 4px;
+    accent-color: var(--secondary);
+}
+
+.mute-btn {
+    background: none;
+    border: none;
+    color: var(--secondary);
+    cursor: pointer;
+}
+
+.time-display {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    min-width: 35px;
+    text-align: center;
+}

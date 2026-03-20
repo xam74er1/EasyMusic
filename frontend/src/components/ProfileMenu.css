@@ -1,0 +1,321 @@
+/* ─── Profile Menu Dropdown ─── */
+.profile-menu-wrapper {
+    position: relative;
+    z-index: 100;
+}
+
+.profile-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 24px;
+    border: 1px solid rgba(157, 78, 221, 0.25);
+    background: rgba(157, 78, 221, 0.08);
+    color: var(--text-main);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.8rem;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.profile-trigger:hover {
+    background: rgba(157, 78, 221, 0.15);
+    border-color: var(--primary);
+    box-shadow: var(--glow-primary);
+}
+
+.profile-trigger .trigger-icon {
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.profile-trigger .trigger-arrow {
+    transition: transform 0.3s ease;
+    opacity: 0.5;
+}
+
+.profile-trigger .trigger-arrow.open {
+    transform: rotate(180deg);
+}
+
+/* ─── Dropdown Panel ─── */
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 280px;
+    background: rgba(20, 20, 30, 0.97);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(157, 78, 221, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 30px rgba(157, 78, 221, 0.1);
+    overflow: hidden;
+    animation: dropdownSlideIn 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-origin: top right;
+}
+
+@keyframes dropdownSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.dropdown-header {
+    padding: 14px 16px 10px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ─── Profile List ─── */
+.profile-list {
+    max-height: 260px;
+    overflow-y: auto;
+    padding: 6px;
+}
+
+.profile-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.profile-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.profile-item.active {
+    background: rgba(157, 78, 221, 0.12);
+    border-left: 3px solid var(--primary);
+}
+
+.profile-item .profile-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.profile-icon.master {
+    background: linear-gradient(135deg, rgba(0, 245, 212, 0.2), rgba(157, 78, 221, 0.2));
+    color: var(--secondary);
+    border: 1px solid rgba(0, 245, 212, 0.3);
+}
+
+.profile-icon.default-profile {
+    background: rgba(157, 78, 221, 0.15);
+    color: var(--primary);
+    border: 1px solid rgba(157, 78, 221, 0.25);
+}
+
+.profile-icon.custom {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-main);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-item .profile-name {
+    flex: 1;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-main);
+}
+
+.profile-item.active .profile-name {
+    color: var(--primary);
+}
+
+.profile-item .master-badge {
+    font-size: 0.55rem;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: rgba(0, 245, 212, 0.1);
+    color: var(--secondary);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.profile-item .settings-btn {
+    opacity: 0;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.profile-item:hover .settings-btn {
+    opacity: 1;
+}
+
+.settings-btn:hover {
+    color: var(--primary) !important;
+    background: rgba(157, 78, 221, 0.1);
+}
+
+/* ─── Settings Popover ─── */
+.profile-settings-popover {
+    position: absolute;
+    right: -4px;
+    top: 100%;
+    min-width: 160px;
+    background: rgba(15, 15, 25, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    padding: 4px;
+    z-index: 200;
+    animation: dropdownSlideIn 0.15s ease;
+}
+
+.settings-action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: none;
+    background: none;
+    color: var(--text-main);
+    cursor: pointer;
+    font-size: 0.78rem;
+    width: 100%;
+    transition: background 0.15s;
+}
+
+.settings-action:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.settings-action.danger {
+    color: var(--danger);
+}
+
+.settings-action.danger:hover {
+    background: rgba(255, 42, 109, 0.1);
+}
+
+/* ─── Rename Input ─── */
+.rename-input {
+    width: 100%;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(157, 78, 221, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    font-size: 0.82rem;
+    font-weight: 600;
+    outline: none;
+    font-family: 'Outfit', sans-serif;
+}
+
+.rename-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 10px rgba(157, 78, 221, 0.2);
+}
+
+/* ─── Add Profile ─── */
+.add-profile-section {
+    padding: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.add-profile-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px dashed rgba(157, 78, 221, 0.25);
+    background: none;
+    color: var(--primary);
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    font-family: 'Outfit', sans-serif;
+}
+
+.add-profile-btn:hover {
+    background: rgba(157, 78, 221, 0.08);
+    border-color: var(--primary);
+}
+
+.add-profile-form {
+    display: flex;
+    gap: 6px;
+    padding: 2px;
+}
+
+.add-profile-form input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(157, 78, 221, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    font-size: 0.8rem;
+    font-family: 'Outfit', sans-serif;
+    outline: none;
+}
+
+.add-profile-form input:focus {
+    border-color: var(--primary);
+}
+
+.add-profile-form button {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 700;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Outfit', sans-serif;
+}
+
+.add-profile-form .submit-btn {
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+    color: white;
+}
+
+.add-profile-form .cancel-btn {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ─── Dropdown Overlay ─── */
+.profile-dropdown-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+}

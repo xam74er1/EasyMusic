@@ -1,0 +1,20 @@
+{
+    "sound_effects": [
+        {
+            "id": "d22e32d6-519b-4b21-b89e-c9c7d80500db",
+            "name": "animated small group applause - Sound Effect HD (No Copyright Sound)",
+            "local_file": "sound_effects/186852ac.mp3",
+            "source_url": "https://www.youtube.com/watch?v=zpJ9qrKbe0o",
+            "category": "Uncategorized",
+            "tags": []
+        },
+        {
+            "id": "aacb93cf-da2f-4969-9adc-f045e1ac8c2f",
+            "name": "Applause - Sound Effect",
+            "local_file": "sound_effects/336ee52e.mp3",
+            "source_url": "https://www.youtube.com/watch?v=qnG6Lbok_oU",
+            "category": "applause",
+            "tags": []
+        }
+    ]
+}
