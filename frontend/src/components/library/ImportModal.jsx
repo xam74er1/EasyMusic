@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { X, Music, Check, Loader2, Bot, AlertCircle, Trash2, Folder } from 'lucide-react';
 import { useToast } from '../ToastContext';
 import './ImportModal.css';
+import api from '../../api';
 export default function ImportModal({ isOpen, onClose, files, onImportComplete }) {
-    // We already have the imports above, adding api
-    const { addToast } = useToast();
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isFinalizing, setIsFinalizing] = useState(false);
     const [tracks, setTracks] = useState([]);

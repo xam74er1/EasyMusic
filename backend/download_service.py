@@ -96,6 +96,16 @@ def download_video_sync(video_id: str, url: str, overwrite: bool = False):
         'no_warnings': True,
     }
     
+    ytdlp_browser = os.getenv("YTDLP_BROWSER")
+    ytdlp_profile = os.getenv("YTDLP_BROWSER_PROFILE")
+    if ytdlp_browser:
+        if ytdlp_profile:
+            # Join with the backend directory if it's a relative path like 'firefox_profile'
+            profile_path = os.path.join(os.path.dirname(__file__), ytdlp_profile) if not os.path.isabs(ytdlp_profile) else ytdlp_profile
+            ydl_opts['cookiesfrombrowser'] = (ytdlp_browser, profile_path)
+        else:
+            ydl_opts['cookiesfrombrowser'] = (ytdlp_browser,)
+    
     log_download_event("download_start", video_id, "pending")
     try:
         logger.debug(f"Calling yt_dlp for URL {url} into {output_tmpl}")
