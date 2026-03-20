@@ -19,12 +19,12 @@
     "wavesurfer.js": "^7.12.1"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
+    "@eslint/js": "^9.10.0",
     "@vitejs/plugin-react": "^4.0.0",
-    "eslint": "^10.1.0",
-    "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.5.2",
-    "globals": "^17.4.0",
+    "eslint": "^9.10.0",
+    "eslint-plugin-react-hooks": "^5.1.0-rc-fb9a518484-20240613",
+    "eslint-plugin-react-refresh": "^0.4.12",
+    "globals": "^15.9.0",
     "vite": "^4.3.0"
   }
 }
