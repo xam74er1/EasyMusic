@@ -2,8 +2,9 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# The database will be created in the current working directory
-DB_PATH = "app.db"
+# Resolve DB path relative to USER_DATA_DIR if set, otherwise fall back to current directory
+USER_DATA_DIR = os.environ.get("USER_DATA_DIR", ".")
+DB_PATH = os.path.join(USER_DATA_DIR, "app.db")
 
 # connect_args={"check_same_thread": False} is required for SQLite in FastAPI/multithreaded environments
 engine = create_engine(

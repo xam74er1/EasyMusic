@@ -1,5 +1,6 @@
-// Automatically detect the server's IP address based on the browser's URL
-export const API_HOST = import.meta.env.VITE_API_HOST || `${window.location.protocol}//${window.location.hostname}:8082`;
+// Resolve backend port: Electron injects backendPort via contextBridge, fallback to 8000 for web/dev mode
+const port = window.electronAPI?.backendPort ?? 8000;
+export const API_HOST = import.meta.env.VITE_API_HOST || `http://127.0.0.1:${port}`;
 export const API_BASE = `${API_HOST}/api`;
 
 export const api = {

@@ -16,6 +16,11 @@ from fastapi import UploadFile, File
 
 load_dotenv()
 
+# Resolve user data directory early so logging and other modules can use it.
+# USER_DATA_DIR may already be set by the --user-data-dir CLI arg (handled at __main__ entry),
+# or by Electron before spawning the process.  Fall back to "." for backward compatibility.
+USER_DATA_DIR = os.environ.get("USER_DATA_DIR", ".")
+
 # Configure logging
 log_level = os.getenv("LOG_LEVEL", "INFO").upper()
 numeric_level = getattr(logging, log_level, logging.INFO)
@@ -28,8 +33,9 @@ handlers = [console_handler]
 
 # Disabled by default unless explicitly enabled
 if os.getenv("LOG_TO_FILE", "FALSE").upper() == "TRUE":
-    os.makedirs("logs", exist_ok=True)
-    file_handler = logging.FileHandler("logs/backend.log", encoding='utf-8')
+    logs_dir = os.path.join(USER_DATA_DIR, "logs")
+    os.makedirs(logs_dir, exist_ok=True)
+    file_handler = logging.FileHandler(os.path.join(logs_dir, "backend.log"), encoding='utf-8')
     file_handler.setFormatter(log_formatter)
     handlers.append(file_handler)
 
@@ -46,6 +52,38 @@ logger = logging.getLogger(__name__)
 
 # Ensure uvicorn access logs are enabled and at the correct level
 logging.getLogger("uvicorn.access").setLevel(numeric_level)
+
+
+def initialize_user_data_dir(user_data_dir: str) -> None:
+    """Ensure USER_DATA_DIR and required subdirectories/files exist on first run.
+
+    This is idempotent — safe to call on every startup.  It creates:
+      - <user_data_dir>/                (the root directory itself)
+      - <user_data_dir>/downloads/      (downloaded audio files)
+      - <user_data_dir>/logs/           (log files)
+      - <user_data_dir>/app_config.json (default app configuration)
+
+    The SQLite database (app.db) is initialized separately by SQLAlchemy's
+    ``Base.metadata.create_all(engine)`` which is called right after this function.
+    """
+    # 1. Create root and subdirectories
+    for subdir in ("", "downloads", "logs"):
+        path = os.path.join(user_data_dir, subdir) if subdir else user_data_dir
+        os.makedirs(path, exist_ok=True)
+        logger.debug("Ensured directory exists: %s", path)
+
+    # 2. Create default app_config.json if it doesn't exist
+    config_path = os.path.join(user_data_dir, "app_config.json")
+    if not os.path.exists(config_path):
+        default_config = {"last_profile_id": "default"}
+        with open(config_path, "w", encoding="utf-8") as f:
+            json.dump(default_config, f)
+        logger.info("Created default app_config.json at %s", config_path)
+
+
+# Run first-run initialization before importing any modules that open the DB or
+# read config files, so that all required paths exist when those modules load.
+initialize_user_data_dir(USER_DATA_DIR)
 
 # Load env variables before importing modules that depend on them
 
@@ -80,6 +118,7 @@ sound_effect_repo = SoundEffectRepo()
 def startup_event():
     logger.info("Application starting, performing initial audio scan...")
     import_service.scan_extra_audio_dir()
+    print("BACKEND_READY", flush=True)
 
 @app.get("/")
 def read_root():
@@ -290,7 +329,8 @@ def execute_reorganization(req: ReorganizePlan):
     videos = repo.get_all()
     # Save undo state
     undo_data = [v.dict() for v in videos]
-    with open("undo_history.json", "w", encoding="utf-8") as f:
+    undo_path = os.path.join(USER_DATA_DIR, "undo_history.json")
+    with open(undo_path, "w", encoding="utf-8") as f:
         json.dump(undo_data, f)
         
     count = 0
@@ -319,17 +359,18 @@ def execute_reorganization(req: ReorganizePlan):
 
 @app.post("/api/library/undo")
 def undo_reorganization():
-    if not os.path.exists("undo_history.json"):
+    undo_path = os.path.join(USER_DATA_DIR, "undo_history.json")
+    if not os.path.exists(undo_path):
         raise HTTPException(status_code=404, detail="No undo history found")
         
-    with open("undo_history.json", "r", encoding="utf-8") as f:
+    with open(undo_path, "r", encoding="utf-8") as f:
         undo_data = json.load(f)
         
     for v_data in undo_data:
         v = Video(**v_data)
         repo.update_video(v.id, v)
         
-    os.remove("undo_history.json")
+    os.remove(undo_path)
     return {"status": "success", "message": "Restored previous state."}
 
 class ChatRequest(BaseModel):
@@ -973,7 +1014,16 @@ def play_sound_effect(effect_id: str):
     return FileResponse(file_path, media_type="audio/mpeg")
 
 if __name__ == "__main__":
+    import argparse
     import uvicorn
-    port = int(os.getenv("PORT", 8082))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+
+    parser = argparse.ArgumentParser(description="EasyMusic backend server")
+    parser.add_argument("--port", type=int, default=8000, help="Port for uvicorn to bind to")
+    parser.add_argument("--user-data-dir", type=str, default=None, help="Path to the user data directory")
+    args = parser.parse_args()
+
+    if args.user_data_dir:
+        os.environ["USER_DATA_DIR"] = args.user_data_dir
+
+    uvicorn.run("main:app", host="127.0.0.1", port=args.port, reload=False)
 

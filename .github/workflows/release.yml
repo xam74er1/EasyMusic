@@ -1,0 +1,256 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  # ─────────────────────────────────────────────
+  # Windows: PyInstaller backend + Electron NSIS
+  # ─────────────────────────────────────────────
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set version from tag
+        shell: bash
+        run: echo "APP_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+
+      # ── Python / PyInstaller ──────────────────
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install Python dependencies
+        run: pip install -r backend/requirements.txt pyinstaller
+        working-directory: .
+
+      - name: Inject version into backend metadata
+        shell: bash
+        run: |
+          sed -i "s/^APP_VERSION=.*/APP_VERSION=${{ env.APP_VERSION }}/" backend/.env || true
+          echo "APP_VERSION=${{ env.APP_VERSION }}" >> backend/.env
+
+      - name: Build backend with PyInstaller
+        run: pyinstaller easymusic.spec
+        working-directory: backend
+
+      # ── Node / Frontend ───────────────────────
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: frontend
+
+      # ── Electron version + NSIS build ─────────
+      - name: Inject version into electron/package.json
+        shell: bash
+        run: |
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('electron/package.json', 'utf8'));
+            pkg.version = '${{ env.APP_VERSION }}';
+            fs.writeFileSync('electron/package.json', JSON.stringify(pkg, null, 2));
+          "
+
+      - name: Install Electron dependencies
+        run: npm ci
+        working-directory: electron
+
+      - name: Build Windows installer
+        run: npm run dist -- --win
+        working-directory: electron
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: dist-electron/*.exe
+          if-no-files-found: error
+
+  # ─────────────────────────────────────────────
+  # macOS: PyInstaller backend + Electron DMG
+  # ─────────────────────────────────────────────
+  build-macos:
+    runs-on: macos-latest
+    outputs:
+      signed: ${{ steps.check-signing.outputs.signed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set version from tag
+        run: echo "APP_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+
+      # ── Python / PyInstaller ──────────────────
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install Python dependencies
+        run: pip install -r backend/requirements.txt pyinstaller
+
+      - name: Inject version into backend metadata
+        run: |
+          grep -v '^APP_VERSION=' backend/.env > backend/.env.tmp || true
+          mv backend/.env.tmp backend/.env || true
+          echo "APP_VERSION=${{ env.APP_VERSION }}" >> backend/.env
+
+      - name: Build backend with PyInstaller
+        run: pyinstaller easymusic.spec
+        working-directory: backend
+
+      # ── Node / Frontend ───────────────────────
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: frontend
+
+      # ── Code signing check ────────────────────
+      - name: Check code signing credentials
+        id: check-signing
+        run: |
+          if [[ -n "${{ secrets.APPLE_CERTIFICATE }}" && -n "${{ secrets.APPLE_CERTIFICATE_PASSWORD }}" ]]; then
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Import Apple certificate
+        if: steps.check-signing.outputs.signed == 'true'
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain"
+          echo "$APPLE_CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$RUNNER_TEMP/certificate.p12" -k "$KEYCHAIN_PATH" \
+            -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security list-keychain -d user -s "$KEYCHAIN_PATH"
+
+      # ── Electron version + DMG build ──────────
+      - name: Inject version into electron/package.json
+        run: |
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('electron/package.json', 'utf8'));
+            pkg.version = '${{ env.APP_VERSION }}';
+            fs.writeFileSync('electron/package.json', JSON.stringify(pkg, null, 2));
+          "
+
+      - name: Install Electron dependencies
+        run: npm ci
+        working-directory: electron
+
+      - name: Build macOS DMG (signed)
+        if: steps.check-signing.outputs.signed == 'true'
+        run: npm run dist -- --mac
+        working-directory: electron
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          CSC_LINK: ${{ secrets.APPLE_CERTIFICATE }}
+          CSC_KEY_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+
+      - name: Build macOS DMG (unsigned)
+        if: steps.check-signing.outputs.signed == 'false'
+        run: npm run dist -- --mac
+        working-directory: electron
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-dmg
+          path: dist-electron/*.dmg
+          if-no-files-found: error
+
+  # ─────────────────────────────────────────────
+  # Release: create GitHub Release + upload assets
+  # ─────────────────────────────────────────────
+  release:
+    needs: [build-windows, build-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Windows installer
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-installer
+          path: artifacts/windows
+
+      - name: Download macOS DMG
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-dmg
+          path: artifacts/macos
+
+      - name: Add unsigned build warning annotation
+        if: needs.build-macos.outputs.signed == 'false'
+        run: |
+          echo "::warning title=Unsigned macOS Build::This release contains an unsigned macOS .dmg. \
+          Users will need to right-click → Open to bypass Gatekeeper, or the app may be blocked. \
+          To enable signing, add APPLE_CERTIFICATE, APPLE_CERTIFICATE_PASSWORD, APPLE_ID, \
+          APPLE_APP_SPECIFIC_PASSWORD, APPLE_TEAM_ID, and KEYCHAIN_PASSWORD secrets."
+
+      - name: Build release notes
+        id: release-notes
+        run: |
+          UNSIGNED_NOTE=""
+          if [[ "${{ needs.build-macos.outputs.signed }}" == "false" ]]; then
+            UNSIGNED_NOTE=$'\n\n> ⚠️ **Unsigned macOS build** — Apple code signing credentials were not present. Users may need to right-click → Open to bypass Gatekeeper.'
+          fi
+          echo "notes=EasyMusic ${{ github.ref_name }}${UNSIGNED_NOTE}" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          body: ${{ steps.release-notes.outputs.notes }}
+          files: |
+            artifacts/windows/*.exe
+            artifacts/macos/*.dmg
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

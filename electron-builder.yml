@@ -1,0 +1,22 @@
+appId: com.easymusic.app
+productName: EasyMusic
+directories:
+  output: dist-electron
+files:
+  - electron/**
+  - frontend/dist/**
+extraResources:
+  - from: backend/dist/easymusic-backend
+    to: backend/easymusic-backend
+  - from: backend/dist/easymusic-backend.exe
+    to: backend/easymusic-backend.exe
+win:
+  target: nsis
+  requestedExecutionLevel: user
+nsis:
+  oneClick: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+mac:
+  target: dmg
+  category: public.app-category.music

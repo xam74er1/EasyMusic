@@ -149,7 +149,8 @@ class Profile(BaseModel):
 
 class ProfileRepo:
     def __init__(self):
-        self.config_path = "app_config.json"
+        _user_data_dir = os.environ.get("USER_DATA_DIR", ".")
+        self.config_path = os.path.join(_user_data_dir, "app_config.json")
         
         if not os.path.exists(self.config_path):
             with open(self.config_path, "w", encoding="utf-8") as f:

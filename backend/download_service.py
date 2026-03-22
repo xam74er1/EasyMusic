@@ -13,8 +13,11 @@ logger = logging.getLogger(__name__)
 
 from models import PlaylistRepo
 
-DOWNLOAD_DIR = os.path.join(os.path.dirname(__file__), "downloads")
-LOGS_DIR = os.path.join(os.path.dirname(__file__), "logs")
+# Resolve paths relative to USER_DATA_DIR if set, otherwise fall back to the directory
+# containing this file (backward-compatible behavior when running without Electron)
+_USER_DATA_DIR = os.environ.get("USER_DATA_DIR", os.path.dirname(os.path.abspath(__file__)))
+DOWNLOAD_DIR = os.path.join(_USER_DATA_DIR, "downloads")
+LOGS_DIR = os.path.join(_USER_DATA_DIR, "logs")
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 os.makedirs(LOGS_DIR, exist_ok=True)
 
@@ -54,8 +57,6 @@ def log_download_event(event: str, video_id: str, status: str, error: str = None
     log_file = os.path.join(LOGS_DIR, "downloads.log")
     with open(log_file, "a", encoding="utf-8") as f:
         f.write(json.dumps(log_entry) + "\n")
-os.makedirs(DOWNLOAD_DIR, exist_ok=True)
-
 repo = PlaylistRepo()
 
 def download_video_sync(video_id: str, url: str, overwrite: bool = False):
