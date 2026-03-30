@@ -166,3 +166,144 @@
     background: rgba(255, 255, 255, 0.1);
     color: white;
 }
+
+/* Source Selector Toggle */
+.source-selector {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    padding: 2px;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.source-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.source-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+}
+
+.source-btn--active {
+    color: white;
+}
+
+.source-btn--youtube.source-btn--active {
+    background: rgba(255, 0, 0, 0.25);
+    color: #ff4444;
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.2);
+}
+
+.source-btn--spotify.source-btn--active {
+    background: rgba(29, 185, 84, 0.25);
+    color: #1db954;
+    box-shadow: 0 0 8px rgba(29, 185, 84, 0.2);
+}
+
+.source-btn--cc.source-btn--active {
+    background: rgba(74, 222, 128, 0.25);
+    color: #4ade80;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.2);
+}
+
+/* ─── Download Status Row States ─────────────────────────────────── */
+
+/* Track waiting for basic download (has URL) → warm amber tint */
+.lm-item--pending {
+    background: rgba(245, 158, 11, 0.07) !important;
+}
+
+.lm-item--pending:hover {
+    background: rgba(245, 158, 11, 0.13) !important;
+}
+
+/* Track waiting to find URL and download → purple tint */
+.lm-item--needs-sync {
+    background: rgba(139, 92, 246, 0.07) !important;
+}
+
+.lm-item--needs-sync:hover {
+    background: rgba(139, 92, 246, 0.13) !important;
+}
+
+/* Track whose previous download attempt failed → red tint */
+.lm-item--failed {
+    background: rgba(239, 68, 68, 0.08) !important;
+}
+
+.lm-item--failed:hover {
+    background: rgba(239, 68, 68, 0.15) !important;
+}
+
+/* ─── Download Status Badges ─────────────────────────────────────── */
+
+.lm-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.lm-badge--needs-sync {
+    background: rgba(139, 92, 246, 0.18);
+    color: #8b5cf6;
+    border: 1px solid rgba(139, 92, 246, 0.35);
+}
+
+.lm-badge--pending {
+    background: rgba(245, 158, 11, 0.18);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.lm-badge--failed {
+    background: rgba(239, 68, 68, 0.18);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+/* Clickable badge — appears as an action button */
+.lm-badge--clickable {
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.lm-badge--clickable:hover {
+    transform: scale(1.06);
+    opacity: 0.9;
+}
+
+.lm-badge--clickable:active {
+    transform: scale(0.96);
+}
+
+.lm-badge--needs-sync.lm-badge--clickable:hover {
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
+}
+
+.lm-badge--pending.lm-badge--clickable:hover {
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+.lm-badge--failed.lm-badge--clickable:hover {
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+}

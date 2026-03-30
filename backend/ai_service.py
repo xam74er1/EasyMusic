@@ -245,6 +245,54 @@ def find_and_download_sfx(query: str, category: str = "Uncategorized", tags: Opt
     except Exception as e:
         return f"Failed to download sound effect due to an error: {str(e)}"
 
+def find_and_download_cc(query: str, category: str = "Uncategorized", tags: Optional[list[str]] = None) -> str:
+    """
+    Finds and downloads a Creative Commons track from the Free Music Archive.
+    Use this when the user asks for royalty-free, CC, or copyright-free music.
+    """
+    tags = tags or []
+    _debug_calls.append({
+        "function": "find_and_download_cc",
+        "query": query,
+        "category": category,
+        "tags": tags
+    })
+
+    from cc_service import search_cc_tracks, download_cc_track, CCSourceUnavailableError, CCTrack
+
+    try:
+        tracks = search_cc_tracks(query)
+    except CCSourceUnavailableError as e:
+        return f"Failed to search Creative Commons tracks: {str(e)}"
+
+    if not tracks:
+        return f"No Creative Commons track found for query: '{query}'"
+
+    track = tracks[0]
+
+    # Merge any extra tags provided by the caller
+    if tags:
+        track = CCTrack(
+            id=track.id,
+            title=track.title,
+            author=track.author,
+            license=track.license,
+            preview_url=track.preview_url,
+            download_url=track.download_url,
+            tags=list(track.tags) + [t for t in tags if t not in track.tags],
+        )
+
+    try:
+        download_cc_track(track, category)
+    except Exception as e:
+        return f"Failed to download CC track '{track.title}': {str(e)}"
+
+    return (
+        f"Successfully downloaded '{track.title}' by {track.author} "
+        f"(License: {track.license}) into category '{category}'. [Highlight New Sounds](#new)"
+    )
+
+
 def find_and_download_youtube_sfx(query: str, category: str = "Uncategorized", tags: Optional[list[str]] = None) -> str:
     """
     Finds and downloads a sound effect from YouTube. 
@@ -306,6 +354,20 @@ def find_and_download_youtube_sfx(query: str, category: str = "Uncategorized", t
     except Exception as e:
         return f"Failed to download YT sound effect due to an error: {str(e)}"
 
+def set_download_preference(mode: str) -> str:
+    """
+    Sets the preferred download mode for the application.
+    Valid modes are 'youtube', 'spotify', and 'cc'.
+    Use this when the user says they want to change how music is downloaded (e.g. "always use Spotify" or "prefer Creative Commons").
+    """
+    _debug_calls.append({"function": "set_download_preference", "mode": mode})
+    from download_service import set_download_mode
+    try:
+        set_download_mode(mode)
+        return f"Download mode has been set to '{mode}'."
+    except ValueError as e:
+        return f"Failed to set download mode: {str(e)}"
+
 def analyze_filenames(filenames: list[str]) -> list[FilenameAnalysisResult]:
     """
     Analyzes a list of filenames to extract structured metadata (title, author, genre, category, tags).
@@ -316,7 +378,7 @@ def analyze_filenames(filenames: list[str]) -> list[FilenameAnalysisResult]:
     # The actual logic will be handled by the LLM when called via the API
     return []
 
-gemini_tools = [add_videos_to_playlist, get_current_playlist, get_library_hierarchy, query_tags_availability, update_category_bulk, batch_reorganize, find_and_download_sfx, find_and_download_youtube_sfx, analyze_filenames]
+gemini_tools = [add_videos_to_playlist, get_current_playlist, get_library_hierarchy, query_tags_availability, update_category_bulk, batch_reorganize, find_and_download_sfx, find_and_download_youtube_sfx, find_and_download_cc, analyze_filenames, set_download_preference]
 
 class ChatService:
     def __init__(self):
@@ -326,7 +388,7 @@ class ChatService:
             self.config = types.GenerateContentConfig(
                 tools=gemini_tools,
                 temperature=0.7,
-                system_instruction="You are an Improv Theater music assistant. Your job is to manage a playlist of songs and audio tracks for improv shows. If a user asks to add songs or sounds (even vaguely like '2 happy pop songs' or 'a scary sound'), you DO NOT ask for clarification. Instead, use your knowledge to pick appropriate real songs or audio tracks that fit the description and immediately call the add_videos_to_playlist function to add them. Unless the user explicitly asks for just one song, ALWAYS try to add multiple songs, not just one. ALWAYS specify the author, title, genre, category, and tags. You are also capable of answering questions about the current tags and library structure, and you can reorganize the users categories by renaming/moving them using the update_category_bulk tool. IF the user asks to find, download, or get a 'sound effect', 'SFX', or specific effect (like 'gunshot' or 'applause'), aggressively use the find_and_download_youtube_sfx tool to download it from YouTube. ONLY use the find_and_download_sfx (Pixabay) tool if the user explicitly mentions Pixabay. You can also analyze filenames to extract metadata using the analyze_filenames tool.",
+                system_instruction="You are an Improv Theater music assistant. Your job is to manage a playlist of songs and audio tracks for improv shows. If a user asks to add songs or sounds (even vaguely like '2 happy pop songs' or 'a scary sound'), you DO NOT ask for clarification. Instead, use your knowledge to pick appropriate real songs or audio tracks that fit the description and immediately call the add_videos_to_playlist function to add them. Unless the user explicitly asks for just one song, ALWAYS try to add multiple songs, not just one. ALWAYS specify the author, title, genre, category, and tags. You are also capable of answering questions about the current tags and library structure, and you can reorganize the users categories by renaming/moving them using the update_category_bulk tool. IF the user asks to find, download, or get a 'sound effect', 'SFX', or specific effect (like 'gunshot' or 'applause'), aggressively use the find_and_download_youtube_sfx tool to download it from YouTube. ONLY use the find_and_download_sfx (Pixabay) tool if the user explicitly mentions Pixabay. You can also analyze filenames to extract metadata using the analyze_filenames tool. When the user asks for royalty-free, Creative Commons, CC, or copyright-free music, use the find_and_download_cc tool to search and download from the Free Music Archive. Use the standard YouTube/Spotify download tools for regular music requests. You can also change the application's global download preference (youtube, spotify, or cc) using the set_download_preference tool if the user asks you to change the source or mode.",
             )
             # Use a dictionary to store lightweight chat sessions
             self.sessions = {}

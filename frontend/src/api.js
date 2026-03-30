@@ -101,6 +101,15 @@ export const api = {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
     }),
     importLegacy: (formData) => fetch(`${API_BASE}/import`, { method: 'POST', body: formData }),
+    // Config
+    getDownloadMode: () => fetch(`${API_BASE}/config/download-mode`),
+    setDownloadMode: (mode) => fetch(`${API_BASE}/config/download-mode`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode })
+    }),
+    getFallback: () => fetch(`${API_BASE}/config/fallback`),
+    setFallback: (enabled) => fetch(`${API_BASE}/config/fallback`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled })
+    }),
 };
 
 export default api;

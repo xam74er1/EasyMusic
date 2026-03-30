@@ -20,6 +20,7 @@ class DBVideo(Base):
     title = Column(String, default="")
     author = Column(String, default="")
     youtube_url = Column(String, default="")
+    spotify_url = Column(String, default="")
     category = Column(String, default="Uncategorized")
     speed = Column(String, default="Medium")
     tags = Column(JSON, default=list)
@@ -71,6 +72,7 @@ class Video(BaseModel):
     title: str = ""
     author: str = ""
     youtube_url: str = ""
+    spotify_url: str = ""
     category: str = "Uncategorized"
     speed: str = "Medium"
     tags: List[str] = []

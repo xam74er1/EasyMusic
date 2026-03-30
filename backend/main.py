@@ -28,6 +28,7 @@ numeric_level = getattr(logging, log_level, logging.INFO)
 log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 console_handler = logging.StreamHandler()
 console_handler.setFormatter(log_formatter)
+console_handler.setLevel(numeric_level)
 
 handlers = [console_handler]
 
@@ -50,8 +51,12 @@ for handler in handlers:
 
 logger = logging.getLogger(__name__)
 
-# Ensure uvicorn access logs are enabled and at the correct level
-logging.getLogger("uvicorn.access").setLevel(numeric_level)
+# Ensure uvicorn loggers show up in our console
+for uvicorn_logger_name in ["uvicorn", "uvicorn.access", "uvicorn.error"]:
+    ulogger = logging.getLogger(uvicorn_logger_name)
+    ulogger.setLevel(numeric_level)
+    ulogger.handlers = []  # Clear uvicorn's default handlers
+    ulogger.propagate = True # Propagate to root logger so our handlers are used
 
 
 def initialize_user_data_dir(user_data_dir: str) -> None:
@@ -90,15 +95,33 @@ initialize_user_data_dir(USER_DATA_DIR)
 from database import engine, Base
 from models import Video, PlaylistRepo, Setlist, SetlistRepo, Profile, ProfileRepo, Folder, FolderRepo, MASTER_PROFILE_ID, DEFAULT_PROFILE_ID, SoundEffect, SoundEffectRepo
 from ai_service import chat_service
-from download_service import start_download_background, batch_download_missing
+from download_service import start_download_background, batch_download_missing, get_download_mode, set_download_mode
+from cc_service import search_cc_tracks, download_cc_track, CCTrack, CCSourceUnavailableError
 import import_service
 import import_logic
 import youtube_service
 
 # Initialize SQLite database
+# Create tables if not exist
 Base.metadata.create_all(bind=engine)
 
+# Apply migrations for existing tables (e.g. adding columns)
+import migrations
+migrations.apply_migrations(engine)
+
 app = FastAPI(title="Improv Playlist API")
+
+from fastapi import Request
+import time
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    start_time = time.time()
+    logger.info(f"Incoming: {request.method} {request.url.path}")
+    response = await call_next(request)
+    duration = time.time() - start_time
+    logger.info(f"Outgoing: {request.method} {request.url.path} - {response.status_code} ({duration:.2f}s)")
+    return response
 
 app.add_middleware(
     CORSMiddleware,
@@ -382,6 +405,60 @@ async def chat_endpoint(request: ChatRequest):
     result = chat_service.send_message(request.message, session_id=request.session_id)
     return result
 
+# ─── Config Endpoints ────────────────────────────────────────────
+
+class DownloadModeRequest(BaseModel):
+    mode: str  # "youtube" | "spotify"
+
+@app.get("/api/config/download-mode")
+def get_download_mode_endpoint():
+    return {"download_mode": get_download_mode()}
+
+@app.get("/api/config/fallback")
+def get_fallback_endpoint():
+    from download_service import get_enable_fallback
+    return {"enable_fallback": get_enable_fallback()}
+
+@app.post("/api/config/download-mode")
+def set_download_mode_endpoint(req: DownloadModeRequest):
+    try:
+        set_download_mode(req.mode)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    return {"download_mode": req.mode}
+
+class FallbackRequest(BaseModel):
+    enabled: bool
+
+@app.post("/api/config/fallback")
+def set_fallback_endpoint(req: FallbackRequest):
+    from download_service import set_enable_fallback
+    set_enable_fallback(req.enabled)
+    return {"enable_fallback": req.enabled}
+
+# ─── Creative Commons Endpoints ──────────────────────────────────
+
+class CCDownloadRequest(BaseModel):
+    track: CCTrack
+    category: str = "Uncategorized"
+
+@app.get("/api/cc/search")
+def search_cc(q: str = Query(...), limit: int = Query(10)):
+    try:
+        tracks = search_cc_tracks(q, limit)
+    except CCSourceUnavailableError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    return {"tracks": [t.dict() for t in tracks]}
+
+@app.post("/api/cc/download")
+def download_cc(req: CCDownloadRequest):
+    try:
+        local_file = download_cc_track(req.track, req.category)
+    except Exception as e:
+        logger.error(f"CC download failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    return {"local_file": local_file}
+
 @app.post("/api/download/batch")
 def download_all_missing():
     return batch_download_missing()
@@ -655,26 +732,43 @@ def scan_extra_audio():
     return result
 
 @app.post("/api/playlist/{video_id}/sync")
-def sync_with_youtube(video_id: str):
+def sync_track(video_id: str):
+    from download_service import get_download_mode
+    mode = get_download_mode()
+    
     videos = repo.get_all()
     target = next((v for v in videos if v.id == video_id), None)
     if not target:
-        raise HTTPException(status_code=404, detail="Video not found")
+        raise HTTPException(status_code=404, detail="Track not found")
     
-    # Perform search if url is missing, or update if user wants to sync
     query = f"{target.title} {target.author}"
-    results = youtube_service.search_youtube(query, max_results=1)
     
-    if not results:
-        raise HTTPException(status_code=404, detail="No matching YouTube videos found with >100k views")
-    
-    match = results[0]
-    target.youtube_url = match.url
-    target.thumbnail = match.thumbnail
-    target.youtube_data = match.raw_data
+    if mode == "spotify":
+        import spotify_service
+        logger.info(f"Syncing {video_id} using Spotify/YTMusic metadata for query: {query}")
+        results = spotify_service.search_spotify_metadata(query)
+        if not results:
+            raise HTTPException(status_code=404, detail="No matching Spotify/Music metadata found")
+        
+        match = results[0]
+        target.title = match.title
+        target.author = match.author
+        target.thumbnail = match.thumbnail
+        # If we have a way to get spotify_url later, update it here
+    else:
+        # Default to YouTube
+        logger.info(f"Syncing {video_id} using YouTube for query: {query}")
+        results = youtube_service.search_youtube(query, max_results=1)
+        if not results:
+            raise HTTPException(status_code=404, detail="No matching YouTube videos found with >100k views")
+        
+        match = results[0]
+        target.youtube_url = match.url
+        target.thumbnail = match.thumbnail
+        target.youtube_data = match.raw_data
     
     repo.update_video(video_id, target)
-    return {"status": "synced", "video": target}
+    return {"status": "synced", "track": target, "mode": mode}
 
 from fastapi.responses import FileResponse
 import glob

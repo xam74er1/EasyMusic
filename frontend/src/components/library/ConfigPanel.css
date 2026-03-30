@@ -1,0 +1,233 @@
+.config-panel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.config-panel-content {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    animation: configPanelPop 0.3s ease-out;
+}
+
+@keyframes configPanelPop {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.config-panel-header {
+    padding: 16px 20px;
+    background: #252525;
+    border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-icon {
+    color: #4facfe;
+}
+
+.config-panel-header h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #eee;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.close-btn:hover {
+    background: #333;
+    color: #fff;
+}
+
+.config-section {
+    padding: 24px 20px;
+    border-bottom: 1px solid #333;
+}
+
+.config-section h3 {
+    margin: 0 0 8px 0;
+    font-size: 1rem;
+    color: #fff;
+}
+
+.section-desc {
+    margin: 0 0 20px 0;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.source-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.source-card {
+    background: #252525;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.source-card:hover {
+    border-color: #555;
+    background: #2a2a2a;
+}
+
+.source-card.active {
+    border-color: #4facfe;
+    background: rgba(79, 172, 254, 0.1);
+}
+
+.source-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.source-icon.youtube { background: rgba(255, 0, 0, 0.1); color: #ff0000; }
+.source-icon.spotify { background: rgba(29, 185, 84, 0.1); color: #1db954; }
+.source-icon.cc { background: rgba(74, 222, 128, 0.1); color: #4ade80; }
+
+.source-card span {
+    font-size: 0.85rem;
+    color: #ddd;
+    text-align: center;
+}
+
+.check-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    color: #4facfe;
+}
+
+/* Toggle Switch */
+.toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.toggle-info {
+    flex: 1;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #333;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #4facfe;
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+.warning-notice {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #f6ad55;
+    font-size: 0.75rem;
+    background: rgba(246, 173, 85, 0.1);
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+
+.config-footer {
+    padding: 16px 20px;
+    background: #252525;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.done-btn {
+    background: #4facfe;
+    color: white;
+    border: none;
+    padding: 8px 24px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.done-btn:hover {
+    background: #0088ff;
+    transform: translateY(-1px);
+}

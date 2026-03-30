@@ -1,10 +1,18 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useLibrary } from '../LibraryContext';
 import { useToast } from '../ToastContext';
-import { Folder, Music, Edit2, GripVertical, Search, X, ChevronRight, FolderOpen, Download, Loader2 } from 'lucide-react';
-import './LibraryManager.css';
+import {
+  Search, Plus, Download, Trash2, FolderPlus, Folder,
+  Music, Tag, Play, Pause, SkipForward, SkipBack,
+  Volume2, VolumeX, Shuffle, Repeat, List, Maximize2,
+  Filter, MoreVertical, Check, AlertCircle, FileAudio,
+  History, Settings, Loader2, Pencil, GripVertical, ChevronRight, FolderOpen, X, Edit2
+} from 'lucide-react';
 import ZipDownloadModal from './ZipDownloadModal';
 import ImportModal from './ImportModal';
+import CCBrowserModal from './CCBrowserModal';
+import ConfigPanel from './ConfigPanel';
+import './LibraryManager.css';
 import api from '../../api';
 
 // Build a nested tree from track categories
@@ -55,7 +63,11 @@ export default function LibraryManager() {
         tracks,
         updateTrackCategory,
         renameCategory,
-        downloadingTracks
+        downloadingTracks,
+        setTrackDownloading,
+        downloadMode,
+        handleModeChange,
+        refreshLibrary
     } = useLibrary();
 
     const { addToast } = useToast();
@@ -70,6 +82,9 @@ export default function LibraryManager() {
     // Highlight new sounds toggle
     const [highlightNewOn, setHighlightNewOn] = useState(false);
 
+    // Per-track syncing state (finding YouTube URL)
+    const [syncingTracks, setSyncingTracks] = useState(new Set());
+
     React.useEffect(() => {
         const handleHighlight = () => {
             setHighlightNewOn(true);
@@ -80,8 +95,79 @@ export default function LibraryManager() {
         return () => window.removeEventListener('highlight-new', handleHighlight);
     }, []);
 
+    const setSyncing = useCallback((trackId, isSyncing) => {
+        setSyncingTracks(prev => {
+            const next = new Set(prev);
+            if (isSyncing) next.add(trackId); else next.delete(trackId);
+            return next;
+        });
+    }, []);
+
+    /**
+     * Clicking the "Not Downloaded" / "Download Failed" badge:
+     * 1. If track has no youtube_url → sync first (search YouTube for the URL)
+     * 2. Then trigger background download
+     */
+    const handleQuickDownload = useCallback(async (e, track) => {
+        e.stopPropagation();
+        const trackId = track.id;
+
+        if (syncingTracks.has(trackId) || downloadingTracks.has(trackId)) return;
+
+        let youtubeUrl = track.youtube_url;
+
+        // Step 1: Sync YouTube URL if missing
+        if (!youtubeUrl) {
+            setSyncing(trackId, true);
+            addToast(`🔍 Finding YouTube link for "${track.title}"...`, 'info');
+            try {
+                const syncRes = await api.syncTrack(trackId);
+                if (!syncRes.ok) {
+                    const err = await syncRes.json().catch(() => ({}));
+                    throw new Error(err.detail || 'Sync failed');
+                }
+                const synced = await syncRes.json();
+                youtubeUrl = synced?.track?.youtube_url;
+                if (!youtubeUrl) throw new Error('No YouTube URL found');
+                addToast(`✅ YouTube link found for "${track.title}"`, 'success');
+                // Refresh tracks so the URL is stored in local state
+                refreshLibrary();
+            } catch (err) {
+                addToast(`❌ Could not find YouTube URL: ${err.message}`, 'error');
+                setSyncing(trackId, false);
+                return;
+            } finally {
+                setSyncing(trackId, false);
+            }
+        }
+
+        // Step 2: Kick off the background download
+        try {
+            setTrackDownloading(trackId, true);
+            const dlRes = await api.downloadTrack(trackId, false);
+            if (!dlRes.ok) {
+                const err = await dlRes.json().catch(() => ({}));
+                throw new Error(err.detail || 'Download failed to start');
+            }
+            addToast(`⬇️ Downloading "${track.title}"...`, 'info');
+        } catch (err) {
+            addToast(`❌ Download error: ${err.message}`, 'error');
+            setTrackDownloading(trackId, false);
+        }
+    }, [syncingTracks, downloadingTracks, setSyncing, setTrackDownloading, addToast, refreshLibrary]);
+
+    const [isConfigOpen, setIsConfigOpen] = useState(false);
+
     // --- Zip Modal Data ---
     const [isZipModalOpen, setIsZipModalOpen] = useState(false);
+
+    // --- CC Browser Modal ---
+    const [isCCBrowserOpen, setIsCCBrowserOpen] = useState(false);
+    const handleCCDownload = useCallback((track) => {
+        // Placeholder for handling CC track download
+        console.log("Downloading CC track:", track);
+        addToast(`Downloading ${track.title} from CC... (Not yet implemented)`, 'info');
+    }, [addToast]);
 
     // --- Import Modal Data ---
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -396,7 +482,55 @@ export default function LibraryManager() {
                         >
                             <Download size={14} /> ZIP
                         </button>
+                        <button
+                            onClick={() => setIsCCBrowserOpen(true)}
+                            style={{
+                                marginLeft: '4px',
+                                background: 'rgba(74, 222, 128, 0.15)',
+                                color: '#4ade80',
+                                border: '1px solid rgba(74, 222, 128, 0.3)',
+                                borderRadius: '4px',
+                                padding: '4px 8px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                fontSize: '0.75rem',
+                                fontWeight: 700,
+                            }}
+                            title="Browse Creative Commons music"
+                        >
+                            CC
+                        </button>
                     </h2>
+                    {/* Source Selector */}
+                    <div className="source-selector" title="Download source">
+                        <button
+                            className={`source-btn${downloadMode === 'youtube' ? ' source-btn--active source-btn--youtube' : ''}`}
+                            onClick={() => handleModeChange('youtube')}
+                        >
+                            YT
+                        </button>
+                        <button
+                            className={`source-btn${downloadMode === 'spotify' ? ' source-btn--active source-btn--spotify' : ''}`}
+                            onClick={() => handleModeChange('spotify')}
+                        >
+                            SP
+                        </button>
+                        <button
+                            className={`source-btn${downloadMode === 'cc' ? ' source-btn--active source-btn--cc' : ''}`}
+                            onClick={() => handleModeChange('cc')}
+                        >
+                            CC
+                        </button>
+                    </div>
+                    <button 
+                        className="lm-config-btn"
+                        onClick={() => setIsConfigOpen(true)}
+                        title="Download Settings"
+                    >
+                        <Settings size={18} />
+                    </button>
                     <div className="lm-search-container" style={{ width: '300px' }}>
                         <Search className="lm-search-icon" size={16} />
                         <input
@@ -431,16 +565,29 @@ export default function LibraryManager() {
                 <div className="lm-panel-content">
                     {displayedTracks.map(track => {
                         const isDownloading = downloadingTracks.has(track.id);
+                        const hasFailed = !track.is_downloaded && !!track.download_error;
+                        const needsDownload = !track.is_downloaded && !isDownloading;
+                        const hasUrl = !!track.youtube_url;
 
                         // Check if added within the last 24 hours
                         const addedAt = track.added_at ? new Date(track.added_at) : null;
                         const isRecentlyAdded = addedAt && (new Date() - addedAt) < 24 * 60 * 60 * 1000;
-                        const tooltipText = isRecentlyAdded ? `Recently Added (${addedAt.toLocaleDateString()})\nHold Shift while dropping to ADD category instead of moving` : "Hold Shift while dropping to ADD category instead of moving";
+                        const tooltipText = hasFailed
+                            ? `Download failed: ${track.download_error}\nHold Shift while dropping to ADD category instead of moving`
+                            : isRecentlyAdded
+                                ? `Recently Added (${addedAt.toLocaleDateString()})\nHold Shift while dropping to ADD category instead of moving`
+                                : "Hold Shift while dropping to ADD category instead of moving";
+
+                        // Determine row style based on download status
+                        let rowClassName = 'lm-item';
+                        if (hasFailed) rowClassName += ' lm-item--failed';
+                        else if (needsDownload && !hasUrl) rowClassName += ' lm-item--needs-sync';
+                        else if (needsDownload && hasUrl) rowClassName += ' lm-item--pending';
 
                         return (
                             <div
                                 key={track.id}
-                                className="lm-item"
+                                className={rowClassName}
                                 draggable
                                 onDragStart={(e) => handleDragStart(e, track.id)}
                                 onDragEnd={() => setDraggedTrackId(null)}
@@ -448,7 +595,15 @@ export default function LibraryManager() {
                                 style={{
                                     opacity: draggedTrackId === track.id ? 0.5 : (isDownloading ? 0.7 : 1),
                                     cursor: 'grab',
-                                    borderLeft: isRecentlyAdded ? '2px solid var(--primary)' : '2px solid transparent'
+                                    borderLeft: hasFailed
+                                        ? '3px solid #ef4444'
+                                        : needsDownload && !hasUrl
+                                            ? '3px solid #8b5cf6'  // Purple line for needs sync
+                                            : needsDownload && hasUrl
+                                                ? '3px solid #f59e0b'  // Amber line for ready to download
+                                                : isRecentlyAdded
+                                                    ? '2px solid var(--primary)'
+                                                    : '2px solid transparent'
                                 }}
                             >
                                 <div className="lm-item-title" style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
@@ -456,30 +611,70 @@ export default function LibraryManager() {
                                     {isDownloading && (
                                         <Loader2 size={14} className="spin" style={{ opacity: 0.8, color: 'var(--primary)' }} />
                                     )}
-                                    <img
-                                        src={track.thumbnail || 'https://via.placeholder.com/32'}
-                                        alt=""
-                                        onError={(e) => { e.target.onerror = null; e.target.src = '/music_placeholder.png'; }}
-                                        style={{ width: 32, height: 32, borderRadius: 4, objectFit: 'cover' }}
-                                    />
+                                    <div style={{ position: 'relative', flexShrink: 0 }}>
+                                        <img
+                                            src={track.thumbnail || 'https://via.placeholder.com/32'}
+                                            alt=""
+                                            onError={(e) => { e.target.onerror = null; e.target.src = '/music_placeholder.png'; }}
+                                            style={{
+                                                width: 32, height: 32, borderRadius: 4, objectFit: 'cover',
+                                                filter: needsDownload ? 'brightness(0.6) saturate(0.4)' : 'none'
+                                            }}
+                                        />
+                                        {needsDownload && !isDownloading && (
+                                            <Download size={12} style={{
+                                                position: 'absolute', bottom: 0, right: 0,
+                                                background: hasFailed ? '#ef4444' : '#f59e0b',
+                                                color: 'white', borderRadius: '50%',
+                                                padding: 2, boxSizing: 'content-box'
+                                            }} />
+                                        )}
+                                    </div>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', overflow: 'hidden', marginLeft: '8px' }}>
                                         <span style={{ fontSize: '0.95rem', overflow: 'hidden', textOverflow: 'ellipsis' }}>{track.title || 'Unknown Title'}</span>
                                         <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{track.author}</span>
                                     </div>
                                 </div>
-                                <div style={{ display: 'flex', gap: '4px', maxWidth: '300px', flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', gap: '4px', maxWidth: '340px', flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                    {/* Download status badge — shown only when not yet downloaded */}
+                                    {needsDownload && !isDownloading && (
+                                        <span
+                                            className={
+                                                hasFailed ? 'lm-badge lm-badge--failed lm-badge--clickable'
+                                                    : !hasUrl ? 'lm-badge lm-badge--needs-sync lm-badge--clickable'
+                                                        : 'lm-badge lm-badge--pending lm-badge--clickable'
+                                            }
+                                            onClick={(e) => handleQuickDownload(e, track)}
+                                            title={!hasUrl ? 'Click to find YouTube URL and download' : 'Click to download'}
+                                        >
+                                            {syncingTracks.has(track.id)
+                                                ? <><Loader2 size={10} className="spin" style={{ marginRight: 3 }} />Finding URL...</>
+                                                : hasFailed
+                                                    ? '↺ Retry Download'
+                                                    : !hasUrl
+                                                        ? '🔍 Find & Download'
+                                                        : '⬇ Download Now'
+                                            }
+                                        </span>
+                                    )}
                                     {(track.tags || []).slice(0, 3).map(tag => (
                                         <span key={tag} style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '10px', color: 'var(--text-muted)' }}>
                                             {tag}
                                         </span>
                                     ))}
                                     <button
-                                        onClick={(e) => handleTrackDownload(e, track)}
-                                        title="Download MP3"
+                                        onClick={(e) => {
+                                            if (track.is_downloaded) {
+                                                handleTrackDownload(e, track);
+                                            } else {
+                                                handleQuickDownload(e, track);
+                                            }
+                                        }}
+                                        title={track.is_downloaded ? "Download MP3" : (!track.youtube_url ? "Find YouTube URL & Download to Server" : "Download to Server")}
                                         style={{
                                             background: 'transparent', border: 'none',
-                                            color: track.is_downloaded ? 'var(--text-muted)' : 'rgba(255,255,255,0.2)',
-                                            cursor: track.is_downloaded ? 'pointer' : 'not-allowed',
+                                            color: track.is_downloaded ? 'var(--text-muted)' : (needsDownload && !hasUrl ? '#8b5cf6' : '#f59e0b'),
+                                            cursor: 'pointer',
                                             display: 'flex', alignItems: 'center', marginLeft: '6px'
                                         }}
                                     >
@@ -502,6 +697,19 @@ export default function LibraryManager() {
                 onClose={() => setIsZipModalOpen(false)}
                 onConfirm={handleZipConfirm}
                 folderName={activeCategory ? activeCategory.split('/').pop() : null}
+            />
+
+            <CCBrowserModal
+                isOpen={isCCBrowserOpen}
+                onClose={() => setIsCCBrowserOpen(false)}
+                onDownload={handleCCDownload}
+            />
+
+            <ConfigPanel
+                isOpen={isConfigOpen}
+                onClose={() => setIsConfigOpen(false)}
+                currentMode={downloadMode}
+                onModeChange={handleModeChange}
             />
 
             <ImportModal

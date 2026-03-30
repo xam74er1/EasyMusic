@@ -1,16 +1,32 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useProfile } from './ProfileContext';
+import { useToast } from './ToastContext';
 
 const LibraryContext = createContext();
 import api from '../api';
 
 export function LibraryProvider({ children }) {
     const { activeProfile } = useProfile();
+    const { addToast } = useToast();
     const [folders, setFolders] = useState([]);
     const [setlists, setSetlists] = useState([]);
     const [tracks, setTracks] = useState([]);
+    const [downloadMode, setDownloadMode] = useState('youtube');
+    
+    // Track downloads & previous tracks globally
+    const [downloadingTracks, setDownloadingTracks] = useState(new Set());
+    const prevTracksRef = React.useRef([]);
 
-    const fetchLibraryData = useCallback(async () => {
+    const setTrackDownloading = useCallback((trackId, isDownloading) => {
+        setDownloadingTracks(prev => {
+            const next = new Set(prev);
+            if (isDownloading) next.add(trackId);
+            else next.delete(trackId);
+            return next;
+        });
+    }, []);
+
+    const fetchLibraryData = useCallback(async (isSilentPoll = false) => {
         if (!activeProfile) return;
         try {
             const profileParam = `?profile_id=${activeProfile.id}`;
@@ -22,14 +38,49 @@ export function LibraryProvider({ children }) {
 
             if (foldersRes.ok) setFolders(await foldersRes.json());
             if (setlistsRes.ok) setSetlists(await setlistsRes.json());
-            if (tracksRes.ok) setTracks(await tracksRes.json());
+            if (tracksRes.ok) {
+                const newTracks = await tracksRes.json();
+                const prev = prevTracksRef.current;
+                
+                // Compare with previous array to check for completed/failed tracks globally!
+                if (prev.length > 0) {
+                    newTracks.forEach(nt => {
+                        const ot = prev.find(t => t.id === nt.id);
+                        if (ot) {
+                            if (!ot.is_downloaded && nt.is_downloaded) {
+                                addToast(`✅ Download completed: ${nt.title}`, 'success');
+                                setTrackDownloading(nt.id, false);
+                            } else if (ot.download_error !== nt.download_error && nt.download_error && nt.download_error !== 'downloading...') {
+                                addToast(`❌ Download failed for ${nt.title}: ${nt.download_error}`, 'error');
+                                setTrackDownloading(nt.id, false);
+                            }
+                        }
+                    });
+                }
+                prevTracksRef.current = newTracks;
+                setTracks(newTracks);
+
+                // If this library poll discovered a state change from the background, we broadcast it
+                if (isSilentPoll) {
+                    window.dispatchEvent(new CustomEvent('playlist-updated'));
+                }
+            }
         } catch (err) {
             console.error("Failed to fetch library data", err);
         }
-    }, [activeProfile]);
+    }, [activeProfile, addToast, setTrackDownloading]);
 
+    // Initial setup
     useEffect(() => {
         fetchLibraryData();
+    }, [fetchLibraryData]);
+
+    // Background poll for detecting downloads globally
+    useEffect(() => {
+        const interval = setInterval(() => {
+            fetchLibraryData(true);
+        }, 3000); // 3-second poll for snappy UX
+        return () => clearInterval(interval);
     }, [fetchLibraryData]);
 
     // Actions
@@ -92,15 +143,15 @@ export function LibraryProvider({ children }) {
         if (!res.ok) fetchLibraryData();
     };
 
-    const [downloadingTracks, setDownloadingTracks] = useState(new Set());
-
-    const setTrackDownloading = useCallback((trackId, isDownloading) => {
-        setDownloadingTracks(prev => {
-            const next = new Set(prev);
-            if (isDownloading) next.add(trackId);
-            else next.delete(trackId);
-            return next;
-        });
+    const handleModeChange = useCallback(async (mode) => {
+        try {
+            const res = await api.setDownloadMode(mode);
+            if (res.ok) {
+                setDownloadMode(mode);
+            }
+        } catch (err) {
+            console.error("Failed to change download mode", err);
+        }
     }, []);
 
     const value = {
@@ -115,8 +166,11 @@ export function LibraryProvider({ children }) {
         createSetlist,
         updateTrackCategory,
         renameCategory,
+        renameCategory,
         downloadingTracks,
-        setTrackDownloading
+        setTrackDownloading,
+        downloadMode,
+        handleModeChange
     };
 
     return (

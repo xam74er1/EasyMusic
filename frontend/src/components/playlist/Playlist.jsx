@@ -2,11 +2,16 @@ import React, { useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import EditModal from './EditModal';
 import CustomAudioPlayer from './CustomAudioPlayer';
-import { Pencil, Download, Trash2, Search, LayoutGrid, List as ListIcon, RefreshCw, Maximize2, X, Loader2 } from 'lucide-react';
+import { 
+    Pencil, Download, Trash2, Search, LayoutGrid, List as ListIcon, 
+    RefreshCw, Maximize2, X, Loader2, Settings
+} from 'lucide-react';
 import ShinyText from '../reactbits/ShinyText';
 import { useToast } from '../ToastContext';
 import { useLibrary } from '../LibraryContext';
+import ConfigPanel from '../library/ConfigPanel';
 import './Playlist.css';
+import '../library/LibraryManager.css'; // Reuse source selector styles
 
 import api from '../../api';
 
@@ -18,7 +23,12 @@ export default function Playlist({ playlist, onUpdate }) {
     const [fullscreenTrack, setFullscreenTrack] = useState(null);
     const [viewMode, setViewMode] = useState('list');
     const { addToast } = useToast();
-    const { downloadingTracks, setTrackDownloading } = useLibrary();
+    const { 
+        downloadingTracks, setTrackDownloading, 
+        downloadMode, handleModeChange 
+    } = useLibrary();
+    const [isConfigOpen, setIsConfigOpen] = useState(false);
+    const [syncingTracks, setSyncingTracks] = useState(new Set());
 
     const [highlightNewOn, setHighlightNewOn] = useState(false);
 
@@ -75,6 +85,25 @@ export default function Playlist({ playlist, onUpdate }) {
     };
 
     const handleDownload = async (id, overwrite = false) => {
+        const track = playlist.find(t => t.id === id);
+        
+        // Auto-sync YouTube URL if missing
+        if (track && !track.youtube_url) {
+            setSyncingTracks(prev => { const n = new Set(prev); n.add(id); return n; });
+            addToast(`🔍 Finding link for "${track.title}"...`, 'info');
+            try {
+                const syncRes = await api.syncTrack(id);
+                if (!syncRes.ok) throw new Error("Sync failed");
+                addToast(`✅ Link found. Starting download...`, 'success');
+            } catch (err) {
+                addToast(`❌ Could not find link.`, 'error');
+                setSyncingTracks(prev => { const n = new Set(prev); n.delete(id); return n; });
+                return;
+            } finally {
+                setSyncingTracks(prev => { const n = new Set(prev); n.delete(id); return n; });
+            }
+        }
+
         setTrackDownloading(id, true);
         try {
             const res = await api.downloadTrack(id, overwrite);
@@ -89,42 +118,28 @@ export default function Playlist({ playlist, onUpdate }) {
 
             if (!res.ok) throw new Error("Download failed");
             addToast("Background download triggered!", "info");
-
-            // Poll for completion
-            let attempts = 0;
-            const maxAttempts = 60; // 2 minutes max polling
-            const poll = setInterval(async () => {
-                attempts++;
-                try {
-                    const checkRes = await api.getTrack(id);
-                    if (checkRes.ok) {
-                        const data = await checkRes.json();
-                        if (data.is_downloaded) {
-                            clearInterval(poll);
-                            setTrackDownloading(id, false);
-                            addToast(`Download completed for: ${data.title || 'Track'}`, "success");
-                            onUpdate();
-                        } else if (data.download_error && data.download_error !== "downloading...") {
-                            clearInterval(poll);
-                            setTrackDownloading(id, false);
-                            addToast(`Download failed: ${data.download_error}`, "error");
-                        }
-                    }
-                } catch (e) {
-                    console.error("Polling error", e);
-                }
-
-                if (attempts >= maxAttempts) {
-                    clearInterval(poll);
-                    setTrackDownloading(id, false);
-                    addToast("Download timed out waiting for completion.", "error");
-                }
-            }, 2000);
+            
+            // Note: Polling and toasts for completion are now handled globally in LibraryContext!
 
         } catch (err) {
             console.error(err);
             setTrackDownloading(id, false);
             addToast("Error triggering download", "error");
+        }
+    };
+
+    const handleFindAndPlay = async (id) => {
+        setSyncingTracks(prev => { const n = new Set(prev); n.add(id); return n; });
+        addToast(`🔍 Finding stream link...`, 'info');
+        try {
+            const syncRes = await api.syncTrack(id);
+            if (!syncRes.ok) throw new Error("Sync failed");
+            addToast(`✅ Link found. You can now play!`, 'success');
+            onUpdate();
+        } catch (err) {
+            addToast(`❌ Could not find link.`, 'error');
+        } finally {
+            setSyncingTracks(prev => { const n = new Set(prev); n.delete(id); return n; });
         }
     };
 
@@ -200,6 +215,34 @@ export default function Playlist({ playlist, onUpdate }) {
                             <LayoutGrid size={18} />
                         </button>
                     </div>
+
+                    <div className="source-selector" style={{ transform: 'scale(0.85)', margin: '0 8px' }}>
+                        <button
+                            className={`source-btn${downloadMode === 'youtube' ? ' source-btn--active source-btn--youtube' : ''}`}
+                            onClick={() => handleModeChange('youtube')}
+                        >
+                            YT
+                        </button>
+                        <button
+                            className={`source-btn${downloadMode === 'spotify' ? ' source-btn--active source-btn--spotify' : ''}`}
+                            onClick={() => handleModeChange('spotify')}
+                        >
+                            SP
+                        </button>
+                        <button
+                            className={`source-btn${downloadMode === 'cc' ? ' source-btn--active source-btn--cc' : ''}`}
+                            onClick={() => handleModeChange('cc')}
+                        >
+                            CC
+                        </button>
+                    </div>
+                    <button 
+                        className="lm-config-btn"
+                        onClick={() => setIsConfigOpen(true)}
+                        style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', padding: '4px' }}
+                    >
+                        <Settings size={18} />
+                    </button>
                 </div>
                 <div className="text-muted" style={{ fontWeight: '500' }}>
                     <ShinyText text={`${filtered.length} track(s)`} speed={3} />
@@ -225,8 +268,11 @@ export default function Playlist({ playlist, onUpdate }) {
                             onDelete={() => handleDelete(v.id)}
                             onDownload={() => handleDownload(v.id)}
                             onSync={() => handleSync(v.id)}
+                            onFindAndPlay={() => handleFindAndPlay(v.id)}
                             onExpand={() => setFullscreenTrack(v)}
                             isDownloading={downloadingTracks.has(v.id)}
+                            isSyncing={syncingTracks.has(v.id)}
+                            downloadMode={downloadMode}
                         />
                     ))}
                     {filtered.length === 0 && (
@@ -256,8 +302,11 @@ export default function Playlist({ playlist, onUpdate }) {
                                 onDelete={() => handleDelete(v.id)}
                                 onDownload={() => handleDownload(v.id)}
                                 onSync={() => handleSync(v.id)}
+                                onFindAndPlay={() => handleFindAndPlay(v.id)}
                                 onExpand={() => setFullscreenTrack(v)}
                                 isDownloading={downloadingTracks.has(v.id)}
+                                isSyncing={syncingTracks.has(v.id)}
+                                downloadMode={downloadMode}
                             />
                         );
                     }}
@@ -287,24 +336,59 @@ export default function Playlist({ playlist, onUpdate }) {
                     }}
                     onDownload={() => handleDownload(fullscreenTrack.id)}
                     onSync={() => handleSync(fullscreenTrack.id)}
+                    onFindAndPlay={() => handleFindAndPlay(fullscreenTrack.id)}
+                    downloadMode={downloadMode}
                 />
             )}
+
+            <ConfigPanel
+                isOpen={isConfigOpen}
+                onClose={() => setIsConfigOpen(false)}
+                currentMode={downloadMode}
+                onModeChange={handleModeChange}
+            />
         </div>
     );
 }
 
-function TrackCard({ track, onEdit, onDelete, onDownload, onSync, onExpand, isDownloading }) {
+function TrackCard({ track, onEdit, onDelete, onDownload, onSync, onFindAndPlay, onExpand, isDownloading, isSyncing, downloadMode }) {
     const playUrl = track.is_downloaded
         ? api.getPlayUrl(track.id)
         : (track.youtube_url ? api.getStreamUrl(track.id) : null);
 
+    const hasFailed = !track.is_downloaded && !!track.download_error;
+    const needsDownload = !track.is_downloaded && !isDownloading;
+    const hasUrl = !!track.youtube_url;
+
+    let cardClassName = 'track-card';
+    if (hasFailed) cardClassName += ' lm-item--failed';
+    else if (needsDownload && !hasUrl) cardClassName += ' lm-item--needs-sync';
+    else if (needsDownload && hasUrl) cardClassName += ' lm-item--pending';
+
     return (
-        <div className="track-card">
+        <div 
+            className={cardClassName}
+            style={{ 
+                borderTop: hasFailed ? '3px solid #ef4444' 
+                          : needsDownload && !hasUrl ? '3px solid #8b5cf6'
+                          : needsDownload && hasUrl ? '3px solid #f59e0b'
+                          : '3px solid transparent'
+            }}
+        >
             <div className="track-thumb">
                 {track.thumbnail ? (
-                    <img src={track.thumbnail} alt={track.title} />
+                    <img src={track.thumbnail} alt={track.title} style={{ filter: needsDownload ? 'brightness(0.6) saturate(0.4)' : 'none' }} />
                 ) : (
-                    <img src="/music_placeholder.png" alt="" className="thumb-placeholder-img" />
+                    <img src="/music_placeholder.png" alt="" className="thumb-placeholder-img" style={{ filter: needsDownload ? 'brightness(0.6) saturate(0.4)' : 'none' }} />
+                )}
+                {needsDownload && !isDownloading && (
+                    <div style={{
+                        position: 'absolute', top: 5, right: 5,
+                        background: hasFailed ? '#ef4444' : (hasUrl ? '#f59e0b' : '#8b5cf6'),
+                        color: 'white', borderRadius: '50%', padding: 4, zIndex: 10, display: 'flex'
+                    }}>
+                        <Download size={14} />
+                    </div>
                 )}
                 {!track.is_downloaded && track.youtube_url && (
                     <div className="streaming-badge">Streaming</div>
@@ -337,13 +421,17 @@ function TrackCard({ track, onEdit, onDelete, onDownload, onSync, onExpand, isDo
                             showVolume={false}
                         />
                     ) : (
-                        <div className="status-missing">No link available</div>
+                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                            <button className="yt-play-link" onClick={onFindAndPlay} style={{ background: 'transparent' }}>
+                                ▶ Find Link & Play
+                            </button>
+                        </div>
                     )}
                 </div>
 
                 <div className="track-actions">
                     <div className="icon-group">
-                        <button onClick={onSync} title="Sync metadata"><RefreshCw size={14} /></button>
+                        <button onClick={onSync} title={`Sync ${downloadMode === 'spotify' ? 'Spotify' : 'YouTube'} metadata`}><RefreshCw size={14} /></button>
                         <button onClick={onDownload} title="Download MP3" disabled={isDownloading}>
                             {isDownloading ? <Loader2 size={14} className="spin" /> : <Download size={14} />}
                         </button>
@@ -408,15 +496,40 @@ function InlineEditable({ value, onSave, className, type = "text", options = [] 
     );
 }
 
-function TrackRow({ track, onEdit, onDelete, onDownload, onSync, onExpand, isDownloading }) {
+function TrackRow({ track, onEdit, onDelete, onDownload, onSync, onFindAndPlay, onExpand, isDownloading, isSyncing, downloadMode }) {
     const playUrl = track.is_downloaded
         ? api.getPlayUrl(track.id)
         : (track.youtube_url ? api.getStreamUrl(track.id) : null);
 
+    const hasFailed = !track.is_downloaded && !!track.download_error;
+    const needsDownload = !track.is_downloaded && !isDownloading;
+    const hasUrl = !!track.youtube_url;
+
+    let rowClassName = 'track-row';
+    if (hasFailed) rowClassName += ' lm-item--failed';
+    else if (needsDownload && !hasUrl) rowClassName += ' lm-item--needs-sync';
+    else if (needsDownload && hasUrl) rowClassName += ' lm-item--pending';
+
     return (
-        <div className="track-row">
-            <div className="row-thumb" onClick={onExpand} style={{ cursor: 'pointer' }}>
-                {track.thumbnail ? <img src={track.thumbnail} alt="" /> : <img src="/music_placeholder.png" alt="" />}
+        <div 
+            className={rowClassName}
+            style={{ 
+                borderLeft: hasFailed ? '3px solid #ef4444' 
+                          : needsDownload && !hasUrl ? '3px solid #8b5cf6'
+                          : needsDownload && hasUrl ? '3px solid #f59e0b'
+                          : '3px solid transparent'
+            }}
+        >
+            <div className="row-thumb" onClick={onExpand} style={{ cursor: 'pointer', position: 'relative' }}>
+                {track.thumbnail ? <img src={track.thumbnail} alt="" style={{ filter: needsDownload ? 'brightness(0.6) saturate(0.4)' : 'none' }} /> : <img src="/music_placeholder.png" alt="" style={{ filter: needsDownload ? 'brightness(0.6) saturate(0.4)' : 'none' }} />}
+                {needsDownload && !isDownloading && (
+                    <Download size={14} style={{
+                        position: 'absolute', bottom: -2, right: -2,
+                        background: hasFailed ? '#ef4444' : (hasUrl ? '#f59e0b' : '#8b5cf6'),
+                        color: 'white', borderRadius: '50%',
+                        padding: 2, boxSizing: 'content-box'
+                    }} />
+                )}
             </div>
             <div className="row-info" onClick={onExpand} style={{ cursor: 'pointer' }}>
                 <strong>{track.title}</strong>
@@ -426,23 +539,48 @@ function TrackRow({ track, onEdit, onDelete, onDownload, onSync, onExpand, isDow
                 <span className="badge" style={{ padding: '3px 8px', fontSize: '0.65rem' }}>{track.category}</span>
                 <span className="badge" style={{ padding: '3px 8px', fontSize: '0.65rem' }}>{track.speed}</span>
             </div>
-            <div className="row-player">
-                {playUrl ? (
-                    <CustomAudioPlayer
-                        url={playUrl}
-                        isStreaming={!track.is_downloaded && !!track.youtube_url}
-                        showVolume={false}
-                    />
-                ) : track.youtube_url ? (
-                    <a className="yt-play-link" href={track.youtube_url} target="_blank" rel="noreferrer">▶ Play from YouTube</a>
-                ) : (
-                    <span className="status-missing">No link available</span>
+            <div className="row-player" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, overflow: 'hidden' }}>
+                {needsDownload && !isDownloading && (
+                    <span
+                        className={
+                            hasFailed ? 'lm-badge lm-badge--failed lm-badge--clickable'
+                                : !hasUrl ? 'lm-badge lm-badge--needs-sync lm-badge--clickable'
+                                    : 'lm-badge lm-badge--pending lm-badge--clickable'
+                        }
+                        onClick={(e) => { e.stopPropagation(); onDownload(); }}
+                        title={!hasUrl ? 'Click to find link and download' : 'Click to download'}
+                        style={{ flexShrink: 0, marginRight: '6px' }}
+                    >
+                        {isSyncing
+                            ? <><Loader2 size={10} className="spin" style={{ marginRight: 3 }} />Finding...</>
+                            : hasFailed
+                                ? '↺ Retry Download'
+                                : !hasUrl
+                                    ? '🔍 Find & Download'
+                                    : '⬇ Download Now'
+                        }
+                    </span>
                 )}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    {playUrl ? (
+                        <CustomAudioPlayer
+                            url={playUrl}
+                            isStreaming={!track.is_downloaded && !!track.youtube_url}
+                            showVolume={false}
+                        />
+                    ) : track.youtube_url ? (
+                        <a className="yt-play-link" href={track.youtube_url} target="_blank" rel="noreferrer">▶ Play from YouTube</a>
+                    ) : (
+                        <button className="yt-play-link" onClick={onFindAndPlay} style={{ border: '1px dashed rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--text-muted)' }}>
+                            ▶ Find Link & Play
+                        </button>
+                    )}
+                </div>
             </div>
             <div className="row-actions">
                 <div className="icon-group">
                     <button onClick={onExpand} title="Expand"><Maximize2 size={16} /></button>
-                    <button onClick={onSync} title="Sync metadata"><RefreshCw size={16} /></button>
+                    <button onClick={onSync} title={`Sync ${downloadMode === 'spotify' ? 'Spotify' : 'YouTube'} metadata`}><RefreshCw size={16} /></button>
                     <button onClick={onDownload} title="Download MP3" disabled={isDownloading}>
                         {isDownloading ? <Loader2 size={16} className="spin" /> : <Download size={16} />}
                     </button>
@@ -454,7 +592,7 @@ function TrackRow({ track, onEdit, onDelete, onDownload, onSync, onExpand, isDow
     );
 }
 
-function FullscreenCard({ track, onClose, onEdit, onDelete, onDownload, onSync, onUpdate }) {
+function FullscreenCard({ track, onClose, onEdit, onDelete, onDownload, onSync, onFindAndPlay, onUpdate, downloadMode }) {
     const playUrl = track.is_downloaded
         ? api.getPlayUrl(track.id)
         : (track.youtube_url ? api.getStreamUrl(track.id) : null);
@@ -548,15 +686,17 @@ function FullscreenCard({ track, onClose, onEdit, onDelete, onDownload, onSync, 
                                 initialVolume={0.3}
                             />
                         ) : track.youtube_url ? (
-                            <a className="yt-play-link" href={track.youtube_url} target="_blank" rel="noreferrer">▶ Play from YouTube</a>
+                            <a className="yt-play-link" style={{ fontSize: '1.2rem', padding: '12px 24px' }} href={track.youtube_url} target="_blank" rel="noreferrer">▶ Play from YouTube</a>
                         ) : (
-                            <div className="status-missing">No link available</div>
+                            <button className="yt-play-link" onClick={onFindAndPlay} style={{ fontSize: '1.2rem', padding: '12px 24px', background: 'transparent' }}>
+                                ▶ Find Link & Play
+                            </button>
                         )}
                     </div>
 
                     <div className="fs-actions" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                         <button className="btn btn-secondary fs-btn" onClick={onSync}>
-                            <RefreshCw size={18} /> Sync YouTube
+                            <RefreshCw size={18} /> Sync {downloadMode === 'spotify' ? 'Spotify' : 'YouTube'}
                         </button>
                         <button className="btn btn-primary fs-btn" onClick={onDownload}>
                             <Download size={18} /> Download MP3

@@ -38,6 +38,10 @@ function App() {
   useEffect(() => {
     if (!activeProfile) return;
     fetchPlaylist();
+
+    const handleUpdate = () => fetchPlaylist();
+    window.addEventListener('playlist-updated', handleUpdate);
+    return () => window.removeEventListener('playlist-updated', handleUpdate);
   }, [activeProfile?.id]);
 
   return (
