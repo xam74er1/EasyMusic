@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version string for the build (e.g. 1.0.0-test)'
+        required: false
+        default: '0.0.0-dev'
 
 permissions:
   contents: write
@@ -18,9 +24,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set version from tag
+      - name: Set version from tag or input
         shell: bash
-        run: echo "APP_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "APP_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+          else
+            echo "APP_VERSION=${{ github.event.inputs.version || '0.0.0-dev' }}" >> "$GITHUB_ENV"
+          fi
 
       # ── Python / PyInstaller ──────────────────
       - name: Set up Python
@@ -37,8 +48,9 @@ jobs:
       - name: Inject version into backend metadata
         shell: bash
         run: |
-          sed -i "s/^APP_VERSION=.*/APP_VERSION=${{ env.APP_VERSION }}/" backend/.env || true
-          echo "APP_VERSION=${{ env.APP_VERSION }}" >> backend/.env
+          touch backend/.env
+          sed -i "s/^APP_VERSION=.*/APP_VERSION=${{ env.APP_VERSION }}/" backend/.env
+          grep -q '^APP_VERSION=' backend/.env || echo "APP_VERSION=${{ env.APP_VERSION }}" >> backend/.env
 
       - name: Build backend with PyInstaller
         run: pyinstaller easymusic.spec
@@ -85,7 +97,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-installer
-          path: dist-electron/*.exe
+          path: electron/dist/*.exe
           if-no-files-found: error
 
   # ─────────────────────────────────────────────
@@ -99,8 +111,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set version from tag
-        run: echo "APP_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+      - name: Set version from tag or input
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "APP_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+          else
+            echo "APP_VERSION=${{ github.event.inputs.version || '0.0.0-dev' }}" >> "$GITHUB_ENV"
+          fi
 
       # ── Python / PyInstaller ──────────────────
       - name: Set up Python
@@ -203,7 +220,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: macos-dmg
-          path: dist-electron/*.dmg
+          path: electron/dist/*.dmg
           if-no-files-found: error
 
   # ─────────────────────────────────────────────
@@ -212,6 +229,7 @@ jobs:
   release:
     needs: [build-windows, build-macos]
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
     steps:
       - name: Download Windows installer
         uses: actions/download-artifact@v4

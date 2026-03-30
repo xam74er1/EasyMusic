@@ -2,11 +2,52 @@
   "name": "easymusic",
   "version": "1.0.0",
   "description": "EasyMusic Desktop Application",
+  "author": "EasyMusic",
+  "repository": "https://github.com/xam74er1/EasyMusic",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
     "dist": "electron-builder --publish=never"
+  },
+  "build": {
+    "appId": "com.easymusic.app",
+    "productName": "EasyMusic",
+    "publish": null,
+    "files": [
+      "main.js",
+      "preload.js",
+      "../frontend/dist/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../backend/dist/easymusic-backend${os.platform() === 'win32' ? '.exe' : ''}",
+        "to": "backend/"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "artifactName": "easymusic-Setup-${version}.exe",
+      "extraResources": [
+        {
+          "from": "../backend/dist/easymusic-backend.exe",
+          "to": "backend/"
+        }
+      ]
+    },
+    "mac": {
+      "target": "dmg",
+      "artifactName": "easymusic-${version}.dmg",
+      "extraResources": [
+        {
+          "from": "../backend/dist/easymusic-backend",
+          "to": "backend/"
+        }
+      ]
+    },
+    "directories": {
+      "output": "dist"
+    }
   },
   "devDependencies": {
     "electron": "^31.0.0",
