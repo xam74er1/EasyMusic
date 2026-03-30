@@ -45,13 +45,6 @@ jobs:
         run: pip install -r backend/requirements.txt pyinstaller
         working-directory: .
 
-      - name: Inject version into backend metadata
-        shell: bash
-        run: |
-          touch backend/.env
-          sed -i "s/^APP_VERSION=.*/APP_VERSION=${{ env.APP_VERSION }}/" backend/.env
-          grep -q '^APP_VERSION=' backend/.env || echo "APP_VERSION=${{ env.APP_VERSION }}" >> backend/.env
-
       - name: Build backend with PyInstaller
         run: pyinstaller easymusic.spec
         working-directory: backend
@@ -129,12 +122,6 @@ jobs:
 
       - name: Install Python dependencies
         run: pip install -r backend/requirements.txt pyinstaller
-
-      - name: Inject version into backend metadata
-        run: |
-          grep -v '^APP_VERSION=' backend/.env > backend/.env.tmp || true
-          mv backend/.env.tmp backend/.env || true
-          echo "APP_VERSION=${{ env.APP_VERSION }}" >> backend/.env
 
       - name: Build backend with PyInstaller
         run: pyinstaller easymusic.spec
