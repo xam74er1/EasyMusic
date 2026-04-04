@@ -23,6 +23,13 @@ echo Starting Frontend
 echo =====================
 cd frontend
 
+echo Checking frontend configuration...
+findstr /C:"YOUR_SERVER_IP" .env >nul
+if %errorlevel%==0 (
+    echo Setting default API host to localhost in frontend/.env...
+    powershell -Command "(gc .env) -replace 'YOUR_SERVER_IP', 'localhost' | Out-File -encoding utf8 .env"
+)
+
 echo Installing frontend dependencies if needed...
 call npm install
 

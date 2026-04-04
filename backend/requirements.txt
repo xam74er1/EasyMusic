@@ -14,3 +14,4 @@ python-Levenshtein
 mutagen
 pathvalidate
 sqlalchemy
+bgutil-ytdlp-pot-provider

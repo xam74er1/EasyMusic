@@ -67,3 +67,5 @@ test.zip
 *.venv
 *.env
 backend/firefox_profile/**
+backend/cookies.txt
+backend/easymusic.db.bck

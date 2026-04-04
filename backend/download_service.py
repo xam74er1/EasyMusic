@@ -168,6 +168,10 @@ def _download_via_ytdlp(video_id: str, url: str, overwrite: bool = False) -> boo
         'extractor_args': {
             'youtube': {
                 'player_client': ['ios', 'android_music', 'tv', 'mweb'],
+                'po_token_provider': 'bgutilhttp',
+            },
+            'youtubepot-bgutilhttp': {
+                'base_url': os.getenv('BGUTIL_PROVIDER_URL', 'http://bgutil-provider:4416')
             }
         },
     }

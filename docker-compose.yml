@@ -19,6 +19,13 @@ services:
     networks:
       - easymusic-net
 
+  bgutil-provider:
+    image: brainicism/bgutil-ytdlp-pot-provider:node
+    container_name: bgutil-provider
+    networks:
+      - easymusic-net
+    restart: always
+
   frontend:
     build:
       context: ./frontend
