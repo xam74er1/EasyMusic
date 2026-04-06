@@ -98,8 +98,10 @@ jobs:
   # ─────────────────────────────────────────────
   build-macos:
     runs-on: macos-latest
+    continue-on-error: true
     outputs:
       signed: ${{ steps.check-signing.outputs.signed }}
+      result: ${{ job.status }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -216,7 +218,7 @@ jobs:
   release:
     needs: [build-windows, build-macos]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/') && !failure() && !cancelled()
     steps:
       - name: Download Windows installer
         uses: actions/download-artifact@v4
@@ -225,37 +227,36 @@ jobs:
           path: artifacts/windows
 
       - name: Download macOS DMG
+        # Only attempt download if the macOS build succeeded
+        if: needs.build-macos.result == 'success'
         uses: actions/download-artifact@v4
         with:
           name: macos-dmg
           path: artifacts/macos
 
-      - name: Add unsigned build warning annotation
-        if: needs.build-macos.outputs.signed == 'false'
-        run: |
-          echo "::warning title=Unsigned macOS Build::This release contains an unsigned macOS .dmg. \
-          Users will need to right-click → Open to bypass Gatekeeper, or the app may be blocked. \
-          To enable signing, add APPLE_CERTIFICATE, APPLE_CERTIFICATE_PASSWORD, APPLE_ID, \
-          APPLE_APP_SPECIFIC_PASSWORD, APPLE_TEAM_ID, and KEYCHAIN_PASSWORD secrets."
-
-      - name: Build release notes
-        id: release-notes
-        run: |
-          UNSIGNED_NOTE=""
-          if [[ "${{ needs.build-macos.outputs.signed }}" == "false" ]]; then
-            UNSIGNED_NOTE=$'\n\n> ⚠️ **Unsigned macOS build** — Apple code signing credentials were not present. Users may need to right-click → Open to bypass Gatekeeper.'
-          fi
-          echo "notes=EasyMusic ${{ github.ref_name }}${UNSIGNED_NOTE}" >> "$GITHUB_OUTPUT"
-
-      - name: Create GitHub Release
+      - name: Create GitHub Release (Windows + macOS)
+        if: needs.build-macos.result == 'success'
         uses: softprops/action-gh-release@v2
         with:
           name: ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
-          body: ${{ steps.release-notes.outputs.notes }}
+          body: "EasyMusic ${{ github.ref_name }}"
           files: |
             artifacts/windows/*.exe
             artifacts/macos/*.dmg
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release (Windows only)
+        if: needs.build-macos.result != 'success'
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          body: "EasyMusic ${{ github.ref_name }}"
+          files: |
+            artifacts/windows/*.exe
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
