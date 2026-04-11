@@ -1,12 +1,52 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import WaveSurfer from 'wavesurfer.js';
 import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import AudioOutputPicker from '../AudioOutputPicker';
 import './CustomAudioPlayer.css';
 
+// ── IndexedDB peak cache ───────────────────────────────────────────────────────
+const DB_NAME = 'EasyMusicWaveCache';
+const STORE_NAME = 'peaks';
+const DB_VERSION = 1;
+
+function openDB() {
+    return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => e.target.result.createObjectStore(STORE_NAME);
+        req.onsuccess = (e) => resolve(e.target.result);
+        req.onerror = (e) => reject(e.target.error);
+    });
+}
+
+async function getCachedPeaks(url) {
+    try {
+        const db = await openDB();
+        return await new Promise((resolve) => {
+            const tx = db.transaction(STORE_NAME, 'readonly');
+            const req = tx.objectStore(STORE_NAME).get(url);
+            req.onsuccess = () => resolve(req.result || null);
+            req.onerror = () => resolve(null);
+        });
+    } catch { return null; }
+}
+
+async function storePeaks(url, peaks) {
+    try {
+        const db = await openDB();
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).put(peaks, url);
+    } catch { }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+const LOG = (...args) => console.log('[CAP]', ...args);
+
 export default function CustomAudioPlayer({ url, isStreaming, showVolume = true, autoLoad = false, initialVolume = 0.8 }) {
     const containerRef = useRef();
-    const wavesurferRef = useRef();
+    const wavesurferRef = useRef(null);
+    const destroyedRef = useRef(false);
+
     const [isPlaying, setIsPlaying] = useState(false);
     const [volume, setVolume] = useState(initialVolume);
     const [isMuted, setIsMuted] = useState(false);
@@ -15,8 +55,17 @@ export default function CustomAudioPlayer({ url, isStreaming, showVolume = true,
     const [isLoaded, setIsLoaded] = useState(false);
     const audioElRef = useRef(null);
 
-    const initWaveSurfer = () => {
+    const formatTime = (seconds) => {
+        if (!seconds || isNaN(seconds)) return '0:00';
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    const initWaveSurfer = useCallback(() => {
         if (!containerRef.current || wavesurferRef.current) return;
+        destroyedRef.current = false;
+        LOG('initWaveSurfer — creating instance');
 
         const wsOptions = {
             container: containerRef.current,
@@ -30,115 +79,191 @@ export default function CustomAudioPlayer({ url, isStreaming, showVolume = true,
             responsive: true,
             height: 40,
             normalize: true,
-            mediaControls: false
+            mediaControls: false,
+            // interact:true (default) — WaveSurfer handles waveform clicks natively
         };
 
+        let mediaObj;
         if (isStreaming) {
-            const mediaObj = new Audio(url);
-            mediaObj.crossOrigin = "anonymous";
+            mediaObj = new Audio(url);
+            mediaObj.crossOrigin = 'anonymous';
             wsOptions.media = mediaObj;
         }
 
         const ws = WaveSurfer.create(wsOptions);
 
-        ws.on('ready', () => {
-            setDuration(isStreaming ? 'Live' : formatTime(ws.getDuration()));
-            ws.setVolume(volume);
+        ws.on('ready', async () => {
+            if (destroyedRef.current) return;
+            const dur = ws.getDuration();
+            LOG('ready — duration:', dur, 'mediaElement:', ws.getMediaElement());
+            ws.setVolume(isMuted ? 0 : initialVolume);
+            setDuration(isStreaming ? 'Live' : formatTime(dur));
             setIsLoaded(true);
             audioElRef.current = ws.getMediaElement();
+
+            if (!isStreaming) {
+                try {
+                    const peaks = ws.exportPeaks?.();
+                    if (peaks) await storePeaks(url, peaks);
+                } catch { }
+            }
         });
 
-        ws.on('play', () => setIsPlaying(true));
-        ws.on('pause', () => setIsPlaying(false));
-        ws.on('finish', () => setIsPlaying(false));
+        ws.on('play', () => {
+            const t = ws.getCurrentTime();
+            LOG('▶ play — currentTime:', t.toFixed(3));
+            setIsPlaying(true);
+        });
+
+        ws.on('pause', () => {
+            const t = ws.getCurrentTime();
+            LOG('⏸ pause — currentTime:', t.toFixed(3));
+            setIsPlaying(false);
+        });
+
+        ws.on('finish', () => {
+            LOG('■ finish');
+            setIsPlaying(false);
+        });
+
+        // 'interaction' fires when user clicks the waveform canvas
+        ws.on('interaction', (newTime) => {
+            LOG('🖱 interaction — newTime:', newTime, 'getCurrentTime:', ws.getCurrentTime().toFixed(3));
+            setCurrentTime(formatTime(ws.getCurrentTime()));
+        });
+
+        // 'seek' fires after the media element currentTime has been updated
+        ws.on('seek', (progress) => {
+            const t = ws.getCurrentTime();
+            const el = ws.getMediaElement();
+            LOG('⏩ seek — progress:', progress.toFixed(4),
+                '| ws.getCurrentTime():', t.toFixed(3),
+                '| el.currentTime:', el?.currentTime?.toFixed(3),
+                '| el.paused:', el?.paused);
+        });
+
         ws.on('audioprocess', () => {
             setCurrentTime(formatTime(ws.getCurrentTime()));
         });
-        ws.on('interaction', () => {
-            setCurrentTime(formatTime(ws.getCurrentTime()));
-        });
+
         ws.on('error', (err) => {
-            console.error('WaveSurfer error:', err);
-            setIsPlaying(false);
-            setIsLoaded(false);
+            if (!destroyedRef.current) {
+                console.error('[CAP] WaveSurfer error:', err);
+                setIsPlaying(false);
+                setIsLoaded(false);
+            }
         });
 
         wavesurferRef.current = ws;
-    };
+        return ws;
+    }, [url, isStreaming, isMuted, initialVolume]);
 
-    useEffect(() => {
-        if (autoLoad) {
-            handleLoad();
+    const handleLoad = useCallback(async () => {
+        LOG('handleLoad — isLoaded:', isLoaded, 'isStreaming:', isStreaming);
+        if (isStreaming) {
+            if (!wavesurferRef.current) initWaveSurfer();
+            return;
         }
+
+        if (!wavesurferRef.current) initWaveSurfer();
+        const ws = wavesurferRef.current;
+        if (!ws || isLoaded) return;
+
+        const cached = await getCachedPeaks(url);
+        LOG('handleLoad — cached peaks?', !!cached);
+        if (destroyedRef.current || wavesurferRef.current !== ws) return;
+        try {
+            ws.load(url, cached || undefined);
+        } catch (e) {
+            console.warn('[CAP] load error:', e);
+        }
+    }, [url, isStreaming, isLoaded, initWaveSurfer]);
+
+    // Auto-load on mount
+    useEffect(() => {
+        if (autoLoad) handleLoad();
         return () => {
+            destroyedRef.current = true;
             if (wavesurferRef.current) {
-                wavesurferRef.current.destroy();
+                try { wavesurferRef.current.destroy(); } catch { }
                 wavesurferRef.current = null;
             }
         };
-    }, [autoLoad]);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const formatTime = (seconds) => {
-        if (!seconds || isNaN(seconds)) return '0:00';
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-    };
+    // Re-init when url changes
+    useEffect(() => {
+        if (!url) return;
+        destroyedRef.current = true;
+        if (wavesurferRef.current) {
+            try { wavesurferRef.current.destroy(); } catch { }
+            wavesurferRef.current = null;
+        }
+        setIsLoaded(false);
+        setIsPlaying(false);
+        setCurrentTime('0:00');
+        setDuration('0:00');
+        destroyedRef.current = false;
+        if (autoLoad) handleLoad();
+    }, [url]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const togglePlay = () => {
+    const togglePlay = async () => {
+        LOG('togglePlay — isLoaded:', isLoaded);
         if (!isLoaded) {
-            handleLoad();
-            setTimeout(() => {
-                if (wavesurferRef.current) {
-                    wavesurferRef.current.play().catch(e => console.error("Playback error:", e));
-                }
-            }, 100);
-        } else if (wavesurferRef.current) {
-            wavesurferRef.current.playPause().then(() => {
-                setIsPlaying(wavesurferRef.current.isPlaying());
-            }).catch(e => console.error("Playback error:", e));
+            await handleLoad();
+            const ws = wavesurferRef.current;
+            if (!ws) return;
+            const onReady = () => {
+                ws.off('ready', onReady);
+                LOG('togglePlay/onReady — playing from:', ws.getCurrentTime().toFixed(3));
+                ws.play().catch(e => console.error('[CAP] Playback error:', e));
+            };
+            ws.on('ready', onReady);
+            return;
         }
-    };
 
-    const handleLoad = () => {
-        if (!wavesurferRef.current) {
-            initWaveSurfer();
-        }
-        if (wavesurferRef.current && !isLoaded) {
-            if (!isStreaming) {
-                wavesurferRef.current.load(url).catch(e => console.error("Load error:", e));
-            } else {
-                // For streaming, the media element we passed in initWaveSurfer will load automatically.
-                // We just need to wait for the 'ready' event.
-            }
+        const ws = wavesurferRef.current;
+        if (!ws) return;
+        LOG('togglePlay — calling playPause(), currently playing:', ws.isPlaying());
+        try {
+            await ws.playPause();
+        } catch (e) {
+            console.error('[CAP] Playback error:', e);
         }
     };
 
     const handleVolumeChange = (e) => {
         const val = parseFloat(e.target.value);
         setVolume(val);
-        if (wavesurferRef.current) {
-            wavesurferRef.current.setVolume(isMuted ? 0 : val);
-        }
+        if (wavesurferRef.current) wavesurferRef.current.setVolume(isMuted ? 0 : val);
     };
 
     const toggleMute = () => {
         const newMute = !isMuted;
         setIsMuted(newMute);
-        if (wavesurferRef.current) {
-            wavesurferRef.current.setVolume(newMute ? 0 : volume);
-        }
+        if (wavesurferRef.current) wavesurferRef.current.setVolume(newMute ? 0 : volume);
     };
 
     return (
         <div className="custom-player">
-            <button className="play-btn" onClick={togglePlay} title={isPlaying ? "Pause" : "Play"}>
+            <button className="play-btn" onClick={togglePlay} title={isPlaying ? 'Pause' : 'Play'}>
                 {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />}
             </button>
 
             <div className="time-display">{currentTime}</div>
 
-            <div className="waveform-wrapper" onClick={() => !isLoaded && handleLoad()} style={{ cursor: isLoaded ? 'default' : 'pointer' }}>
+            <div
+                className="waveform-wrapper"
+                onClick={() => {
+                    if (!isLoaded) {
+                        LOG('waveform-wrapper click — not loaded yet, triggering handleLoad');
+                        handleLoad();
+                    } else {
+                        LOG('waveform-wrapper click — already loaded, WaveSurfer handles seek');
+                    }
+                }}
+                style={{ cursor: isLoaded ? 'default' : 'pointer' }}
+            >
                 {!isLoaded && (
                     <div className="fake-waveform">
                         {Array.from({ length: 40 }).map((_, i) => (
@@ -150,14 +275,12 @@ export default function CustomAudioPlayer({ url, isStreaming, showVolume = true,
                         ))}
                     </div>
                 )}
-                <div className={`waveform-container ${isLoaded ? 'loaded' : ''}`} ref={containerRef}></div>
+                <div className={`waveform-container ${isLoaded ? 'loaded' : ''}`} ref={containerRef} />
             </div>
 
             <div className="time-display">{duration}</div>
 
-            {isLoaded && (
-                <AudioOutputPicker audioElement={audioElRef.current} />
-            )}
+            {isLoaded && <AudioOutputPicker audioElement={audioElRef.current} />}
 
             {showVolume && (
                 <div className="volume-control">

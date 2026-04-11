@@ -1,6 +1,6 @@
 'use strict';
 
-const { app, BrowserWindow, dialog } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain, Menu, shell } = require('electron');
 const { spawn } = require('child_process');
 const net = require('net');
 const path = require('path');
@@ -19,6 +19,35 @@ let backendProcess = null;
 let backendPort = null;
 let restartCount = 0;
 let isQuitting = false;
+
+// ---------------------------------------------------------------------------
+// Settings persistence
+// ---------------------------------------------------------------------------
+
+function getSettingsPath() {
+  return path.join(app.getPath('userData'), 'electron_settings.json');
+}
+
+function loadSettings() {
+  try {
+    const p = getSettingsPath();
+    if (fs.existsSync(p)) {
+      return JSON.parse(fs.readFileSync(p, 'utf8'));
+    }
+  } catch (err) {
+    console.error('[main] Failed to load settings:', err);
+  }
+  return {};
+}
+
+function saveSettings(settings) {
+  try {
+    const p = getSettingsPath();
+    fs.writeFileSync(p, JSON.stringify(settings, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[main] Failed to save settings:', err);
+  }
+}
 
 // ---------------------------------------------------------------------------
 // 3.1 Port selection
@@ -95,11 +124,15 @@ function spawnBackend(port) {
     );
   }
 
-  const userDataDir = app.getPath('userData');
+  // 3.8 Resolve data directory
+  const settings = loadSettings();
+  const userDataDir = settings.customDataDir || app.getPath('userData');
+  const customEnv = settings.backendEnv || {};
 
   const child = spawn(bundlePath, ['--port', String(port)], {
     env: {
       ...process.env,
+      ...customEnv,
       USER_DATA_DIR: userDataDir,
       LOG_TO_FILE: 'TRUE',
       NODE_ENV: DEV_MODE ? 'development' : 'production',
@@ -290,11 +323,19 @@ app.whenReady().then(async () => {
   try {
     // 3.7 In dev mode, allow skipping backend spawn if SKIP_BACKEND=1
     if (DEV_MODE && process.env.SKIP_BACKEND === '1') {
-      backendPort = parseInt(process.env.BACKEND_PORT || '8000', 10);
+      const settings = loadSettings();
+      backendPort = parseInt(process.env.BACKEND_PORT || settings.preferredBackendPort || '8000', 10);
       console.log(`[main] Dev mode: skipping backend spawn, using port ${backendPort}`);
     } else {
-      // 3.1 Find a free port
-      backendPort = await findAvailablePort();
+      // 3.1 Find a free port: prioritize saved preference
+      const settings = loadSettings();
+      const preferredPort = settings.preferredBackendPort;
+
+      if (preferredPort && await isPortFree(preferredPort)) {
+        backendPort = preferredPort;
+      } else {
+        backendPort = await findAvailablePort();
+      }
 
       // 3.2 Spawn the backend
       backendProcess = spawnBackend(backendPort);
@@ -308,6 +349,7 @@ app.whenReady().then(async () => {
     }
 
     createWindow(backendPort);
+    createNativeMenu();
   } catch (err) {
     showStartupError(err);
   }
@@ -317,6 +359,210 @@ app.whenReady().then(async () => {
       createWindow(backendPort);
     }
   });
+});
+
+// ---------------------------------------------------------------------------
+// Native Menu Configuration
+// ---------------------------------------------------------------------------
+
+function createNativeMenu() {
+  const template = [
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'Set Data Library Location...',
+          click: async () => {
+            const result = await dialog.showOpenDialog(mainWindow, {
+              properties: ['openDirectory', 'createDirectory'],
+              title: 'Select Folder for EasyMusic Data (Database & Tracks)',
+              buttonLabel: 'Select Library Folder'
+            });
+
+            if (!result.canceled && result.filePaths.length > 0) {
+              const newPath = result.filePaths[0];
+              const settings = loadSettings();
+              
+              if (settings.customDataDir === newPath) return;
+
+              settings.customDataDir = newPath;
+              saveSettings(settings);
+
+              const response = await dialog.showMessageBox(mainWindow, {
+                type: 'question',
+                buttons: ['Restart Now', 'Later'],
+                title: 'Library Changed',
+                message: `Data library set to: ${newPath}\n\nA restart is required to load the new database. Restart backend now?`
+              });
+
+              if (response.response === 0) {
+                // Restart backend logic (similar to port change)
+                if (backendProcess && !backendProcess.killed) {
+                  backendProcess.removeAllListeners('exit');
+                  backendProcess.kill();
+                }
+                
+                try {
+                  const newProcess = spawnBackend(backendPort);
+                  await waitForBackendReady(newProcess);
+                  backendProcess = newProcess;
+                  restartCount = 0;
+                  attachRestartManager(backendProcess, backendPort);
+                  
+                  // Notify frontend to refresh if needed (though the DB change is internal)
+                  mainWindow.webContents.reload();
+                } catch (err) {
+                  dialog.showErrorBox('Restart Failed', err.message);
+                }
+              }
+            }
+          }
+        },
+        {
+          label: 'Reveal Data Folder in Explorer',
+          click: () => {
+            const settings = loadSettings();
+            const dataPath = settings.customDataDir || app.getPath('userData');
+            if (fs.existsSync(dataPath)) {
+              shell.openPath(dataPath);
+            } else {
+                shell.openPath(app.getPath('userData'));
+            }
+          }
+        },
+        { type: 'separator' },
+        { role: 'quit' }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' }
+      ]
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'About EasyMusic',
+          click: async () => {
+            await dialog.showMessageBox(mainWindow, {
+              title: 'About EasyMusic',
+              message: 'EasyMusic - Your AI-Powered Improv Music Assistant',
+              detail: 'Version 1.0.0\nBuilt for portable Electron deployment.'
+            });
+          }
+        }
+      ]
+    }
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+}
+
+// ---------------------------------------------------------------------------
+// IPC Handlers for Dynamic Port Scaling
+// ---------------------------------------------------------------------------
+
+ipcMain.handle('get-backend-port', () => {
+  return backendPort;
+});
+
+ipcMain.handle('change-backend-port', async (event, newPort) => {
+  const targetPort = parseInt(newPort, 10);
+  if (isNaN(targetPort) || targetPort < 1024 || targetPort > 65535) {
+    throw new Error('Invalid port number');
+  }
+
+  if (targetPort === backendPort) return { success: true, port: backendPort };
+
+  const isFree = await isPortFree(targetPort);
+  if (!isFree) {
+    throw new Error(`Port ${targetPort} is already in use.`);
+  }
+
+  console.log(`[main] Restarting backend on new port: ${targetPort}`);
+
+  // 1. Persist the choice
+  const settings = loadSettings();
+  settings.preferredBackendPort = targetPort;
+  saveSettings(settings);
+
+  // 2. Kill current process
+  if (backendProcess && !backendProcess.killed) {
+    // Temporarily disable the crash-restart manager to avoid double-spawning
+    backendProcess.removeAllListeners('exit'); 
+    backendProcess.kill();
+  }
+
+  try {
+    // 3. Spawn new process
+    const newProcess = spawnBackend(targetPort);
+    await waitForBackendReady(newProcess);
+    
+    // 4. Update globals and re-attach manager
+    backendProcess = newProcess;
+    backendPort = targetPort;
+    restartCount = 0;
+    attachRestartManager(backendProcess, backendPort);
+
+    // 5. Notify all windows
+    BrowserWindow.getAllWindows().forEach(win => {
+      win.webContents.send('backend-port-updated', backendPort);
+    });
+
+    return { success: true, port: backendPort };
+  } catch (err) {
+    // If restart fails, try to go back to a safe port or show error
+    console.error('[main] Failed to restart backend on requested port:', err);
+    throw err;
+  }
+});
+
+ipcMain.handle('get-backend-env', () => {
+  const settings = loadSettings();
+  return settings.backendEnv || {};
+});
+
+ipcMain.handle('update-backend-env', async (event, newEnv) => {
+  console.log('[main] Updating backend environment variables');
+
+  // 1. Persist
+  const settings = loadSettings();
+  settings.backendEnv = newEnv;
+  saveSettings(settings);
+
+  // 2. Restart backend to apply changes
+  // We use current port for the restart
+  const targetPort = backendPort;
+
+  if (backendProcess && !backendProcess.killed) {
+    backendProcess.removeAllListeners('exit'); 
+    backendProcess.kill();
+  }
+
+  try {
+    const newProcess = spawnBackend(targetPort);
+    await waitForBackendReady(newProcess);
+    
+    backendProcess = newProcess;
+    restartCount = 0;
+    attachRestartManager(backendProcess, targetPort);
+
+    return { success: true };
+  } catch (err) {
+    console.error('[main] Failed to restart backend after env update:', err);
+    throw err;
+  }
 });
 
 app.on('window-all-closed', () => {

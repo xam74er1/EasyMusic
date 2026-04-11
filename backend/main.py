@@ -109,7 +109,16 @@ Base.metadata.create_all(bind=engine)
 import migrations
 migrations.apply_migrations(engine)
 
-app = FastAPI(title="Improv Playlist API")
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Application starting, performing initial audio scan...")
+    import_service.scan_extra_audio_dir()
+    print("BACKEND_READY", flush=True)
+    yield
+
+app = FastAPI(title="Improv Playlist API", lifespan=lifespan)
 
 from fastapi import Request
 import time
@@ -137,11 +146,7 @@ profile_repo = ProfileRepo()
 folder_repo = FolderRepo()
 sound_effect_repo = SoundEffectRepo()
 
-@app.on_event("startup")
-def startup_event():
-    logger.info("Application starting, performing initial audio scan...")
-    import_service.scan_extra_audio_dir()
-    print("BACKEND_READY", flush=True)
+
 
 @app.get("/")
 def read_root():
@@ -770,11 +775,12 @@ def sync_track(video_id: str):
     repo.update_video(video_id, target)
     return {"status": "synced", "track": target, "mode": mode}
 
-from fastapi.responses import FileResponse
-import glob
+import re
+from fastapi import Request
+from fastapi.responses import StreamingResponse, FileResponse, Response
 
 @app.get("/api/play/{video_id}")
-def play_video(video_id: str):
+def play_video(video_id: str, request: Request):
     from download_service import DOWNLOAD_DIR
     import os
     
@@ -802,7 +808,46 @@ def play_video(video_id: str):
     if not matches:
         raise HTTPException(status_code=404, detail="Audio file not found")
         
-    return FileResponse(matches[0], media_type="audio/mpeg")
+    file_path = matches[0]
+    file_size = os.path.getsize(file_path)
+    range_header = request.headers.get("Range", None)
+    
+    if range_header:
+        byte1, byte2 = 0, None
+        match = re.search(r'bytes=(\d+)-(\d*)', range_header)
+        if match:
+            g = match.groups()
+            if g[0]: byte1 = int(g[0])
+            if g[1]: byte2 = int(g[1])
+
+        if byte1 >= file_size:
+            return Response(status_code=416, headers={"Content-Range": f"bytes */{file_size}"})
+
+        if byte2 is None or byte2 >= file_size:
+            byte2 = file_size - 1
+            
+        length = byte2 - byte1 + 1
+        
+        def file_iterator():
+            with open(file_path, "rb") as f:
+                f.seek(byte1)
+                remaining = length
+                while remaining > 0:
+                    chunk_size = min(1024 * 64, remaining)
+                    data = f.read(chunk_size)
+                    if not data:
+                        break
+                    remaining -= len(data)
+                    yield data
+
+        headers = {
+            "Content-Range": f"bytes {byte1}-{byte2}/{file_size}",
+            "Accept-Ranges": "bytes",
+            "Content-Length": str(length),
+        }
+        return StreamingResponse(file_iterator(), status_code=206, headers=headers, media_type="audio/mpeg")
+
+    return FileResponse(file_path, media_type="audio/mpeg", headers={"Accept-Ranges": "bytes"})
 
 from fastapi.responses import StreamingResponse
 import subprocess
@@ -1112,12 +1157,29 @@ if __name__ == "__main__":
     import uvicorn
 
     parser = argparse.ArgumentParser(description="EasyMusic backend server")
-    parser.add_argument("--port", type=int, default=8000, help="Port for uvicorn to bind to")
-    parser.add_argument("--user-data-dir", type=str, default=None, help="Path to the user data directory")
+    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", 8000)), help="Port for uvicorn to bind to")
+    parser.add_argument("--user-data-dir", type=str, default=os.environ.get("USER_DATA_DIR"), help="Path to the user data directory")
     args = parser.parse_args()
 
     if args.user_data_dir:
         os.environ["USER_DATA_DIR"] = args.user_data_dir
 
-    uvicorn.run("main:app", host="127.0.0.1", port=args.port, reload=False)
+    # 3.8 Ensure user data directory exists
+    user_data_path = os.environ.get("USER_DATA_DIR", ".")
+    if not os.path.exists(user_data_path):
+        print(f"Creating missing user data directory: {user_data_path}")
+        os.makedirs(user_data_path, exist_ok=True)
+    
+    # 3.8 Check for database existence
+    db_file = os.path.join(user_data_path, "app.db")
+    if os.path.exists(db_file):
+        print(f"Loading existing database: {db_file}")
+    else:
+        print(f"No database found. A new one will be created at: {db_file}")
+
+    # Listen on all interfaces if in Docker mode, otherwise localhost for security
+    bind_host = "0.0.0.0" if os.environ.get("DOCKER_MODE") == "true" else "127.0.0.1"
+    
+    print(f"Backend listening on {bind_host}:{args.port}")
+    uvicorn.run(app, host=bind_host, port=args.port)
 

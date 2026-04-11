@@ -4,6 +4,7 @@ pydantic
 google-genai
 google-api-python-client
 yt-dlp
+pytubefix
 spotdl
 python-dotenv
 pandas

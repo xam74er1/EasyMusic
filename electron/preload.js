@@ -1,12 +1,15 @@
 'use strict';
 
-const { contextBridge } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron');
 
-// The main process passes the backend port via additionalArguments
-// so the preload can expose it to the renderer without needing ipcRenderer.
+// The main process passes the initial backend port via additionalArguments
 const portArg = process.argv.find((a) => a.startsWith('--backend-port='));
-const backendPort = portArg ? parseInt(portArg.split('=')[1], 10) : 8000;
+const initialPort = portArg ? parseInt(portArg.split('=')[1], 10) : 8000;
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  backendPort,
+  backendPort: initialPort,
+  changeBackendPort: (port) => ipcRenderer.invoke('change-backend-port', port),
+  onBackendPortUpdated: (callback) => ipcRenderer.on('backend-port-updated', (_event, value) => callback(value)),
+  getBackendEnv: () => ipcRenderer.invoke('get-backend-env'),
+  updateBackendEnv: (env) => ipcRenderer.invoke('update-backend-env', env),
 });

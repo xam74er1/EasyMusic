@@ -1,7 +1,25 @@
-// Resolve backend port: Electron injects backendPort via contextBridge, fallback to 8000 for web/dev mode
-const port = window.electronAPI?.backendPort ?? 8000;
-export const API_HOST = import.meta.env.VITE_API_HOST || `http://127.0.0.1:${port}`;
-export const API_BASE = `${API_HOST}/api`;
+// Resolve initial backend host: 
+// 1. In Electron, use the dynamically assigned port injected via contextBridge
+// 2. Fallback to localStorage (for web users who manually configured their backend)
+// 3. Fallback to VITE_API_HOST (for build-time remote servers)
+// 4. Fallback to localhost:8000
+const dynamicPort = window.electronAPI?.backendPort;
+const savedPort = localStorage.getItem('preferredBackendPort');
+
+export let API_HOST = dynamicPort 
+    ? `http://127.0.0.1:${dynamicPort}` 
+    : (savedPort ? `http://127.0.0.1:${savedPort}` : (import.meta.env.VITE_API_HOST || 'http://127.0.0.1:8000'));
+export let API_BASE = `${API_HOST}/api`;
+
+// Listen for runtime port updates from Electron
+if (window.electronAPI?.onBackendPortUpdated) {
+    window.electronAPI.onBackendPortUpdated((newPort) => {
+        console.log(`[API] Updating backend port to: ${newPort}`);
+        dynamicPort = newPort;
+        API_HOST = `http://127.0.0.1:${newPort}`;
+        API_BASE = `${API_HOST}/api`;
+    });
+}
 
 export const api = {
     // Media URLs

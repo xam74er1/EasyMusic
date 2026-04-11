@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useProfile } from './ProfileContext';
-import { User, ChevronDown, Plus, Settings, Pencil, Trash2, Crown, X, Check } from 'lucide-react';
+import { User, ChevronDown, Plus, Settings, Pencil, Trash2, Crown, X, Check, Monitor, RefreshCw, Key, Activity } from 'lucide-react';
 import './ProfileMenu.css';
 
 export default function ProfileMenu() {
@@ -12,6 +12,83 @@ export default function ProfileMenu() {
     const [renaming, setRenaming] = useState(null); // profile id being renamed
     const [renameValue, setRenameValue] = useState('');
     const menuRef = useRef(null);
+
+    // Dynamic Port Management
+    const isElectron = !!window.electronAPI;
+    const initialPort = isElectron 
+        ? (window.electronAPI.backendPort || 8000)
+        : (parseInt(localStorage.getItem('preferredBackendPort'), 10) || 8000);
+    
+    const [portValue, setPortValue] = useState(initialPort);
+    const [isRestarting, setIsRestarting] = useState(false);
+
+    // Environment Variables State
+    const [envVars, setEnvVars] = useState({});
+    const [isLoadingEnv, setIsLoadingEnv] = useState(false);
+    const [newEnvKey, setNewEnvKey] = useState('');
+    const [newEnvValue, setNewEnvValue] = useState('');
+
+    useEffect(() => {
+        if (!isElectron) return;
+        
+        // Load initial env
+        window.electronAPI.getBackendEnv().then(setEnvVars);
+
+        // Update local state if the port is changed elsewhere (e.g. by another window)
+        const cleanup = window.electronAPI.onBackendPortUpdated((newPort) => {
+            setPortValue(newPort);
+            setIsRestarting(false);
+        });
+        
+        return cleanup;
+    }, [isElectron]);
+
+    const handleApplyEnv = async () => {
+        if (!isElectron) return;
+        try {
+            setIsRestarting(true);
+            await window.electronAPI.updateBackendEnv(envVars);
+        } catch (err) {
+            alert(`Failed to update environment: ${err.message}`);
+            setIsRestarting(false);
+        }
+    };
+
+    const addEnvVar = (key, value = '') => {
+        if (!key) return;
+        setEnvVars(prev => ({ ...prev, [key]: value }));
+        setNewEnvKey('');
+        setNewEnvValue('');
+    };
+
+    const removeEnvVar = (key) => {
+        const next = { ...envVars };
+        delete next[key];
+        setEnvVars(next);
+    };
+
+    const updateEnvValue = (key, value) => {
+        setEnvVars(prev => ({ ...prev, [key]: value }));
+    };
+
+    const handleApply = async () => {
+        if (isElectron) {
+            try {
+                setIsRestarting(true);
+                const result = await window.electronAPI.changeBackendPort(portValue);
+                if (result.success) {
+                    console.log(`[UI] Backend restarted on port ${result.port}`);
+                }
+            } catch (err) {
+                alert(`Failed to restart backend: ${err.message}`);
+                setIsRestarting(false);
+            }
+        } else {
+            // Web mode: Just save to localStorage and alert
+            localStorage.setItem('preferredBackendPort', portValue);
+            alert('Port saved! Please refresh the page or restart your standalone backend to apply.');
+        }
+    };
 
     // Close dropdown on outside click
     useEffect(() => {
@@ -171,6 +248,90 @@ export default function ProfileMenu() {
                             <button className="add-profile-btn" onClick={() => setAddMode(true)}>
                                 <Plus size={15} /> Add New Profile
                             </button>
+                        )}
+                    </div>
+
+                    <div className="system-settings-section">
+                        <div className="system-settings-header">
+                            <Monitor size={12} className="header-icon" />
+                            <span>System Settings</span>
+                        </div>
+                        
+                        <div className="port-config">
+                            <div className="port-input-wrapper">
+                                <span className="port-label">Backend Port:</span>
+                                <input 
+                                    type="number" 
+                                    className="port-input"
+                                    value={portValue}
+                                    onChange={(e) => setPortValue(e.target.value)}
+                                    disabled={isRestarting}
+                                />
+                            </div>
+                            <button 
+                                className={`restart-btn ${isRestarting ? 'restarting' : ''}`}
+                                onClick={handleApply}
+                                disabled={isRestarting || !portValue}
+                            >
+                                <RefreshCw size={12} className={isRestarting ? 'spin' : ''} />
+                                {isRestarting 
+                                    ? 'Restarting Backend...' 
+                                    : (isElectron ? 'Apply & Restart Backend' : 'Save Backend Port')}
+                            </button>
+                        </div>
+
+                        {isElectron && (
+                            <div className="env-config">
+                                <div className="system-settings-header env-header">
+                                    <Key size={12} className="header-icon" />
+                                    <span>Backend Environment</span>
+                                </div>
+                                <div className="env-list">
+                                    {Object.entries(envVars).map(([key, value]) => (
+                                        <div key={key} className="env-item">
+                                            <div className="env-key">{key}</div>
+                                            <input 
+                                                type={key.includes('KEY') ? 'password' : 'text'}
+                                                className="env-input"
+                                                value={value}
+                                                onChange={(e) => updateEnvValue(key, e.target.value)}
+                                                placeholder="Value..."
+                                            />
+                                            <button className="env-del" onClick={() => removeEnvVar(key)}><X size={10} /></button>
+                                        </div>
+                                    ))}
+                                    
+                                    <div className="env-add-row">
+                                        <input 
+                                            placeholder="NEW_VAR" 
+                                            className="env-add-key"
+                                            value={newEnvKey}
+                                            onChange={e => setNewEnvKey(e.target.value)}
+                                        />
+                                        <input 
+                                            placeholder="Value..." 
+                                            className="env-add-val"
+                                            value={newEnvValue}
+                                            onChange={e => setNewEnvValue(e.target.value)}
+                                        />
+                                        <button className="env-add-btn" onClick={() => addEnvVar(newEnvKey, newEnvValue)}><Plus size={12} /></button>
+                                    </div>
+                                </div>
+
+                                <div className="env-presets">
+                                    <button onClick={() => addEnvVar('GEMINI_API_KEY')}>+ Gemini</button>
+                                    <button onClick={() => addEnvVar('PIXABAY_API_KEY')}>+ Pixabay</button>
+                                </div>
+
+                                <button 
+                                    className={`restart-btn ${isRestarting ? 'restarting' : ''}`}
+                                    onClick={handleApplyEnv}
+                                    disabled={isRestarting}
+                                >
+                                    <Activity size={12} className={isRestarting ? 'spin' : ''} />
+                                    {isRestarting ? 'Restarting...' : 'Save & Apply Keys'}
+                                </button>
+                            </div>
                         )}
                     </div>
                 </div>

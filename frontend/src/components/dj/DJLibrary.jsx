@@ -26,7 +26,7 @@ function buildCategoryTree(tracks) {
     return root;
 }
 
-export default function DJLibrary({ playlist, onLoadToDeck, showAddToSetlist = false, onAddToSetlist }) {
+export default React.memo(function DJLibrary({ playlist, onLoadToDeck, showAddToSetlist = false, onAddToSetlist }) {
     const [viewMode, setViewMode] = useState('folder');
     const [search, setSearch] = useState('');
     const [filterCat, setFilterCat] = useState('All');
@@ -95,7 +95,7 @@ export default function DJLibrary({ playlist, onLoadToDeck, showAddToSetlist = f
         e.dataTransfer.effectAllowed = 'copy';
     };
 
-    const TrackRow = ({ track }) => {
+    const renderTrackRow = (track) => {
         const url = getPlayUrl(track);
         return (
             <div className="lib-track-row" draggable onDragStart={e => handleDragStart(e, track.id)}>
@@ -132,12 +132,12 @@ export default function DJLibrary({ playlist, onLoadToDeck, showAddToSetlist = f
         );
     };
 
-    const FolderNode = ({ node, pathPrefix, depth }) => {
+    const renderFolderNode = (node, pathPrefix, depth) => {
         const childKeys = Object.keys(node).filter(k => k !== '__tracks').sort();
         const tracks = node.__tracks || [];
 
         return (
-            <>
+            <React.Fragment>
                 {childKeys.map(key => {
                     const childPath = pathPrefix ? `${pathPrefix}/${key}` : key;
                     const childNode = node[key];
@@ -160,10 +160,10 @@ export default function DJLibrary({ playlist, onLoadToDeck, showAddToSetlist = f
                             </div>
                             {isOpen && (
                                 <div className="folder-children">
-                                    <FolderNode node={childNode} pathPrefix={childPath} depth={depth + 1} />
+                                    {renderFolderNode(childNode, childPath, depth + 1)}
                                     {(childNode.__tracks || []).map(t => (
                                         <div key={t.id} style={{ paddingLeft: `${(depth + 1) * 16}px` }}>
-                                            <TrackRow track={t} />
+                                            {renderTrackRow(t)}
                                         </div>
                                     ))}
                                 </div>
@@ -172,9 +172,11 @@ export default function DJLibrary({ playlist, onLoadToDeck, showAddToSetlist = f
                     );
                 })}
                 {depth === 0 && tracks.length > 0 && tracks.map(t => (
-                    <TrackRow key={t.id} track={t} />
+                    <React.Fragment key={t.id}>
+                        {renderTrackRow(t)}
+                    </React.Fragment>
                 ))}
-            </>
+            </React.Fragment>
         );
     };
 
@@ -207,7 +209,7 @@ export default function DJLibrary({ playlist, onLoadToDeck, showAddToSetlist = f
                     <div className="no-tracks-msg">No downloaded tracks match your search.</div>
                 )}
 
-                {viewMode === 'folder' && <FolderNode node={tree} pathPrefix="" depth={0} />}
+                {viewMode === 'folder' && renderFolderNode(tree, "", 0)}
 
                 {viewMode === 'list' && (
                     <table className="lib-list-table">
@@ -251,4 +253,4 @@ export default function DJLibrary({ playlist, onLoadToDeck, showAddToSetlist = f
             </div>
         </div>
     );
-}
+});

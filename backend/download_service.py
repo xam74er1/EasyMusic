@@ -167,20 +167,17 @@ def _download_via_ytdlp(video_id: str, url: str, overwrite: bool = False) -> boo
         # 'tv' / 'mweb' are last resorts.
         'extractor_args': {
             'youtube': {
-                'player_client': ['ios', 'android_music', 'tv', 'mweb'],
-                'po_token_provider': 'bgutilhttp',
+                'player_client': ['ios', 'android', 'web_creator'],
             },
-            'youtubepot-bgutilhttp': {
-                'base_url': os.getenv('BGUTIL_PROVIDER_URL', 'http://bgutil-provider:4416')
-            }
         },
     }
 
     # Add JavaScript runtime (Node.js) if found, required by recent yt-dlp versions for YouTube
+    # js_runtimes must be a dict of {runtime_name: {config_dict}}, NOT a list
     node_path = shutil.which("node")
     if node_path:
         logger.info(f"YTDLP: Using Node.js runtime at {node_path}")
-        ydl_opts['js_runtimes'] = [f"node:{node_path}"]
+        ydl_opts['js_runtimes'] = {"node": {"path": node_path}}
     else:
         logger.warning("YTDLP: Node.js not found in PATH. Extraction may fail.")
 
@@ -426,6 +423,107 @@ def _download_via_spotdl(video_id: str, url: str) -> bool:
         return False
 
 
+def _download_via_pytubefix(video_id: str, url: str, overwrite: bool = False) -> bool:
+    """Downloads audio via pytubefix (independent pytube-based pipeline). Returns True on success."""
+    try:
+        from pytubefix import YouTube
+        from pytubefix.cli import on_progress
+    except ImportError:
+        logger.error("pytubefix is not installed — cannot use as fallback")
+        return False
+
+    videos = repo.get_all()
+    target = next((v for v in videos if v.id == video_id), None)
+    if not target:
+        logger.error(f"[pytubefix] Target video not found for {video_id}")
+        return False
+
+    category = target.category if target.category else "Uncategorized"
+    cat_dir = os.path.join(DOWNLOAD_DIR, category)
+    os.makedirs(cat_dir, exist_ok=True)
+
+    tags_str = ", ".join(target.tags) if target.tags else "NoTags"
+    base_name = f"{target.title} - {target.author} - {tags_str}"
+    safe_name = sanitize_filename(base_name)
+    final_mp3_path = os.path.join(cat_dir, f"{safe_name}.mp3")
+
+    if os.path.exists(final_mp3_path) and not overwrite:
+        logger.info(f"[pytubefix] File already exists, skipping: {final_mp3_path}")
+        return True
+
+    logger.info(f"[pytubefix] Starting download for {video_id} — {url}")
+
+    try:
+        yt = YouTube(url, on_progress_callback=on_progress, use_oauth=False, allow_oauth_cache=False)
+        # Grab the best audio-only stream; fall back to progressive if none
+        stream = yt.streams.filter(only_audio=True).order_by('abr').last()
+        if stream is None:
+            stream = yt.streams.filter(progressive=True).order_by('resolution').last()
+        if stream is None:
+            raise RuntimeError("No suitable stream found by pytubefix")
+
+        logger.info(f"[pytubefix] Downloading stream: {stream.mime_type} @ {getattr(stream, 'abr', '?')}")
+        tmp_path = stream.download(output_path=cat_dir, filename=f"{safe_name}_pyt_tmp")
+
+        # Convert to mp3 via ffmpeg
+        convert_cmd = [
+            "ffmpeg", "-y", "-i", tmp_path,
+            "-vn", "-ar", "44100", "-ac", "2", "-b:a", "192k",
+            final_mp3_path
+        ]
+        subprocess.run(convert_cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+
+        if not os.path.exists(final_mp3_path):
+            raise RuntimeError("ffmpeg conversion produced no output file")
+
+        # Silence trim
+        trim_silence(final_mp3_path)
+
+        # ID3 tags
+        try:
+            try:
+                audio = ID3(final_mp3_path)
+            except ID3Error:
+                audio = ID3()
+            audio.add(TIT2(encoding=3, text=target.title))
+            audio.add(TPE1(encoding=3, text=target.author))
+            audio.add(TCON(encoding=3, text=tags_str))
+            audio.add(COMM(encoding=3, lang='eng', desc='YouTube URL', text=url))
+            audio.save(final_mp3_path, v2_version=4)
+            logger.info(f"[pytubefix] ID3 tags applied for {video_id}")
+        except Exception as tag_err:
+            logger.warning(f"[pytubefix] ID3 tagging failed (non-fatal): {tag_err}")
+
+        # Update DB
+        videos = repo.get_all()
+        for v in videos:
+            if v.id == video_id:
+                rel_path = os.path.join(category, f"{safe_name}.mp3").replace('\\', '/')
+                v.local_file = rel_path
+                v.is_downloaded = True
+                v.download_error = None
+                repo.update_video(video_id, v)
+                break
+
+        log_download_event("download_success", video_id, "success")
+        logger.info(f"[pytubefix] Download successful for {video_id}")
+        return True
+
+    except Exception as e:
+        err = str(e)
+        logger.error(f"[pytubefix] Download failed for {video_id}: {err}")
+        log_download_event("download_fail", video_id, "failed", err)
+        videos = repo.get_all()
+        for v in videos:
+            if v.id == video_id:
+                v.download_error = err
+                repo.update_video(video_id, v)
+                break
+        return False
+
+
 def download_video_sync(video_id: str, url: str, overwrite: bool = False):
     mode = get_download_mode()
     fallback_enabled = get_enable_fallback()
@@ -434,14 +532,20 @@ def download_video_sync(video_id: str, url: str, overwrite: bool = False):
     if mode == "spotify":
         success = _download_via_spotdl(video_id, url)
         if not success and fallback_enabled:
-            logger.info(f"Spotify failed for {video_id}, falling back to YouTube")
-            _download_via_ytdlp(video_id, url, overwrite)
+            logger.info(f"Spotify failed for {video_id}, falling back to YouTube (yt-dlp)")
+            success = _download_via_ytdlp(video_id, url, overwrite)
+        if not success and fallback_enabled:
+            logger.info(f"yt-dlp also failed for {video_id}, trying pytubefix as last resort")
+            _download_via_pytubefix(video_id, url, overwrite)
     elif mode == "cc":
         _download_via_cc_by_metadata(video_id)
     else:
         success = _download_via_ytdlp(video_id, url, overwrite)
         if not success and fallback_enabled:
-            logger.info(f"YouTube failed for {video_id}, falling back to Spotify")
+            logger.info(f"yt-dlp failed for {video_id}, trying pytubefix fallback")
+            success = _download_via_pytubefix(video_id, url, overwrite)
+        if not success and fallback_enabled:
+            logger.info(f"pytubefix also failed for {video_id}, trying spotdl as last resort")
             _download_via_spotdl(video_id, url)
 
 def _download_via_cc_by_metadata(video_id: str):

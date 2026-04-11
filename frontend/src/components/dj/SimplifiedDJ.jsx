@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useProfile } from '../ProfileContext';
 import DJLibrary from './DJLibrary';
 import { Edit2, LayoutGrid, Play, Square, Music, Plus, Trash2, Check, X } from 'lucide-react';
@@ -53,7 +53,8 @@ export default function SimplifiedDJ({ playlist }) {
     const [editingButtonId, setEditingButtonId] = useState(null);
     const [editingButtonLabel, setEditingButtonLabel] = useState('');
 
-    const djPlaylist = playlist.filter(t => t.is_downloaded);
+    const djPlaylist = useMemo(() => playlist.filter(t => t.is_downloaded), [playlist]);
+    const noOpLoadToDeck = useCallback(() => {}, []);
     const configMap = activeProfile?.config?.simplifiedDjMap || {};
     const layout = activeProfile?.config?.simplifiedDjLayout || DEFAULT_LAYOUT;
 
@@ -338,7 +339,7 @@ export default function SimplifiedDJ({ playlist }) {
                 <div className="simple-dj-library-pane">
                     <DJLibrary
                         playlist={djPlaylist}
-                        onLoadToDeck={() => { }}
+                        onLoadToDeck={noOpLoadToDeck}
                         showAddToSetlist={false}
                     />
                 </div>

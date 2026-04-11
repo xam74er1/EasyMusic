@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import DJDeck from './DJDeck';
 import DJLibrary from './DJLibrary';
 import SetlistPanel from './SetlistPanel';
@@ -88,7 +88,7 @@ export default function VirtualDJ({ playlist }) {
     const [masterVolume, setMasterVolume] = useState(1.0);
 
     // ─── Only show downloaded MP3 tracks ────────────────
-    const djPlaylist = playlist.filter(t => t.is_downloaded);
+    const djPlaylist = useMemo(() => playlist.filter(t => t.is_downloaded), [playlist]);
 
     // ─── Fetch setlists on mount + create default ────────
     useEffect(() => {
@@ -224,13 +224,46 @@ export default function VirtualDJ({ playlist }) {
     const bindAudioEvents = useCallback((audioEl, side) => {
         const setState = side === 'a' ? setDeckA : setDeckB;
         const endedRef = side === 'a' ? deckEndedA : deckEndedB;
+        
         audioEl.addEventListener('loadedmetadata', () => {
+            console.log(`[Deck ${side}] loadedmetadata: duration=${audioEl.duration}`);
             setState(prev => ({ ...prev, duration: audioEl.duration }));
         });
+        
         audioEl.addEventListener('timeupdate', () => {
             setState(prev => ({ ...prev, currentTime: audioEl.currentTime }));
         });
+        
+        audioEl.addEventListener('seeking', () => {
+            console.log(`[Deck ${side}] seeking to ${audioEl.currentTime}`);
+        });
+
+        audioEl.addEventListener('seeked', () => {
+            console.log(`[Deck ${side}] seeked to ${audioEl.currentTime}`);
+        });
+
+        audioEl.addEventListener('error', (e) => {
+            console.error(`[Deck ${side}] audio element error:`, audioEl.error);
+        });
+
+        audioEl.addEventListener('waiting', () => {
+            console.log(`[Deck ${side}] waiting (buffering)...`);
+        });
+
+        audioEl.addEventListener('stalled', () => {
+            console.log(`[Deck ${side}] stalled...`);
+        });
+
         audioEl.addEventListener('ended', () => {
+            console.log(`[Deck ${side}] ended event fired! currentTime=${audioEl.currentTime}, duration=${audioEl.duration}`);
+            
+            // Guard: If ended fires unexpectedly early (e.g. browser 416 range error on incomplete file),
+            // don't treat it as a true track end.
+            if (audioEl.duration > 0 && (audioEl.duration - audioEl.currentTime > 2)) {
+                console.warn(`[Deck ${side}] Ended event fired prematurely! Ignored zeroing.`);
+                return;
+            }
+
             setState(prev => {
                 if (prev.loop) {
                     audioEl.currentTime = 0;
@@ -241,6 +274,7 @@ export default function VirtualDJ({ playlist }) {
                 return { ...prev, isPlaying: false, currentTime: 0 };
             });
         });
+        
         audioEl.addEventListener('play', () => setState(prev => ({ ...prev, isPlaying: true })));
         audioEl.addEventListener('pause', () => setState(prev => ({ ...prev, isPlaying: false })));
     }, []);
@@ -421,6 +455,7 @@ export default function VirtualDJ({ playlist }) {
     }, []);
 
     const deckSeek = useCallback((side, time) => {
+        console.log(`[Deck ${side}] deckSeek called with time=${time}`);
         const el = (side === 'a' ? audioElARef : audioElBRef).current;
         if (!el || !isFinite(time)) return;
         try {

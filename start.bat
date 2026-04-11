@@ -13,7 +13,7 @@ IF NOT EXIST ".venv" (
 )
 
 echo Starting backend service in a new window...
-start "EasyMusic-Backend" cmd /c "call .venv\Scripts\activate.bat && pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8082 --reload"
+start "EasyMusic-Backend" cmd /c "set LOG_LEVEL=DEBUG && call .venv\Scripts\activate.bat && pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8082 --reload --log-level debug"
 
 cd ..
 

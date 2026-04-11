@@ -19,19 +19,21 @@
       "preload.js",
       "../frontend/dist/**/*"
     ],
-    "extraResources": [
-      {
-        "from": "../backend/dist/easymusic-backend${os.platform() === 'win32' ? '.exe' : ''}",
-        "to": "backend/"
-      }
-    ],
+    "extraResources": [],
     "win": {
-      "target": "nsis",
-      "artifactName": "easymusic-Setup-${version}.exe",
+      "target": [
+        "nsis",
+        "dir"
+      ],
+      "artifactName": "easymusic-${version}-windows.exe",
       "extraResources": [
         {
-          "from": "../backend/dist/easymusic-backend.exe",
-          "to": "backend/"
+          "from": "../backend/dist/easymusic-backend",
+          "to": "backend"
+        },
+        {
+          "from": "../frontend/dist",
+          "to": "frontend/dist"
         }
       ]
     },
@@ -41,7 +43,7 @@
       "extraResources": [
         {
           "from": "../backend/dist/easymusic-backend",
-          "to": "backend/"
+          "to": "backend"
         }
       ]
     },

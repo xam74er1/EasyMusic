@@ -319,3 +319,229 @@
     inset: 0;
     z-index: 99;
 }
+
+/* ─── System Settings Section ─── */
+.system-settings-section {
+    padding: 12px 14px;
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.system-settings-header {
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.system-settings-header .header-icon {
+    color: var(--primary);
+    opacity: 0.7;
+}
+
+.port-config {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.port-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.port-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.port-input {
+    width: 80px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(157, 78, 221, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    font-size: 0.8rem;
+    font-weight: 700;
+    outline: none;
+    text-align: center;
+    font-family: 'Outfit', sans-serif;
+}
+
+.port-input:focus {
+    border-color: var(--primary);
+}
+
+.restart-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--primary);
+    background: rgba(157, 78, 221, 0.1);
+    color: var(--primary);
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition: all 0.2s;
+    font-family: 'Outfit', sans-serif;
+}
+
+.restart-btn:hover:not(:disabled) {
+    background: var(--primary);
+    color: white;
+}
+
+.restart-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: var(--text-muted);
+    color: var(--text-muted);
+}
+
+.restart-btn.restarting {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+/* ─── Backend Environment Config ─── */
+.env-config {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.env-header {
+    margin-bottom: 8px;
+}
+
+.env-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.env-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 4px;
+    border-radius: 6px;
+}
+
+.env-key {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--primary);
+    width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    opacity: 0.8;
+}
+
+.env-input {
+    flex: 1;
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+    font-size: 0.75rem;
+    padding: 2px 4px;
+    outline: none;
+}
+
+.env-input:focus {
+    border-color: var(--primary);
+}
+
+.env-del {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.env-del:hover {
+    color: var(--danger);
+}
+
+.env-add-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.env-add-key, .env-add-val {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    font-size: 0.7rem;
+}
+
+.env-add-key { width: 40%; }
+.env-add-val { flex: 1; }
+
+.env-add-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0 8px;
+    cursor: pointer;
+}
+
+.env-presets {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.env-presets button {
+    font-size: 0.65rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: rgba(157, 78, 221, 0.1);
+    border: 1px solid rgba(157, 78, 221, 0.2);
+    color: var(--primary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.env-presets button:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

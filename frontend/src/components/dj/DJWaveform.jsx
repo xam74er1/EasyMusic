@@ -57,12 +57,14 @@ export default function DJWaveform({
     const wsRef = useRef(null);
     const loadedUrlRef = useRef(null);
     const destroyedRef = useRef(false);
+    const wsReadyRef = useRef(false);   // true once WaveSurfer emits 'ready'
 
     useEffect(() => {
         if (!url || !containerRef.current) return;
         if (loadedUrlRef.current === url && wsRef.current) return;
 
         destroyedRef.current = false;
+        wsReadyRef.current = false;
 
         // Tear down previous WaveSurfer instance
         if (wsRef.current) {
@@ -92,6 +94,7 @@ export default function DJWaveform({
             if (destroyedRef.current) return;
             ws.setVolume(0);
             ws.setMuted(true);
+            wsReadyRef.current = true;
             try {
                 const peaks = ws.exportPeaks();
                 if (peaks) await storePeaks(url, peaks);
@@ -121,15 +124,21 @@ export default function DJWaveform({
 
         return () => {
             destroyedRef.current = true;
+            wsReadyRef.current = false;
             try { ws.destroy(); } catch { }
         };
     }, [url, color, progressColor, height]);
 
-    // Sync the progress cursor to deck audio position
+    // Sync the progress cursor to deck audio position.
+    // Guard: only move the cursor when WaveSurfer is ready AND the position
+    // is meaningfully non-zero — this prevents seekTo(0) from racing with the
+    // deck's currentTime state update right after a user click.
     useEffect(() => {
         const ws = wsRef.current;
-        if (!ws || !duration || duration <= 0) return;
+        if (!ws || !wsReadyRef.current || !duration || duration <= 0) return;
         const pct = Math.min(1, Math.max(0, currentTime / duration));
+        // Skip a no-op seekTo(0) that can confuse WaveSurfer's WebAudio backend
+        if (pct === 0 && currentTime === 0) return;
         try { ws.seekTo(pct); } catch { }
     }, [currentTime, duration]);
 
