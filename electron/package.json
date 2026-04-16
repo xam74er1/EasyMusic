@@ -22,7 +22,7 @@
     "extraResources": [],
     "win": {
       "target": [
-        "nsis",
+        "portable",
         "dir"
       ],
       "artifactName": "easymusic-${version}-windows.exe",
