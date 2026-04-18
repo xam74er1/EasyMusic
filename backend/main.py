@@ -93,7 +93,7 @@ initialize_user_data_dir(USER_DATA_DIR)
 # Load env variables before importing modules that depend on them
 
 from database import engine, Base
-from models import Video, PlaylistRepo, Setlist, SetlistRepo, Profile, ProfileRepo, Folder, FolderRepo, MASTER_PROFILE_ID, DEFAULT_PROFILE_ID, SoundEffect, SoundEffectRepo
+from models import Video, PlaylistRepo, Setlist, SetlistRepo, Profile, ProfileRepo, Folder, FolderRepo, MASTER_PROFILE_ID, DEFAULT_PROFILE_ID, SoundEffect, SoundEffectRepo, CustomPlaylist, CustomPlaylistItem, CustomPlaylistRepo
 from ai_service import chat_service
 from download_service import start_download_background, batch_download_missing, get_download_mode, set_download_mode
 from cc_service import search_cc_tracks, download_cc_track, CCTrack, CCSourceUnavailableError
@@ -145,6 +145,7 @@ setlist_repo = SetlistRepo()
 profile_repo = ProfileRepo()
 folder_repo = FolderRepo()
 sound_effect_repo = SoundEffectRepo()
+custom_playlist_repo = CustomPlaylistRepo()
 
 
 
@@ -918,6 +919,79 @@ def delete_setlist(setlist_id: str):
     return {"status": "deleted"}
 
 
+@app.post("/api/setlists/import")
+async def import_setlist_from_file(file: UploadFile = File(...)):
+    content = (await file.read()).decode("utf-8", errors="replace")
+    raw_items = _parse_playlist_text(content)
+    if not raw_items:
+        raise HTTPException(status_code=400, detail="Aucune piste trouvée dans le fichier")
+
+    all_tracks = repo.get_all()
+    track_ids = []
+    total = len(raw_items)
+    matched = 0
+    for raw in raw_items:
+        item_name = raw.get("ItemName", "")
+        if not item_name:
+            continue
+        track_id = _match_track(item_name, all_tracks)
+        if track_id:
+            track_ids.append(track_id)
+            matched += 1
+
+    name = os.path.splitext(file.filename or "playlist")[0]
+    setlist = Setlist(name=name, tracks=track_ids)
+    if not setlist.id:
+        setlist.id = str(uuid.uuid4())
+    created = setlist_repo.create(setlist)
+    logger.info(f"Imported setlist '{name}': {matched}/{total} tracks matched")
+    return {"id": created.id, "name": created.name, "total": total, "matched": matched}
+
+
+@app.get("/api/setlists/{setlist_id}/export")
+def export_setlist_as_file(setlist_id: str):
+    setlist = setlist_repo.get_by_id(setlist_id)
+    if not setlist:
+        raise HTTPException(status_code=404, detail="Setlist not found")
+
+    all_tracks = repo.get_all()
+    tracks_by_id = {t.id: t for t in all_tracks}
+    lib_root = _find_library_root(all_tracks)
+
+    all_track_ids = list(setlist.tracks)
+    for sub in setlist.sublists:
+        all_track_ids.extend(sub.tracks)
+
+    lines = ["BeginPlayList"]
+    for track_id in all_track_ids:
+        track = tracks_by_id.get(track_id)
+        if not track or not track.local_file:
+            continue
+        rel = track.local_file.replace("\\", "/")
+        if lib_root and rel.startswith(lib_root):
+            rel = rel[len(lib_root):]
+        item_name = rel.replace("/", "\\")
+        lines += [
+            "BeginItem",
+            f'ItemName "{item_name}"',
+            "volumeMP3 1.000",
+            "posMusic 0.000",
+            "startLoop 0.000",
+            "endLoop 0.000",
+            "isLoop 0",
+            "EndItem",
+        ]
+    lines.append("EndPlayList")
+
+    safe_name = "".join(c if c.isalnum() or c in " _-" else "_" for c in setlist.name)
+    from fastapi.responses import Response
+    return Response(
+        content="\n".join(lines).encode("utf-8"),
+        media_type="text/plain",
+        headers={"Content-Disposition": f'attachment; filename="{safe_name}.txt"'},
+    )
+
+
 # ─── Sound Effect Endpoints ─────────────────────────────────────
 
 @app.get("/api/sound-effects")
@@ -1151,6 +1225,194 @@ def play_sound_effect(effect_id: str):
         raise HTTPException(status_code=404, detail="Audio file not found on disk")
         
     return FileResponse(file_path, media_type="audio/mpeg")
+
+# ─── Custom Playlist helpers ──────────────────────────────────────
+
+def _parse_playlist_text(content: str) -> list[dict]:
+    """Parse a BeginPlayList...EndPlayList text file into a list of item dicts."""
+    items = []
+    current: dict | None = None
+    for raw_line in content.splitlines():
+        line = raw_line.strip()
+        if line == "BeginItem":
+            current = {}
+        elif line == "EndItem" and current is not None:
+            items.append(current)
+            current = None
+        elif current is not None and line:
+            parts = line.split(None, 1)
+            if len(parts) == 2:
+                key, val = parts
+                # Strip surrounding quotes from values like ItemName "foo"
+                val = val.strip()
+                if val.startswith('"') and val.endswith('"'):
+                    val = val[1:-1]
+                current[key] = val
+    return items
+
+
+def _match_track(item_name: str, all_tracks: list) -> str | None:
+    """Return the track id that best matches item_name, or None."""
+    normalized = item_name.replace("\\", "/").lower()
+    filename = normalized.split("/")[-1]
+
+    candidates = [
+        t for t in all_tracks
+        if t.local_file and t.local_file.replace("\\", "/").lower().endswith("/" + filename)
+           or (t.local_file and os.path.basename(t.local_file.replace("\\", "/")).lower() == filename)
+    ]
+
+    if not candidates:
+        return None
+    if len(candidates) == 1:
+        return candidates[0].id
+
+    # Multiple matches: score by number of matching trailing path segments
+    best_id = None
+    best_score = -1
+    item_parts = normalized.split("/")
+    for t in candidates:
+        candidate_parts = t.local_file.replace("\\", "/").lower().split("/")
+        score = sum(
+            1 for i in range(1, min(len(item_parts), len(candidate_parts)) + 1)
+            if item_parts[-i] == candidate_parts[-i]
+        )
+        if score > best_score:
+            best_score = score
+            best_id = t.id
+    return best_id
+
+
+def _find_library_root(tracks: list) -> str:
+    """Determine the common path prefix of all downloaded tracks."""
+    paths = [t.local_file.replace("\\", "/") for t in tracks if t.local_file]
+    if not paths:
+        return ""
+    root = paths[0].rsplit("/", 1)[0] + "/"
+    for p in paths[1:]:
+        while not p.startswith(root) and root:
+            root = root.rsplit("/", 1)[0]
+            if root:
+                root += "/"
+    return root
+
+
+def _build_playlist_text(playlist: CustomPlaylist, tracks_by_id: dict) -> str:
+    lines = ["BeginPlayList"]
+    for item in playlist.items:
+        track = tracks_by_id.get(item.track_id) if item.track_id else None
+        if track and track.local_file:
+            # Try to make the path relative to the library root
+            root = _find_library_root(list(tracks_by_id.values()))
+            rel = track.local_file.replace("\\", "/")
+            if root and rel.startswith(root):
+                rel = rel[len(root):]
+            item_name = rel.replace("/", "\\")
+        else:
+            item_name = item.item_name
+        lines.append("BeginItem")
+        lines.append(f'ItemName "{item_name}"')
+        lines.append(f"volumeMP3 {item.volume_mp3:.3f}")
+        lines.append(f"posMusic {item.pos_music:.3f}")
+        lines.append(f"startLoop {item.start_loop:.3f}")
+        lines.append(f"endLoop {item.end_loop:.3f}")
+        lines.append(f"isLoop {item.is_loop}")
+        lines.append("EndItem")
+    lines.append("EndPlayList")
+    return "\n".join(lines)
+
+
+# ─── Custom Playlist endpoints ────────────────────────────────────
+
+@app.get("/api/custom-playlists")
+def list_custom_playlists():
+    playlists = custom_playlist_repo.get_all()
+    return [{"id": p.id, "name": p.name, "item_count": len(p.items), "created_at": p.created_at} for p in playlists]
+
+
+@app.post("/api/custom-playlists/import")
+async def import_custom_playlist(file: UploadFile = File(...)):
+    content = (await file.read()).decode("utf-8", errors="replace")
+    raw_items = _parse_playlist_text(content)
+    if not raw_items:
+        raise HTTPException(status_code=400, detail="No items found in playlist file")
+
+    all_tracks = repo.get_all()
+    items = []
+    for raw in raw_items:
+        item_name = raw.get("ItemName", "")
+        track_id = _match_track(item_name, all_tracks)
+        items.append(CustomPlaylistItem(
+            item_name=item_name,
+            track_id=track_id,
+            volume_mp3=float(raw.get("volumeMP3", 1.0)),
+            pos_music=float(raw.get("posMusic", 0.0)),
+            start_loop=float(raw.get("startLoop", 0.0)),
+            end_loop=float(raw.get("endLoop", 0.0)),
+            is_loop=int(raw.get("isLoop", 0)),
+        ))
+
+    name = os.path.splitext(file.filename or "playlist")[0]
+    playlist = CustomPlaylist(name=name, items=items)
+    created = custom_playlist_repo.create(playlist)
+    matched = sum(1 for i in items if i.track_id)
+    return {"id": created.id, "name": created.name, "total": len(items), "matched": matched}
+
+
+@app.get("/api/custom-playlists/{playlist_id}")
+def get_custom_playlist(playlist_id: str):
+    playlist = custom_playlist_repo.get_by_id(playlist_id)
+    if not playlist:
+        raise HTTPException(status_code=404, detail="Playlist not found")
+    all_tracks = repo.get_all()
+    tracks_by_id = {t.id: t for t in all_tracks}
+    result_items = []
+    for item in playlist.items:
+        track = tracks_by_id.get(item.track_id) if item.track_id else None
+        result_items.append({
+            **item.dict(),
+            "track_title": track.title if track else None,
+            "track_author": track.author if track else None,
+        })
+    return {**playlist.dict(), "items": result_items}
+
+
+@app.get("/api/custom-playlists/{playlist_id}/export")
+def export_custom_playlist(playlist_id: str):
+    playlist = custom_playlist_repo.get_by_id(playlist_id)
+    if not playlist:
+        raise HTTPException(status_code=404, detail="Playlist not found")
+    all_tracks = repo.get_all()
+    tracks_by_id = {t.id: t for t in all_tracks}
+    text = _build_playlist_text(playlist, tracks_by_id)
+    safe_name = "".join(c if c.isalnum() or c in " _-" else "_" for c in playlist.name)
+    filename = f"{safe_name}.txt"
+    from fastapi.responses import Response
+    return Response(
+        content=text.encode("utf-8"),
+        media_type="text/plain",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@app.put("/api/custom-playlists/{playlist_id}")
+def update_custom_playlist(playlist_id: str, data: dict):
+    playlist = custom_playlist_repo.get_by_id(playlist_id)
+    if not playlist:
+        raise HTTPException(status_code=404, detail="Playlist not found")
+    if "name" in data:
+        playlist.name = data["name"]
+    updated = custom_playlist_repo.update(playlist_id, playlist)
+    return updated
+
+
+@app.delete("/api/custom-playlists/{playlist_id}")
+def delete_custom_playlist(playlist_id: str):
+    deleted = custom_playlist_repo.delete(playlist_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Playlist not found")
+    return {"ok": True}
+
 
 if __name__ == "__main__":
     import argparse

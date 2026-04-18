@@ -458,6 +458,77 @@ class SetlistRepo:
             db.close()
 
 
+# ─── Custom Playlist Models ──────────────────────────────────────
+
+class CustomPlaylistItem(BaseModel):
+    item_name: str
+    track_id: Optional[str] = None
+    volume_mp3: float = 1.0
+    pos_music: float = 0.0
+    start_loop: float = 0.0
+    end_loop: float = 0.0
+    is_loop: int = 0
+
+class CustomPlaylist(BaseModel):
+    id: str = ""
+    name: str = "New Playlist"
+    profile_id: str = DEFAULT_PROFILE_ID
+    items: List[CustomPlaylistItem] = []
+    created_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+
+class CustomPlaylistRepo:
+    def __init__(self):
+        _user_data_dir = os.environ.get("USER_DATA_DIR", ".")
+        self.path = os.path.join(_user_data_dir, "custom_playlists.json")
+
+    def _load(self) -> List[dict]:
+        if not os.path.exists(self.path):
+            return []
+        try:
+            with open(self.path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return []
+
+    def _save(self, data: List[dict]):
+        with open(self.path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+    def get_all(self) -> List[CustomPlaylist]:
+        return [CustomPlaylist(**d) for d in self._load()]
+
+    def get_by_id(self, playlist_id: str) -> Optional[CustomPlaylist]:
+        for d in self._load():
+            if d.get("id") == playlist_id:
+                return CustomPlaylist(**d)
+        return None
+
+    def create(self, playlist: CustomPlaylist) -> CustomPlaylist:
+        if not playlist.id:
+            playlist.id = str(uuid.uuid4())
+        data = self._load()
+        data.append(playlist.dict())
+        self._save(data)
+        return playlist
+
+    def update(self, playlist_id: str, updated: CustomPlaylist) -> Optional[CustomPlaylist]:
+        data = self._load()
+        for i, d in enumerate(data):
+            if d.get("id") == playlist_id:
+                data[i] = updated.dict()
+                self._save(data)
+                return updated
+        return None
+
+    def delete(self, playlist_id: str) -> bool:
+        data = self._load()
+        new_data = [d for d in data if d.get("id") != playlist_id]
+        if len(new_data) == len(data):
+            return False
+        self._save(new_data)
+        return True
+
+
 # ─── Sound Effect Models ──────────────────────────────────────────
 
 class SoundEffect(BaseModel):

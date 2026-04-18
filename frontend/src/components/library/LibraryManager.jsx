@@ -6,7 +6,8 @@ import {
   Music, Tag, Play, Pause, SkipForward, SkipBack,
   Volume2, VolumeX, Shuffle, Repeat, List, Maximize2,
   Filter, MoreVertical, Check, AlertCircle, FileAudio,
-  History, Settings, Loader2, Pencil, GripVertical, ChevronRight, FolderOpen, X, Edit2
+  History, Settings, Loader2, Pencil, GripVertical, ChevronRight, FolderOpen, X, Edit2,
+  ListMusic, Upload
 } from 'lucide-react';
 import ZipDownloadModal from './ZipDownloadModal';
 import ImportModal from './ImportModal';
@@ -58,9 +59,26 @@ function filterTree(node, query, pathPrefix = '') {
     return { node: result, matches };
 }
 
+function SmallBtn({ children, onClick, title, color }) {
+    return (
+        <button
+            title={title}
+            onClick={e => { e.stopPropagation(); onClick(); }}
+            style={{
+                background: 'transparent', border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 5, padding: '3px 5px', cursor: 'pointer',
+                color: color || 'var(--text-muted)', display: 'flex', alignItems: 'center',
+            }}
+        >
+            {children}
+        </button>
+    );
+}
+
 export default function LibraryManager() {
     const {
         tracks,
+        setlists,
         updateTrackCategory,
         renameCategory,
         downloadingTracks,
@@ -172,6 +190,59 @@ export default function LibraryManager() {
     // --- Import Modal Data ---
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [droppedFiles, setDroppedFiles] = useState([]);
+
+    // --- Setlist management ---
+    const setlistFileInputRef = React.useRef(null);
+    const [renamingSetlistId, setRenamingSetlistId] = useState(null);
+    const [renameSetlistValue, setRenameSetlistValue] = useState('');
+
+    const handleImportSetlist = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        e.target.value = '';
+        try {
+            const res = await api.importSetlist(file);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || 'Import failed');
+            addToast(`"${data.name}" importée — ${data.matched}/${data.total} pistes trouvées`, 'success');
+            refreshLibrary();
+        } catch (err) {
+            addToast('Erreur import: ' + err.message, 'error');
+        }
+    };
+
+    const handleExportSetlist = (id) => {
+        window.open(api.getSetlistExportUrl(id), '_blank');
+    };
+
+    const handleDeleteSetlist = async (id, name) => {
+        if (!confirm(`Supprimer la setlist "${name}" ?`)) return;
+        try {
+            await api.deleteSetlist(id);
+            addToast(`"${name}" supprimée`, 'success');
+            refreshLibrary();
+        } catch {
+            addToast('Erreur suppression', 'error');
+        }
+    };
+
+    const startRenameSetlist = (id, name) => {
+        setRenamingSetlistId(id);
+        setRenameSetlistValue(name);
+    };
+
+    const confirmRenameSetlist = async (setlist) => {
+        if (!renameSetlistValue.trim()) return;
+        try {
+            const res = await api.updateSetlist(setlist.id, { ...setlist, name: renameSetlistValue.trim() });
+            if (!res.ok) throw new Error();
+            addToast('Setlist renommée', 'success');
+            setRenamingSetlistId(null);
+            refreshLibrary();
+        } catch {
+            addToast('Erreur renommage', 'error');
+        }
+    };
 
     // --- Drag state ---
     const [draggedTrackId, setDraggedTrackId] = useState(null);
@@ -688,6 +759,72 @@ export default function LibraryManager() {
                         <div style={{ padding: '20px', textAlign: 'center', opacity: 0.5 }}>
                             No tracks match your search or category.
                         </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Pane 3: Setlists */}
+            <div className="lm-panel" style={{ flex: '0 0 260px', borderLeft: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column' }}>
+                <div className="lm-panel-header" style={{ justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <ListMusic size={18} /> <h2>Setlists</h2>
+                    </div>
+                    <button
+                        onClick={() => setlistFileInputRef.current?.click()}
+                        title="Importer une playlist .txt"
+                        style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '4px 8px', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem' }}
+                    >
+                        <Upload size={13} /> Importer
+                    </button>
+                    <input ref={setlistFileInputRef} type="file" accept=".txt" style={{ display: 'none' }} onChange={handleImportSetlist} />
+                </div>
+                <div className="lm-panel-content" style={{ flex: 1, overflowY: 'auto' }}>
+                    {setlists.length === 0 ? (
+                        <div style={{ padding: '20px', textAlign: 'center', opacity: 0.5, fontSize: '0.85rem' }}>
+                            Aucune setlist. Importez un fichier .txt ou créez-en une dans le DJ.
+                        </div>
+                    ) : (
+                        setlists.map(sl => {
+                            const trackCount = sl.tracks.length + (sl.sublists || []).reduce((a, s) => a + s.tracks.length, 0);
+                            const isRenaming = renamingSetlistId === sl.id;
+                            return (
+                                <div key={sl.id} className="lm-item" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 4, padding: '8px 10px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                        <ListMusic size={13} style={{ opacity: 0.5, flexShrink: 0 }} />
+                                        {isRenaming ? (
+                                            <input
+                                                autoFocus
+                                                value={renameSetlistValue}
+                                                onChange={e => setRenameSetlistValue(e.target.value)}
+                                                onKeyDown={e => {
+                                                    if (e.key === 'Enter') confirmRenameSetlist(sl);
+                                                    if (e.key === 'Escape') setRenamingSetlistId(null);
+                                                }}
+                                                style={{ flex: 1, background: 'rgba(255,255,255,0.08)', border: '1px solid var(--primary)', borderRadius: 4, padding: '2px 6px', color: 'var(--text)', fontSize: '0.85rem' }}
+                                                onClick={e => e.stopPropagation()}
+                                            />
+                                        ) : (
+                                            <span style={{ flex: 1, fontSize: '0.88rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sl.name}</span>
+                                        )}
+                                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', flexShrink: 0 }}>{trackCount}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
+                                        {isRenaming ? (
+                                            <>
+                                                <SmallBtn title="Confirmer" onClick={() => confirmRenameSetlist(sl)} color="var(--success, #4ade80)"><Check size={12} /></SmallBtn>
+                                                <SmallBtn title="Annuler" onClick={() => setRenamingSetlistId(null)}><X size={12} /></SmallBtn>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <SmallBtn title="Renommer" onClick={() => startRenameSetlist(sl.id, sl.name)}><Pencil size={12} /></SmallBtn>
+                                                <SmallBtn title="Exporter en .txt" onClick={() => handleExportSetlist(sl.id)} color="var(--primary)"><Download size={12} /></SmallBtn>
+                                                <SmallBtn title="Supprimer" onClick={() => handleDeleteSetlist(sl.id, sl.name)} color="#ef4444"><Trash2 size={12} /></SmallBtn>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })
                     )}
                 </div>
             </div>
