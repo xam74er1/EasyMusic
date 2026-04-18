@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import DJDeck from './DJDeck';
 import DJLibrary from './DJLibrary';
 import SetlistPanel from './SetlistPanel';
+import OutputConfigModal from './OutputConfigModal';
+import SFXControlBar from './SFXControlBar';
+import useAudioDevices from '../useAudioDevices';
 import { useProfile } from '../ProfileContext';
 import './VirtualDJ.css';
 
@@ -47,6 +50,7 @@ export default function VirtualDJ({ playlist }) {
     const playSoundEffect = useCallback((id) => {
         if (!window.__activeAudioNodes) window.__activeAudioNodes = new Set();
         const el = new Audio(api.getSoundEffectPlayUrl(id));
+        el.__effectId = id; // Track which effect this is
         window.__activeAudioNodes.add(el);
 
         el.onended = () => window.__activeAudioNodes.delete(el);
@@ -57,22 +61,40 @@ export default function VirtualDJ({ playlist }) {
         });
     }, []);
 
+    // Stop all sounds for a specific effect
+    const stopSoundEffect = useCallback((id) => {
+        if (window.__activeAudioNodes) {
+            window.__activeAudioNodes.forEach(el => {
+                if (el.__effectId === id) {
+                    el.pause();
+                    el.src = '';
+                    window.__activeAudioNodes.delete(el);
+                }
+            });
+        }
+    }, []);
+
     const playSoundEffectRef = useRef(null);
+    const stopSoundEffectRef = useRef(null);
     useEffect(() => { playSoundEffectRef.current = playSoundEffect; }, [playSoundEffect]);
+    useEffect(() => { stopSoundEffectRef.current = stopSoundEffect; }, [stopSoundEffect]);
 
     // Split panel resize
     const [splitRatio, setSplitRatio] = useState(0.5);
     const resizingRef = useRef(false);
     const splitContainerRef = useRef(null);
 
-    // Audio refs — elements created once, sources tracked per side
-    const audioCtxRef = useRef(null);
+    // Audio refs — one AudioContext PER DECK so each can setSinkId independently
+    const audioCtxARef = useRef(null);
+    const audioCtxBRef = useRef(null);
     const audioElARef = useRef(null);
     const audioElBRef = useRef(null);
     const gainARef = useRef(null);
     const gainBRef = useRef(null);
     const analyserARef = useRef(null);
     const analyserBRef = useRef(null);
+    const masterGainARef = useRef(null);
+    const masterGainBRef = useRef(null);
     const sourceCreatedA = useRef(false);
     const sourceCreatedB = useRef(false);
     const deckEndedA = useRef(false);
@@ -84,8 +106,50 @@ export default function VirtualDJ({ playlist }) {
     const vuRafRef = useRef(null);
 
     // Master volume
-    const masterGainRef = useRef(null);
     const [masterVolume, setMasterVolume] = useState(1.0);
+
+    // ─── Audio output: Room / Headset config ─────────────
+    const { devices: audioDevices } = useAudioDevices();
+    const [roomDevice,    setRoomDevice]    = useState(() => localStorage.getItem('mos_room')    || 'default');
+    const [headsetDevice, setHeadsetDevice] = useState(() => localStorage.getItem('mos_headset') || 'default');
+    const [deckAMode, setDeckAMode] = useState('room');    // 'room' | 'headset'
+    const [deckBMode, setDeckBMode] = useState('room');
+    const [showOutputConfig, setShowOutputConfig] = useState(false);
+
+    const deviceLabel = useCallback((id) => {
+        if (!id || id === 'default') return 'Default';
+        return audioDevices.find(d => d.deviceId === id)?.label ?? id.slice(0, 12) + '…';
+    }, [audioDevices]);
+
+    // Apply a device ID to a deck's AudioContext
+    const applySinkId = useCallback(async (ctxRef, deviceId) => {
+        const ctx = ctxRef.current;
+        if (!ctx?.setSinkId) return;
+        try { await ctx.setSinkId(deviceId === 'default' ? '' : deviceId); }
+        catch (e) { console.warn('setSinkId:', e); }
+    }, []);
+
+    // Switch a deck's mode and instantly re-route audio
+    const handleDeckAMode = useCallback(async (mode) => {
+        setDeckAMode(mode);
+        await applySinkId(audioCtxARef, mode === 'room' ? roomDevice : headsetDevice);
+    }, [roomDevice, headsetDevice, applySinkId]);
+
+    const handleDeckBMode = useCallback(async (mode) => {
+        setDeckBMode(mode);
+        await applySinkId(audioCtxBRef, mode === 'room' ? roomDevice : headsetDevice);
+    }, [roomDevice, headsetDevice, applySinkId]);
+
+    // Save config from modal and reapply to active decks
+    const handleSaveOutputConfig = useCallback(async (newRoom, newHeadset) => {
+        setRoomDevice(newRoom);
+        setHeadsetDevice(newHeadset);
+        localStorage.setItem('mos_room',    newRoom);
+        localStorage.setItem('mos_headset', newHeadset);
+        await applySinkId(audioCtxARef, deckAMode === 'room' ? newRoom : newHeadset);
+        await applySinkId(audioCtxBRef, deckBMode === 'room' ? newRoom : newHeadset);
+        setShowOutputConfig(false);
+    }, [deckAMode, deckBMode, applySinkId]);
 
     // ─── Only show downloaded MP3 tracks ────────────────
     const djPlaylist = useMemo(() => playlist.filter(t => t.is_downloaded), [playlist]);
@@ -153,25 +217,27 @@ export default function VirtualDJ({ playlist }) {
         updateSetlist({ ...sl, tracks: [...sl.tracks, trackId] });
     }, [setlists, activeSetlistId]);
 
-    // ─── Audio Context (singleton) ───────────────────────
-    const getAudioCtx = useCallback(() => {
-        if (!audioCtxRef.current) {
+    // ─── Audio Contexts — one per deck for independent output routing ──
+    const getAudioCtx = useCallback((side) => {
+        const ctxRef = side === 'a' ? audioCtxARef : audioCtxBRef;
+        const gainRef = side === 'a' ? masterGainARef : masterGainBRef;
+        if (!ctxRef.current) {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            audioCtxRef.current = ctx;
-            // Create master gain node once
             const masterGain = ctx.createGain();
-            masterGain.gain.value = masterGainRef.current?.gain?.value ?? 1.0;
+            masterGain.gain.value = 1.0;
             masterGain.connect(ctx.destination);
-            masterGainRef.current = masterGain;
+            ctxRef.current = ctx;
+            gainRef.current = masterGain;
         }
-        return audioCtxRef.current;
+        return ctxRef.current;
     }, []);
 
     // Setup audio graph ONCE per side (create source only once)
     const setupDeckAudio = useCallback((side, audioEl) => {
-        const ctx = getAudioCtx();
+        const ctx = getAudioCtx(side);
         const isA = side === 'a';
         const createdRef = isA ? sourceCreatedA : sourceCreatedB;
+        const masterGainRef = isA ? masterGainARef : masterGainBRef;
 
         // Only create the source once — MediaElementSource can only be created once per element
         if (createdRef.current) return;
@@ -182,7 +248,6 @@ export default function VirtualDJ({ playlist }) {
         analyser.fftSize = 256;
         source.connect(gain);
         gain.connect(analyser);
-        // Route through master gain node
         analyser.connect(masterGainRef.current ?? ctx.destination);
 
         if (isA) { gainARef.current = gain; analyserARef.current = analyser; }
@@ -190,16 +255,17 @@ export default function VirtualDJ({ playlist }) {
         createdRef.current = true;
     }, [getAudioCtx]);
 
-    // Crossfader
+    // Crossfader — controls gain nodes in each deck's own context
     useEffect(() => {
         const angle = crossfader * (Math.PI / 2);
         if (gainARef.current) gainARef.current.gain.value = Math.cos(angle);
         if (gainBRef.current) gainBRef.current.gain.value = Math.sin(angle);
     }, [crossfader]);
 
-    // Master volume
+    // Master volume — applied to both deck contexts
     useEffect(() => {
-        if (masterGainRef.current) masterGainRef.current.gain.value = masterVolume;
+        if (masterGainARef.current) masterGainARef.current.gain.value = masterVolume;
+        if (masterGainBRef.current) masterGainBRef.current.gain.value = masterVolume;
     }, [masterVolume]);
 
 
@@ -294,7 +360,8 @@ export default function VirtualDJ({ playlist }) {
         return () => {
             elA.pause(); elA.src = '';
             elB.pause(); elB.src = '';
-            try { audioCtxRef.current?.close(); } catch { }
+            try { audioCtxARef.current?.close(); } catch { }
+            try { audioCtxBRef.current?.close(); } catch { }
         };
     }, [bindAudioEvents]);
 
@@ -370,7 +437,7 @@ export default function VirtualDJ({ playlist }) {
         if (willAutoPlay) {
             const onCanPlay = () => {
                 el.removeEventListener('canplay', onCanPlay);
-                const ctx = audioCtxRef.current;
+                const ctx = (side === 'a' ? audioCtxARef : audioCtxBRef).current;
                 if (ctx && ctx.state === 'suspended') ctx.resume();
                 el.play().catch(err => console.warn('Auto-play error:', err));
             };
@@ -381,7 +448,7 @@ export default function VirtualDJ({ playlist }) {
     const deckPlay = useCallback((side) => {
         const el = (side === 'a' ? audioElARef : audioElBRef).current;
         if (!el || !el.src) return;
-        const ctx = getAudioCtx();
+        const ctx = getAudioCtx(side);
         if (ctx.state === 'suspended') ctx.resume();
         if (el.paused) el.play().catch(err => console.error('Play error:', err));
         else el.pause();
@@ -396,8 +463,6 @@ export default function VirtualDJ({ playlist }) {
         const aPlaying = elA && !elA.paused;
         const bPlaying = elB && !elB.paused;
         const anyPlaying = aPlaying || bPlaying;
-        const ctx = audioCtxRef.current;
-
         if (anyPlaying) {
             // Pause all playing decks and remember which were playing
             playingSnapshotRef.current = [];
@@ -408,8 +473,9 @@ export default function VirtualDJ({ playlist }) {
             const toResume = playingSnapshotRef.current.length > 0
                 ? playingSnapshotRef.current
                 : ['a']; // fall back to deck A if no snapshot
-            if (ctx && ctx.state === 'suspended') ctx.resume();
             for (const side of toResume) {
+                const ctx = (side === 'a' ? audioCtxARef : audioCtxBRef).current;
+                if (ctx && ctx.state === 'suspended') ctx.resume();
                 const el = side === 'a' ? elA : elB;
                 if (el && el.src) el.play().catch(() => { });
             }
@@ -432,6 +498,19 @@ export default function VirtualDJ({ playlist }) {
             if (e.code === 'Space') {
                 e.preventDefault();
                 globalToggleRef.current?.();
+                return;
+            }
+
+            // Escape key: stop all active sound effects
+            if (e.code === 'Escape') {
+                e.preventDefault();
+                if (window.__activeAudioNodes) {
+                    window.__activeAudioNodes.forEach(el => {
+                        el.pause();
+                        el.src = '';
+                    });
+                    window.__activeAudioNodes.clear();
+                }
                 return;
             }
 
@@ -541,7 +620,12 @@ export default function VirtualDJ({ playlist }) {
                     onSpeedChange={(s) => deckSpeed('a', s)} onLoopToggle={() => deckLoop('a')}
                     onCue={() => deckCue('a')}
                     onDrop={(id) => dropToDeck('a', id)}
-                    audioElement={audioElARef.current} />
+                    audioElement={audioElARef.current}
+                    outputMode={deckAMode}
+                    onModeChange={handleDeckAMode}
+                    onOpenConfig={() => setShowOutputConfig(true)}
+                    roomDeviceName={deviceLabel(roomDevice)}
+                    headsetDeviceName={deviceLabel(headsetDevice)} />
 
                 <div className="vdj-master">
                     <span className="master-label">Master</span>
@@ -586,7 +670,12 @@ export default function VirtualDJ({ playlist }) {
                     onSpeedChange={(s) => deckSpeed('b', s)} onLoopToggle={() => deckLoop('b')}
                     onCue={() => deckCue('b')}
                     onDrop={(id) => dropToDeck('b', id)}
-                    audioElement={audioElBRef.current} />
+                    audioElement={audioElBRef.current}
+                    outputMode={deckBMode}
+                    onModeChange={handleDeckBMode}
+                    onOpenConfig={() => setShowOutputConfig(true)}
+                    roomDeviceName={deviceLabel(roomDevice)}
+                    headsetDeviceName={deviceLabel(headsetDevice)} />
             </div>
 
             {/* Crossfader */}
@@ -620,12 +709,6 @@ export default function VirtualDJ({ playlist }) {
                     🎵 Library
                 </button>
 
-                <button
-                    className={`xfader-center-btn${showLibrary ? ' xfader-btn-active xfader-btn-lib' : ''}`}
-                    onClick={() => setShowLibrary(!showLibrary)}
-                >
-                    🎵 Library
-                </button>
             </div>
 
             {/* Bottom section: setlist + library */}
@@ -678,6 +761,18 @@ export default function VirtualDJ({ playlist }) {
                     />
                 )
             )}
+
+            {/* Audio Output Config Modal */}
+            <OutputConfigModal
+                open={showOutputConfig}
+                onClose={() => setShowOutputConfig(false)}
+                roomDevice={roomDevice}
+                headsetDevice={headsetDevice}
+                onSave={handleSaveOutputConfig}
+            />
+
+            {/* SFX Control Bar - floating control for active sound effects */}
+            <SFXControlBar />
         </div>
     );
 }

@@ -3,7 +3,7 @@
 // 2. Fallback to localStorage (for web users who manually configured their backend)
 // 3. Fallback to VITE_API_HOST (for build-time remote servers)
 // 4. Fallback to localhost:8000
-const dynamicPort = window.electronAPI?.backendPort;
+let dynamicPort = window.electronAPI?.backendPort;
 const savedPort = localStorage.getItem('preferredBackendPort');
 
 export let API_HOST = dynamicPort 

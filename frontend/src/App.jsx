@@ -215,6 +215,7 @@ function App() {
               onPlaySoundEffect={(id) => {
                 if (!window.__activeAudioNodes) window.__activeAudioNodes = new Set();
                 const el = new Audio(api.getSoundEffectPlayUrl(id));
+                el.__effectId = id;
                 window.__activeAudioNodes.add(el);
                 el.onended = () => window.__activeAudioNodes.delete(el);
                 el.onerror = () => window.__activeAudioNodes.delete(el);
@@ -222,6 +223,17 @@ function App() {
                   console.warn('SFX Error:', e);
                   window.__activeAudioNodes.delete(el);
                 });
+              }}
+              onStopSoundEffect={(id) => {
+                if (window.__activeAudioNodes) {
+                  window.__activeAudioNodes.forEach(el => {
+                    if (el.__effectId === id) {
+                      el.pause();
+                      el.src = '';
+                      window.__activeAudioNodes.delete(el);
+                    }
+                  });
+                }
               }}
             />
           </div>

@@ -350,6 +350,23 @@
     color: #a855f7;
 }
 
+.se-stop-btn {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    opacity: 0.7;
+    display: flex;
+    padding: 4px;
+    margin-left: -4px;
+    transition: all 0.2s ease;
+}
+
+.se-stop-btn:hover {
+    opacity: 1;
+    color: #ff8080;
+}
+
 .se-item-info {
     flex: 1;
     margin-left: 12px;

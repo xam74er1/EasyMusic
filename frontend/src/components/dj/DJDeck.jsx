@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Play, Pause, Square, Repeat } from 'lucide-react';
+import { Play, Pause, Square, Repeat, Speaker, Headphones, Settings2 } from 'lucide-react';
 import DJWaveform from './DJWaveform';
-import AudioOutputPicker from '../AudioOutputPicker';
 
 function formatTime(secs) {
     if (!isFinite(secs) || isNaN(secs)) return '0:00';
@@ -22,10 +21,17 @@ export default function DJDeck({
     onCue,
     audioElement,
     onDrop,
+    // Output routing
+    outputMode,       // 'room' | 'headset'
+    onModeChange,     // (mode) => void
+    onOpenConfig,     // () => void — opens the config modal
+    roomDeviceName,   // display label for room device
+    headsetDeviceName,// display label for headset device
 }) {
     const isA = side === 'a';
+    const accentColor = isA ? '#9D4EDD' : '#00F5D4';
     const waveColor = isA ? 'rgba(157, 78, 221, 0.40)' : 'rgba(0, 245, 212, 0.35)';
-    const progressColor = isA ? '#9D4EDD' : '#00F5D4';
+    const progressColor = accentColor;
     const volPct = Math.round(deck.volume * 100);
     const [isDragOver, setIsDragOver] = useState(false);
 
@@ -43,6 +49,8 @@ export default function DJDeck({
         const trackId = e.dataTransfer.getData('text/track-id');
         if (trackId && onDrop) onDrop(trackId);
     };
+
+    const activeDeviceName = outputMode === 'room' ? roomDeviceName : headsetDeviceName;
 
     return (
         <div
@@ -98,7 +106,7 @@ export default function DJDeck({
                 <span className="time-display">{formatTime(deck.duration)}</span>
             </div>
 
-            {/* Bottom row: transport + faders in one line */}
+            {/* Bottom row: transport + faders + output switcher */}
             <div className="deck-bottom-row">
                 {/* Transport buttons */}
                 <div className="deck-transport">
@@ -126,7 +134,6 @@ export default function DJDeck({
                             value={deck.volume} style={{ '--val': `${volPct}%` }}
                             onChange={e => onVolumeChange(parseFloat(e.target.value))} />
                         <span className="fader-val">{volPct}%</span>
-                        <AudioOutputPicker audioElement={audioElement} />
                     </div>
                     <div className="fader-item">
                         <span className="fader-label">SPEED</span>
@@ -137,6 +144,42 @@ export default function DJDeck({
                         <span className="fader-val speed-val">{deck.speed.toFixed(2)}x</span>
                     </div>
                 </div>
+            </div>
+
+            {/* Output switcher bar — full width below controls */}
+            <div className="deck-output-bar">
+                <span className="deck-output-label">OUTPUT</span>
+
+                <div className="deck-output-toggle">
+                    <button
+                        className={`deck-output-btn ${outputMode === 'room' ? 'deck-output-btn--active' : ''}`}
+                        onClick={() => onModeChange('room')}
+                        title={`Room: ${roomDeviceName}`}
+                    >
+                        <Speaker size={13} />
+                        <span>Room</span>
+                    </button>
+                    <button
+                        className={`deck-output-btn ${outputMode === 'headset' ? 'deck-output-btn--active deck-output-btn--headset' : ''}`}
+                        onClick={() => onModeChange('headset')}
+                        title={`Headset: ${headsetDeviceName}`}
+                    >
+                        <Headphones size={13} />
+                        <span>Headset</span>
+                    </button>
+                </div>
+
+                <span className="deck-output-device" title={activeDeviceName}>
+                    {activeDeviceName}
+                </span>
+
+                <button
+                    className="deck-output-config-btn"
+                    onClick={onOpenConfig}
+                    title="Configure audio outputs"
+                >
+                    <Settings2 size={13} />
+                </button>
             </div>
         </div>
     );

@@ -9,7 +9,8 @@ import api, { API_BASE } from '../../api';
 export default function SoundEffectsPanel({
     keybindings = {},
     onUpdateKeybindings,
-    onPlaySoundEffect
+    onPlaySoundEffect,
+    onStopSoundEffect
 }) {
     const { addToast } = useToast();
     const [effects, setEffects] = useState([]);
@@ -549,8 +550,15 @@ export default function SoundEffectsPanel({
 
                                                 return (
                                                     <div key={effect.id} className={`se-item ${isSelected ? 'se-item-selected' : ''}`}>
-                                                        <button className="se-play-btn" onClick={() => onPlaySoundEffect(effect.id)}>
+                                                        <button className="se-play-btn" onClick={() => onPlaySoundEffect(effect.id)} title="Play">
                                                             <Play size={16} fill="currentColor" />
+                                                        </button>
+                                                        <button
+                                                            className="se-stop-btn"
+                                                            onClick={() => onStopSoundEffect?.(effect.id)}
+                                                            title="Stop"
+                                                        >
+                                                            <X size={14} />
                                                         </button>
                                                         <div className="se-item-info">
                                                             <span className="se-item-name" title={effect.name}>{effect.name}</span>
