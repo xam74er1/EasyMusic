@@ -75,6 +75,12 @@ export const api = {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
     }),
     deleteSetlist: (id) => fetch(`${API_BASE}/setlists/${id}`, { method: 'DELETE' }),
+    importSetlist: (file) => {
+        const fd = new FormData();
+        fd.append('file', file);
+        return fetch(`${API_BASE}/setlists/import`, { method: 'POST', body: fd });
+    },
+    getSetlistExportUrl: (id) => `${API_BASE}/setlists/${id}/export`,
 
     // Sound Effects
     getSoundEffects: () => fetch(`${API_BASE}/sound-effects`),
@@ -119,6 +125,20 @@ export const api = {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
     }),
     importLegacy: (formData) => fetch(`${API_BASE}/import`, { method: 'POST', body: formData }),
+    // Custom Playlists
+    getCustomPlaylists: () => fetch(`${API_BASE}/custom-playlists`),
+    importCustomPlaylist: (file) => {
+        const fd = new FormData();
+        fd.append('file', file);
+        return fetch(`${API_BASE}/custom-playlists/import`, { method: 'POST', body: fd });
+    },
+    getCustomPlaylist: (id) => fetch(`${API_BASE}/custom-playlists/${id}`),
+    getCustomPlaylistExportUrl: (id) => `${API_BASE}/custom-playlists/${id}/export`,
+    renameCustomPlaylist: (id, name) => fetch(`${API_BASE}/custom-playlists/${id}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }),
+    }),
+    deleteCustomPlaylist: (id) => fetch(`${API_BASE}/custom-playlists/${id}`, { method: 'DELETE' }),
+
     // Config
     getDownloadMode: () => fetch(`${API_BASE}/config/download-mode`),
     setDownloadMode: (mode) => fetch(`${API_BASE}/config/download-mode`, {

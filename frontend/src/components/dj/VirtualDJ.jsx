@@ -211,6 +211,19 @@ export default function VirtualDJ({ playlist }) {
         }
     };
 
+    const importSetlist = async (file) => {
+        try {
+            const res = await api.importSetlist(file);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || 'Import failed');
+            await fetchSetlists();
+            setActiveSetlistId(data.id);
+            setShowSetlist(true);
+        } catch (err) {
+            console.error('Failed to import setlist:', err);
+        }
+    };
+
     const addToSetlist = useCallback((trackId) => {
         const sl = setlists.find(s => s.id === activeSetlistId);
         if (!sl) return;
@@ -723,6 +736,7 @@ export default function VirtualDJ({ playlist }) {
                             onUpdateSetlist={updateSetlist}
                             onCreateSetlist={createSetlist}
                             onDeleteSetlist={deleteSetlist}
+                            onImportSetlist={importSetlist}
                             autoPlay={autoPlay}
                             onAutoPlayToggle={() => setAutoPlay(!autoPlay)}
                             playlist={djPlaylist}
@@ -746,6 +760,7 @@ export default function VirtualDJ({ playlist }) {
                         onUpdateSetlist={updateSetlist}
                         onCreateSetlist={createSetlist}
                         onDeleteSetlist={deleteSetlist}
+                        onImportSetlist={importSetlist}
                         autoPlay={autoPlay}
                         onAutoPlayToggle={() => setAutoPlay(!autoPlay)}
                         playlist={djPlaylist}

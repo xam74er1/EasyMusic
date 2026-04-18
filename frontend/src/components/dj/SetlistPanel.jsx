@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { Plus, Trash2, ChevronUp, ChevronDown, X, ListMusic, Play, GripVertical, FolderPlus, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2, ChevronUp, ChevronDown, X, ListMusic, Play, GripVertical, FolderPlus, CheckCircle2, Upload, Download } from 'lucide-react';
 import './SetlistPanel.css';
 
 import api from '../../api';
@@ -11,6 +11,7 @@ export default function SetlistPanel({
     onUpdateSetlist,
     onCreateSetlist,
     onDeleteSetlist,
+    onImportSetlist,
     autoPlay,
     onAutoPlayToggle,
     playlist, // full track list for resolving IDs
@@ -24,6 +25,7 @@ export default function SetlistPanel({
     const [dragIdx, setDragIdx] = useState(null);
     const [dragOverIdx, setDragOverIdx] = useState(null);
     const [dragSection, setDragSection] = useState(null); // 'main' or sublist id
+    const importFileRef = useRef(null);
 
     const activeSetlist = setlists.find(s => s.id === activeSetlistId);
     const trackMap = {};
@@ -227,6 +229,34 @@ export default function SetlistPanel({
                 {activeSetlistId && (
                     <button className="sl-icon-btn sl-delete-btn" onClick={() => onDeleteSetlist(activeSetlistId)} title="Delete Setlist"><Trash2 size={13} /></button>
                 )}
+                <button
+                    className="sl-icon-btn"
+                    title="Importer playlist .txt"
+                    onClick={() => importFileRef.current?.click()}
+                >
+                    <Upload size={13} />
+                </button>
+                {activeSetlistId && (
+                    <button
+                        className="sl-icon-btn"
+                        title="Exporter setlist en .txt"
+                        onClick={() => window.open(api.getSetlistExportUrl(activeSetlistId), '_blank')}
+                    >
+                        <Download size={13} />
+                    </button>
+                )}
+                <input
+                    ref={importFileRef}
+                    type="file"
+                    accept=".txt"
+                    style={{ display: 'none' }}
+                    onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file || !onImportSetlist) return;
+                        e.target.value = '';
+                        await onImportSetlist(file);
+                    }}
+                />
             </div>
 
             {showNewInput && (
