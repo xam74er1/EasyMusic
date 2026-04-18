@@ -1,0 +1,208 @@
+/* ── SFX Control Bar (Floating) ──────────────────────────── */
+
+.sfx-control-bar {
+    background: rgba(20, 15, 35, 0.95);
+    border: 1px solid rgba(157, 78, 221, 0.3);
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(157, 78, 221, 0.1);
+    padding: 0;
+    min-width: 220px;
+    max-width: 320px;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+}
+
+.sfx-bar-minimized {
+    opacity: 0.4;
+    transform: scale(0.95);
+}
+
+.sfx-bar-minimized:hover {
+    opacity: 0.7;
+}
+
+.sfx-bar-expanded {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Header */
+.sfx-bar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+    cursor: grab;
+    user-select: none;
+}
+
+.sfx-bar-header:active {
+    cursor: grabbing;
+}
+
+.sfx-bar-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #9D4EDD;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sfx-bar-minimize {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 2px 4px;
+    font-size: 0.65rem;
+    transition: color 0.15s;
+}
+
+.sfx-bar-minimize:hover {
+    color: #9D4EDD;
+}
+
+/* Content */
+.sfx-bar-content {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: sfxBarIn 0.15s ease;
+}
+
+@keyframes sfxBarIn {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 400px;
+    }
+}
+
+/* Sounds list */
+.sfx-sounds-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.sfx-sounds-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sfx-sounds-list::-webkit-scrollbar-track {
+    background: rgba(157, 78, 221, 0.05);
+    border-radius: 2px;
+}
+
+.sfx-sounds-list::-webkit-scrollbar-thumb {
+    background: rgba(157, 78, 221, 0.2);
+    border-radius: 2px;
+}
+
+.sfx-sounds-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(157, 78, 221, 0.3);
+}
+
+/* Individual sound item */
+.sfx-sound-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(157, 78, 221, 0.1);
+    border-radius: 6px;
+    font-size: 0.65rem;
+    color: #aaa;
+}
+
+.sfx-sound-progress {
+    flex: 1;
+    height: 3px;
+    background: rgba(157, 78, 221, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.sfx-sound-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #9D4EDD, #b060f0);
+    border-radius: 2px;
+    transition: width 0.1s linear;
+}
+
+.sfx-sound-time {
+    min-width: 50px;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: #888;
+    font-size: 0.6rem;
+}
+
+.sfx-sound-stop {
+    background: rgba(255, 80, 80, 0.15);
+    border: 1px solid rgba(255, 80, 80, 0.3);
+    color: #ff8080;
+    border-radius: 4px;
+    padding: 2px 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+
+.sfx-sound-stop:hover {
+    background: rgba(255, 80, 80, 0.25);
+    border-color: rgba(255, 80, 80, 0.5);
+    color: #ff9999;
+}
+
+/* Stop all button */
+.sfx-bar-stop-all {
+    width: 100%;
+    padding: 8px;
+    background: linear-gradient(135deg, rgba(255, 80, 80, 0.15), rgba(255, 60, 60, 0.1));
+    border: 1px solid rgba(255, 80, 80, 0.3);
+    border-radius: 6px;
+    color: #ff8080;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.sfx-bar-stop-all:hover {
+    background: linear-gradient(135deg, rgba(255, 80, 80, 0.25), rgba(255, 60, 60, 0.15));
+    border-color: rgba(255, 80, 80, 0.5);
+    color: #ff9999;
+    box-shadow: 0 4px 12px rgba(255, 80, 80, 0.2);
+}
+
+/* Empty state */
+.sfx-bar-empty {
+    padding: 12px;
+    text-align: center;
+    color: #555;
+    font-size: 0.7rem;
+    font-style: italic;
+}
