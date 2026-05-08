@@ -95,7 +95,7 @@ initialize_user_data_dir(USER_DATA_DIR)
 from database import engine, Base
 from models import Video, PlaylistRepo, Setlist, SetlistRepo, Profile, ProfileRepo, Folder, FolderRepo, MASTER_PROFILE_ID, DEFAULT_PROFILE_ID, SoundEffect, SoundEffectRepo, CustomPlaylist, CustomPlaylistItem, CustomPlaylistRepo
 from ai_service import chat_service
-from download_service import start_download_background, batch_download_missing, get_download_mode, set_download_mode
+from download_service import start_download_background, batch_download_missing, get_download_mode, set_download_mode, _cached_find_file
 from cc_service import search_cc_tracks, download_cc_track, CCTrack, CCSourceUnavailableError
 import import_service
 import import_logic
@@ -251,18 +251,8 @@ def delete_folder(folder_id: str, action: str = Query("archive")):
 @app.get("/api/playlist")
 def get_playlist(profile_id: Optional[str] = Query(None)):
     logger.debug(f"Fetching playlist for profile_id={profile_id}")
-    all_videos = repo.get_all()
-    # No profile filter or master: return all tracks
-    if not profile_id or profile_id == MASTER_PROFILE_ID:
-        return all_videos
-    # For a specific profile, only return tracks in that profile's setlists
-    setlists = setlist_repo.get_all(profile_id=profile_id)
-    track_ids = set()
-    for sl in setlists:
-        track_ids.update(sl.tracks)
-        for sub in sl.sublists:
-            track_ids.update(sub.tracks)
-    return [v for v in all_videos if v.id in track_ids]
+    # Master (or no filter) sees all tracks; other profiles see only their own
+    return repo.get_all(profile_id=profile_id)
 
 @app.post("/api/playlist")
 def create_video(video: Video):
@@ -291,11 +281,49 @@ def delete_video(video_id: str):
 
 @app.get("/api/playlist/{video_id}")
 def get_video(video_id: str):
-    videos = repo.get_all()
-    target = next((v for v in videos if v.id == video_id), None)
+    target = repo.get_by_id(video_id)
     if not target:
         raise HTTPException(status_code=404, detail="Video not found")
     return target
+
+@app.post("/api/playlist/{video_id}/add-to-profile")
+def add_track_to_profile(video_id: str, profile_id: str = Query(...)):
+    """Add an existing track to a profile without changing its owner profile."""
+    if profile_id == MASTER_PROFILE_ID:
+        raise HTTPException(status_code=400, detail="Cannot add tracks specifically to master — master already sees all tracks")
+    target = repo.get_by_id(video_id)
+    if not target:
+        raise HTTPException(status_code=404, detail="Track not found")
+    extra = list(target.additional_profile_ids or [])
+    if profile_id not in extra:
+        extra.append(profile_id)
+        target.additional_profile_ids = extra
+        repo.update_video(video_id, target)
+    return {"status": "added", "profile_id": profile_id}
+
+@app.post("/api/playlist/{video_id}/remove-from-profile")
+def remove_track_from_profile(video_id: str, profile_id: str = Query(...)):
+    """Remove a track from a non-master profile.
+    - If the track was added via add-to-profile (in additional_profile_ids), removes it from there.
+    - If the track is owned by this profile (profile_id matches), reassigns it to master.
+    """
+    if profile_id == MASTER_PROFILE_ID:
+        raise HTTPException(status_code=400, detail="Cannot remove tracks from master")
+    target = repo.get_by_id(video_id)
+    if not target:
+        raise HTTPException(status_code=404, detail="Track not found")
+    changed = False
+    extra = list(target.additional_profile_ids or [])
+    if profile_id in extra:
+        extra.remove(profile_id)
+        target.additional_profile_ids = extra
+        changed = True
+    if target.profile_id == profile_id:
+        target.profile_id = MASTER_PROFILE_ID
+        changed = True
+    if changed:
+        repo.update_video(video_id, target)
+    return {"status": "removed", "profile_id": profile_id}
 
 def sync_file_location(video: Video, new_category: str) -> str:
     from download_service import DOWNLOAD_DIR
@@ -322,8 +350,7 @@ def sync_file_location(video: Video, new_category: str) -> str:
 
 @app.put("/api/playlist/{video_id}/category")
 def update_video_category(video_id: str, new_category: str = Query(..., alias="category")):
-    videos = repo.get_all()
-    target = next((v for v in videos if v.id == video_id), None)
+    target = repo.get_by_id(video_id)
     if not target:
         raise HTTPException(status_code=404, detail="Video not found")
         
@@ -338,16 +365,7 @@ class BulkCategoryRequest(BaseModel):
 
 @app.patch("/api/playlist/category")
 def update_bulk_category(req: BulkCategoryRequest):
-    videos = repo.get_all()
-    count = 0
-    for v in videos:
-        # Exact match or prefix match for children folders
-        if v.category == req.old_category or v.category.startswith(req.old_category + "/"):
-            new_cat = v.category.replace(req.old_category, req.new_category, 1)
-            v.local_file = sync_file_location(v, new_cat)
-            v.category = new_cat
-            repo.update_video(v.id, v)
-            count += 1
+    count = repo.bulk_update_category(req.old_category, req.new_category)
     return {"status": "updated", "count": count}
 
 class ReorganizePlan(BaseModel):
@@ -405,10 +423,11 @@ def undo_reorganization():
 class ChatRequest(BaseModel):
     message: str
     session_id: str = "default"
+    profile_id: str = MASTER_PROFILE_ID
 
 @app.post("/api/chat")
 async def chat_endpoint(request: ChatRequest):
-    result = chat_service.send_message(request.message, session_id=request.session_id)
+    result = chat_service.send_message(request.message, session_id=request.session_id, profile_id=request.profile_id)
     return result
 
 # ─── Config Endpoints ────────────────────────────────────────────
@@ -447,6 +466,7 @@ def set_fallback_endpoint(req: FallbackRequest):
 class CCDownloadRequest(BaseModel):
     track: CCTrack
     category: str = "Uncategorized"
+    profile_id: str = DEFAULT_PROFILE_ID
 
 @app.get("/api/cc/search")
 def search_cc(q: str = Query(...), limit: int = Query(10)):
@@ -459,7 +479,7 @@ def search_cc(q: str = Query(...), limit: int = Query(10)):
 @app.post("/api/cc/download")
 def download_cc(req: CCDownloadRequest):
     try:
-        local_file = download_cc_track(req.track, req.category)
+        local_file = download_cc_track(req.track, req.category, profile_id=req.profile_id)
     except Exception as e:
         logger.error(f"CC download failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -471,8 +491,7 @@ def download_all_missing():
 
 @app.post("/api/download/{video_id}")
 def download_single_video(video_id: str, overwrite: bool = False):
-    videos = repo.get_all()
-    target = next((v for v in videos if v.id == video_id), None)
+    target = repo.get_by_id(video_id)
     if not target:
         raise HTTPException(status_code=404, detail="Video not found")
     if not target.youtube_url:
@@ -528,11 +547,10 @@ def download_file_browser(video_id: str):
     from download_service import DOWNLOAD_DIR
     import urllib.parse
     
-    videos = repo.get_all()
-    target = next((v for v in videos if v.id == video_id), None)
+    target = repo.get_by_id(video_id)
     if not target:
         raise HTTPException(status_code=404, detail="Video not found")
-        
+
     path = sync_get_local_file_path(target, DOWNLOAD_DIR)
     
     if not path or not os.path.exists(path):
@@ -558,27 +576,18 @@ def download_as_zip(
     from download_service import DOWNLOAD_DIR
     import os
     
-    # 1. Gather tracks
-    all_videos = repo.get_all()
+    # 1. Gather tracks (always scoped to the active profile)
+    profile_tracks = repo.get_all(profile_id=profile_id if profile_id else None)
     tracks_to_zip = []
-    
+
     if folder_id:
         # User wants a specific folder (folder_id is actually the category path string here)
-        for v in all_videos:
-            if v.category == folder_id or (v.category and v.category.startswith(folder_id + "/")):
-                tracks_to_zip.append(v)
+        tracks_to_zip = [
+            v for v in profile_tracks
+            if v.category == folder_id or (v.category and v.category.startswith(folder_id + "/"))
+        ]
     else:
-        # User wants the whole library for this profile
-        if not profile_id or profile_id == MASTER_PROFILE_ID:
-            tracks_to_zip = all_videos
-        else:
-            setlists = setlist_repo.get_all(profile_id=profile_id)
-            track_ids = set()
-            for sl in setlists:
-                track_ids.update(sl.tracks)
-                for sub in sl.sublists:
-                    track_ids.update(sub.tracks)
-            tracks_to_zip = [v for v in all_videos if v.id in track_ids]
+        tracks_to_zip = profile_tracks
             
     if not tracks_to_zip:
         raise HTTPException(status_code=404, detail="No tracks found to zip")
@@ -709,7 +718,8 @@ async def confirm_import(req: ImportConfirmRequest):
                     category=meta.get("category", "Uncategorized"),
                     tags=meta.get("tags", []),
                     is_downloaded=True,
-                    local_file=local_rel_path
+                    local_file=local_rel_path,
+                    profile_id=req.profile_id
                 )
                 repo.add_video(new_video)
                 imported_count += 1
@@ -742,8 +752,7 @@ def sync_track(video_id: str):
     from download_service import get_download_mode
     mode = get_download_mode()
     
-    videos = repo.get_all()
-    target = next((v for v in videos if v.id == video_id), None)
+    target = repo.get_by_id(video_id)
     if not target:
         raise HTTPException(status_code=404, detail="Track not found")
     
@@ -784,10 +793,8 @@ from fastapi.responses import StreamingResponse, FileResponse, Response
 def play_video(video_id: str, request: Request):
     from download_service import DOWNLOAD_DIR
     import os
-    
-    videos = repo.get_all()
-    target = next((v for v in videos if v.id == video_id), None)
-    
+
+    target = repo.get_by_id(video_id)
     if not target:
         raise HTTPException(status_code=404, detail="Video not found")
         
@@ -796,15 +803,11 @@ def play_video(video_id: str, request: Request):
     if path:
         matches.append(path)
     
-    # Fallback to scanning if still not matched
+    # Fallback to cached directory scan if still not matched
     if not matches:
-        for root, _, files in os.walk(DOWNLOAD_DIR):
-            for filename in files:
-                if video_id in filename:
-                    matches.append(os.path.join(root, filename))
-                    break
-            if matches:
-                break
+        found = _cached_find_file(video_id, DOWNLOAD_DIR)
+        if found:
+            matches.append(found)
 
     if not matches:
         raise HTTPException(status_code=404, detail="Audio file not found")
@@ -855,28 +858,27 @@ import subprocess
 
 @app.get("/api/stream/{video_id}")
 def stream_video(video_id: str):
-    videos = repo.get_all()
-    target = next((v for v in videos if v.id == video_id), None)
+    target = repo.get_by_id(video_id)
     if not target or not target.youtube_url:
         raise HTTPException(status_code=404, detail="Video or URL not found")
 
     def generate():
-        # Use yt-dlp to stream audio to stdout
-        cmd = [
-            "yt-dlp",
-            "-f", "bestaudio",
-            "-o", "-", # output to stdout
-            target.youtube_url
-        ]
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        cmd = ["yt-dlp", "-f", "bestaudio", "-o", "-", target.youtube_url]
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         try:
             while True:
-                chunk = process.stdout.read(1024 * 64) # 64kb chunks
+                chunk = process.stdout.read(1024 * 64)
                 if not chunk:
                     break
                 yield chunk
+        except GeneratorExit:
+            pass
         finally:
-            process.terminate()
+            process.kill()
+            try:
+                process.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                pass
 
     return StreamingResponse(generate(), media_type="audio/mpeg")
 
@@ -920,13 +922,14 @@ def delete_setlist(setlist_id: str):
 
 
 @app.post("/api/setlists/import")
-async def import_setlist_from_file(file: UploadFile = File(...)):
+async def import_setlist_from_file(file: UploadFile = File(...), profile_id: Optional[str] = Query(None)):
     content = (await file.read()).decode("utf-8", errors="replace")
     raw_items = _parse_playlist_text(content)
     if not raw_items:
         raise HTTPException(status_code=400, detail="Aucune piste trouvée dans le fichier")
 
-    all_tracks = repo.get_all()
+    # Match against tracks visible to this profile
+    all_tracks = repo.get_all(profile_id=profile_id if profile_id else None)
     track_ids = []
     total = len(raw_items)
     matched = 0
@@ -940,7 +943,7 @@ async def import_setlist_from_file(file: UploadFile = File(...)):
             matched += 1
 
     name = os.path.splitext(file.filename or "playlist")[0]
-    setlist = Setlist(name=name, tracks=track_ids)
+    setlist = Setlist(name=name, tracks=track_ids, profile_id=profile_id or DEFAULT_PROFILE_ID)
     if not setlist.id:
         setlist.id = str(uuid.uuid4())
     created = setlist_repo.create(setlist)
@@ -1325,19 +1328,19 @@ def _build_playlist_text(playlist: CustomPlaylist, tracks_by_id: dict) -> str:
 # ─── Custom Playlist endpoints ────────────────────────────────────
 
 @app.get("/api/custom-playlists")
-def list_custom_playlists():
-    playlists = custom_playlist_repo.get_all()
+def list_custom_playlists(profile_id: Optional[str] = Query(None)):
+    playlists = custom_playlist_repo.get_all(profile_id=profile_id)
     return [{"id": p.id, "name": p.name, "item_count": len(p.items), "created_at": p.created_at} for p in playlists]
 
 
 @app.post("/api/custom-playlists/import")
-async def import_custom_playlist(file: UploadFile = File(...)):
+async def import_custom_playlist(file: UploadFile = File(...), profile_id: Optional[str] = Query(None)):
     content = (await file.read()).decode("utf-8", errors="replace")
     raw_items = _parse_playlist_text(content)
     if not raw_items:
         raise HTTPException(status_code=400, detail="No items found in playlist file")
 
-    all_tracks = repo.get_all()
+    all_tracks = repo.get_all(profile_id=profile_id if profile_id else None)
     items = []
     for raw in raw_items:
         item_name = raw.get("ItemName", "")
@@ -1353,7 +1356,7 @@ async def import_custom_playlist(file: UploadFile = File(...)):
         ))
 
     name = os.path.splitext(file.filename or "playlist")[0]
-    playlist = CustomPlaylist(name=name, items=items)
+    playlist = CustomPlaylist(name=name, items=items, profile_id=profile_id or DEFAULT_PROFILE_ID)
     created = custom_playlist_repo.create(playlist)
     matched = sum(1 for i in items if i.track_id)
     return {"id": created.id, "name": created.name, "total": len(items), "matched": matched}

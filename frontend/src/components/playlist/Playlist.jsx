@@ -1,19 +1,29 @@
-import React, { useState } from 'react';
-import { Virtuoso } from 'react-virtuoso';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { Virtuoso, VirtuosoGrid } from 'react-virtuoso';
 import EditModal from './EditModal';
 import CustomAudioPlayer from './CustomAudioPlayer';
-import { 
-    Pencil, Download, Trash2, Search, LayoutGrid, List as ListIcon, 
+import {
+    Pencil, Download, Trash2, Search, LayoutGrid, List as ListIcon,
     RefreshCw, Maximize2, X, Loader2, Settings
 } from 'lucide-react';
 import ShinyText from '../reactbits/ShinyText';
 import { useToast } from '../ToastContext';
 import { useLibrary } from '../LibraryContext';
+import { useProfile } from '../ProfileContext';
 import ConfigPanel from '../library/ConfigPanel';
 import './Playlist.css';
 import '../library/LibraryManager.css'; // Reuse source selector styles
 
 import api from '../../api';
+
+// Stable grid list wrapper — defined outside component to avoid recreation on each render
+const GridList = React.forwardRef(({ style, children, ...props }, ref) => (
+    <div ref={ref} {...props} className="track-grid" style={style}>
+        {children}
+    </div>
+));
+GridList.displayName = 'GridList';
+const GRID_COMPONENTS = { List: GridList };
 
 export default function Playlist({ playlist, onUpdate }) {
     const [filterCat, setFilterCat] = useState('All');
@@ -23,16 +33,70 @@ export default function Playlist({ playlist, onUpdate }) {
     const [fullscreenTrack, setFullscreenTrack] = useState(null);
     const [viewMode, setViewMode] = useState('list');
     const { addToast } = useToast();
-    const { 
-        downloadingTracks, setTrackDownloading, 
-        downloadMode, handleModeChange 
+    const { activeProfile } = useProfile();
+    const {
+        downloadingTracks, setTrackDownloading,
+        downloadMode, handleModeChange
     } = useLibrary();
     const [isConfigOpen, setIsConfigOpen] = useState(false);
     const [syncingTracks, setSyncingTracks] = useState(new Set());
 
-    const [highlightNewOn, setHighlightNewOn] = useState(false);
+    const isMasterProfile = !activeProfile || activeProfile.id === 'master';
 
-    React.useEffect(() => {
+    const [highlightNewOn, setHighlightNewOn] = useState(false);
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+
+    useEffect(() => {
+        const t = setTimeout(() => setDebouncedSearch(searchQuery), 150);
+        return () => clearTimeout(t);
+    }, [searchQuery]);
+
+    // Other-profile tracks: tracks that exist globally but aren't in this profile
+    const [otherTracks, setOtherTracks] = useState([]);
+    const [otherTracksOpen, setOtherTracksOpen] = useState(false);
+    const [addingToProfile, setAddingToProfile] = useState(new Set());
+
+    useEffect(() => {
+        if (isMasterProfile) { setOtherTracks([]); return; }
+        api.getPlaylist().then(async res => {
+            if (!res.ok) return;
+            const all = await res.json();
+            const mine = new Set(playlist.map(t => t.id));
+            setOtherTracks(all.filter(t => !mine.has(t.id)));
+        }).catch(() => {});
+    }, [activeProfile?.id, playlist]);
+
+    const handleRemoveFromProfile = useCallback(async (trackId) => {
+        if (isMasterProfile) return;
+        try {
+            const res = await api.removeTrackFromProfile(trackId, activeProfile.id);
+            if (res.ok) { addToast('Track removed from your profile', 'info'); onUpdate(); }
+        } catch { /* ignore */ }
+    }, [activeProfile?.id, isMasterProfile, addToast, onUpdate]);
+
+    const handleAddToProfile = useCallback(async (track) => {
+        if (isMasterProfile) return;
+        setAddingToProfile(prev => new Set([...prev, track.id]));
+        try {
+            const res = await api.addTrackToProfile(track.id, activeProfile.id);
+            if (res.ok) { addToast(`"${track.title}" added to your profile`, 'success'); onUpdate(); }
+        } finally {
+            setAddingToProfile(prev => { const n = new Set(prev); n.delete(track.id); return n; });
+        }
+    }, [activeProfile?.id, isMasterProfile, addToast, onUpdate]);
+
+    const filteredOtherTracks = useMemo(() => {
+        if (!otherTracks.length) return [];
+        const q = debouncedSearch.toLowerCase();
+        if (!q) return otherTracks;
+        return otherTracks.filter(t =>
+            (t.title || '').toLowerCase().includes(q) ||
+            (t.author || '').toLowerCase().includes(q) ||
+            (t.tags || []).some(tag => tag.toLowerCase().includes(q))
+        );
+    }, [otherTracks, debouncedSearch]);
+
+    useEffect(() => {
         const handleHighlight = () => {
             setHighlightNewOn(true);
             setFilterCat('All');
@@ -43,51 +107,42 @@ export default function Playlist({ playlist, onUpdate }) {
         return () => window.removeEventListener('highlight-new', handleHighlight);
     }, []);
 
-    const categories = ['All', ...new Set(playlist.map(v => v.category))];
-    const speeds = ['All', ...new Set(playlist.map(v => v.speed))];
+    const categories = useMemo(() => ['All', ...new Set(playlist.map(v => v.category))], [playlist]);
+    const speeds = useMemo(() => ['All', ...new Set(playlist.map(v => v.speed))], [playlist]);
 
-    let filtered = playlist.filter(v => {
-        if (filterCat !== 'All' && v.category !== filterCat) return false;
-        if (filterSpeed !== 'All' && v.speed !== filterSpeed) return false;
-        if (searchQuery.trim() !== '') {
-            const query = searchQuery.toLowerCase();
-            const titleMatch = v.title?.toLowerCase().includes(query);
-            const authorMatch = v.author?.toLowerCase().includes(query);
-            const tagMatch = v.tags?.some(t => t.toLowerCase().includes(query));
-            if (!titleMatch && !authorMatch && !tagMatch) return false;
-        }
-        return true;
-    });
-
-    if (highlightNewOn) {
-        filtered = filtered.filter(t => {
-            if (!t.added_at) return false;
-            const addedAt = new Date(t.added_at);
-            return (new Date() - addedAt) < 24 * 60 * 60 * 1000;
+    const filtered = useMemo(() => {
+        const query = debouncedSearch.toLowerCase().trim();
+        const now = Date.now();
+        const DAY_MS = 86400000;
+        const result = playlist.filter(v => {
+            if (filterCat !== 'All' && v.category !== filterCat) return false;
+            if (filterSpeed !== 'All' && v.speed !== filterSpeed) return false;
+            if (query) {
+                if (!v.title?.toLowerCase().includes(query) &&
+                    !v.author?.toLowerCase().includes(query) &&
+                    !v.tags?.some(t => t.toLowerCase().includes(query))) return false;
+            }
+            if (highlightNewOn) {
+                if (!v.added_at || (now - new Date(v.added_at).getTime()) >= DAY_MS) return false;
+            }
+            return true;
         });
-    }
+        result.sort((a, b) => (b.added_at ? new Date(b.added_at).getTime() : 0) -
+                               (a.added_at ? new Date(a.added_at).getTime() : 0));
+        return result;
+    }, [playlist, filterCat, filterSpeed, debouncedSearch, highlightNewOn]);
 
-    // Sort by added_at descending by default
-    filtered.sort((a, b) => {
-        const dateA = a.added_at ? new Date(a.added_at).getTime() : 0;
-        const dateB = b.added_at ? new Date(b.added_at).getTime() : 0;
-        return dateB - dateA; // Descending
-    });
+    // Ref so handlers can read the latest playlist without being in their dep arrays
+    const playlistRef = useRef(playlist);
+    useEffect(() => { playlistRef.current = playlist; }, [playlist]);
 
-    const handleDelete = async (id) => {
+    const handleDelete = useCallback(async (id) => {
         if (!confirm("Are you sure you want to delete this track?")) return;
-        try {
-            await api.deleteTrack(id);
-            onUpdate();
-        } catch (err) {
-            console.error(err);
-        }
-    };
+        try { await api.deleteTrack(id); onUpdate(); } catch (err) { console.error(err); }
+    }, [onUpdate]);
 
-    const handleDownload = async (id, overwrite = false) => {
-        const track = playlist.find(t => t.id === id);
-        
-        // Auto-sync YouTube URL if missing
+    const handleDownload = useCallback(async (id, overwrite = false) => {
+        const track = playlistRef.current.find(t => t.id === id);
         if (track && !track.youtube_url) {
             setSyncingTracks(prev => { const n = new Set(prev); n.add(id); return n; });
             addToast(`🔍 Finding link for "${track.title}"...`, 'info');
@@ -95,7 +150,7 @@ export default function Playlist({ playlist, onUpdate }) {
                 const syncRes = await api.syncTrack(id);
                 if (!syncRes.ok) throw new Error("Sync failed");
                 addToast(`✅ Link found. Starting download...`, 'success');
-            } catch (err) {
+            } catch {
                 addToast(`❌ Could not find link.`, 'error');
                 setSyncingTracks(prev => { const n = new Set(prev); n.delete(id); return n; });
                 return;
@@ -103,32 +158,24 @@ export default function Playlist({ playlist, onUpdate }) {
                 setSyncingTracks(prev => { const n = new Set(prev); n.delete(id); return n; });
             }
         }
-
         setTrackDownloading(id, true);
         try {
             const res = await api.downloadTrack(id, overwrite);
-
             if (res.status === 409) {
                 setTrackDownloading(id, false);
-                if (window.confirm("The sound exists, do you want to overwrite it?")) {
-                    handleDownload(id, true);
-                }
+                if (window.confirm("The sound exists, do you want to overwrite it?")) handleDownload(id, true);
                 return;
             }
-
             if (!res.ok) throw new Error("Download failed");
             addToast("Background download triggered!", "info");
-            
-            // Note: Polling and toasts for completion are now handled globally in LibraryContext!
-
         } catch (err) {
             console.error(err);
             setTrackDownloading(id, false);
             addToast("Error triggering download", "error");
         }
-    };
+    }, [addToast, setTrackDownloading, onUpdate]);
 
-    const handleFindAndPlay = async (id) => {
+    const handleFindAndPlay = useCallback(async (id) => {
         setSyncingTracks(prev => { const n = new Set(prev); n.add(id); return n; });
         addToast(`🔍 Finding stream link...`, 'info');
         try {
@@ -136,42 +183,72 @@ export default function Playlist({ playlist, onUpdate }) {
             if (!syncRes.ok) throw new Error("Sync failed");
             addToast(`✅ Link found. You can now play!`, 'success');
             onUpdate();
-        } catch (err) {
-            addToast(`❌ Could not find link.`, 'error');
-        } finally {
-            setSyncingTracks(prev => { const n = new Set(prev); n.delete(id); return n; });
-        }
-    };
+        } catch { addToast(`❌ Could not find link.`, 'error'); }
+        finally { setSyncingTracks(prev => { const n = new Set(prev); n.delete(id); return n; }); }
+    }, [addToast, onUpdate]);
 
-    const handleSync = async (id) => {
+    const handleSync = useCallback(async (id) => {
         try {
             const res = await api.syncTrack(id);
-            if (res.ok) {
-                addToast("YouTube Sync complete!", "success");
-                onUpdate();
-            } else {
-                addToast("Sync failed: No video >100k views found.", "error");
-            }
-        } catch (err) {
-            addToast("Error syncing", "error");
-        }
-    };
+            if (res.ok) { addToast("YouTube Sync complete!", "success"); onUpdate(); }
+            else addToast("Sync failed: No video >100k views found.", "error");
+        } catch { addToast("Error syncing", "error"); }
+    }, [addToast, onUpdate]);
 
-    const handleBatchDownload = async () => {
+    const handleEdit = useCallback((track) => setEditingVideo(track), []);
+    const handleExpand = useCallback((track) => setFullscreenTrack(track), []);
+
+    const handleBatchDownload = useCallback(async () => {
         try {
             const res = await api.downloadBatch();
-            if (res.ok) {
-                addToast("Batch download for missing tracks started in background!", "success");
-                // The polling will naturally update individual tracks eventually if implemented, 
-                // or user can just see progress from backend logs / rely on next refresh.
-            } else {
-                addToast("Failed to start batch download.", "error");
-            }
+            if (res.ok) addToast("Batch download for missing tracks started in background!", "success");
+            else addToast("Failed to start batch download.", "error");
         } catch (err) {
             console.error(err);
             addToast("Error communicating with server", "error");
         }
-    };
+    }, [addToast]);
+
+    // Stable itemContent — only recreates when filtered or download/sync state changes
+    const listItemContent = useCallback((index) => {
+        const v = filtered[index];
+        return (
+            <TrackRow
+                track={v}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onDownload={handleDownload}
+                onSync={handleSync}
+                onFindAndPlay={handleFindAndPlay}
+                onExpand={handleExpand}
+                isDownloading={downloadingTracks.has(v.id)}
+                isSyncing={syncingTracks.has(v.id)}
+                downloadMode={downloadMode}
+                isMasterProfile={isMasterProfile}
+                onRemoveFromProfile={handleRemoveFromProfile}
+            />
+        );
+    }, [filtered, handleEdit, handleDelete, handleDownload, handleSync, handleFindAndPlay, handleExpand, downloadingTracks, syncingTracks, downloadMode, isMasterProfile, handleRemoveFromProfile]);
+
+    const gridItemContent = useCallback((index) => {
+        const v = filtered[index];
+        return (
+            <TrackCard
+                track={v}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onDownload={handleDownload}
+                onSync={handleSync}
+                onFindAndPlay={handleFindAndPlay}
+                onExpand={handleExpand}
+                isDownloading={downloadingTracks.has(v.id)}
+                isSyncing={syncingTracks.has(v.id)}
+                downloadMode={downloadMode}
+                isMasterProfile={isMasterProfile}
+                onRemoveFromProfile={handleRemoveFromProfile}
+            />
+        );
+    }, [filtered, handleEdit, handleDelete, handleDownload, handleSync, handleFindAndPlay, handleExpand, downloadingTracks, syncingTracks, downloadMode, isMasterProfile, handleRemoveFromProfile]);
 
     return (
         <div className="playlist-content">
@@ -259,58 +336,78 @@ export default function Playlist({ playlist, onUpdate }) {
             )}
 
             {viewMode === 'card' ? (
-                <div className="track-grid">
-                    {filtered.map(v => (
-                        <TrackCard
-                            key={v.id}
-                            track={v}
-                            onEdit={() => setEditingVideo(v)}
-                            onDelete={() => handleDelete(v.id)}
-                            onDownload={() => handleDownload(v.id)}
-                            onSync={() => handleSync(v.id)}
-                            onFindAndPlay={() => handleFindAndPlay(v.id)}
-                            onExpand={() => setFullscreenTrack(v)}
-                            isDownloading={downloadingTracks.has(v.id)}
-                            isSyncing={syncingTracks.has(v.id)}
-                            downloadMode={downloadMode}
-                        />
-                    ))}
-                    {filtered.length === 0 && (
-                        <div className="no-results">
-                            No tracks found matching your criteria.
-                        </div>
-                    )}
-                </div>
+                filtered.length === 0 ? (
+                    <div className="track-grid">
+                        <div className="no-results">No tracks found matching your criteria.</div>
+                    </div>
+                ) : (
+                    <VirtuosoGrid
+                        style={{ height: 'calc(100vh - 220px)' }}
+                        totalCount={filtered.length}
+                        components={GRID_COMPONENTS}
+                        itemContent={gridItemContent}
+                    />
+                )
             ) : filtered.length === 0 ? (
                 <div className="track-list">
-                    <div className="no-results">
-                        No tracks found matching your criteria.
-                    </div>
+                    <div className="no-results">No tracks found matching your criteria.</div>
                 </div>
             ) : (
                 <Virtuoso
                     className="track-list"
                     style={{ height: 'calc(100vh - 220px)' }}
                     totalCount={filtered.length}
-                    itemContent={(index) => {
-                        const v = filtered[index];
-                        return (
-                            <TrackRow
-                                key={v.id}
-                                track={v}
-                                onEdit={() => setEditingVideo(v)}
-                                onDelete={() => handleDelete(v.id)}
-                                onDownload={() => handleDownload(v.id)}
-                                onSync={() => handleSync(v.id)}
-                                onFindAndPlay={() => handleFindAndPlay(v.id)}
-                                onExpand={() => setFullscreenTrack(v)}
-                                isDownloading={downloadingTracks.has(v.id)}
-                                isSyncing={syncingTracks.has(v.id)}
-                                downloadMode={downloadMode}
-                            />
-                        );
-                    }}
+                    itemContent={listItemContent}
                 />
+            )}
+
+            {/* "Also available" section for non-master profiles */}
+            {!isMasterProfile && filteredOtherTracks.length > 0 && (
+                <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', marginTop: 4 }}>
+                    <button
+                        onClick={() => setOtherTracksOpen(o => !o)}
+                        style={{
+                            width: '100%', background: 'rgba(255,255,255,0.03)', border: 'none',
+                            color: 'var(--text-muted)', padding: '8px 16px', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.82rem'
+                        }}
+                    >
+                        <span style={{ transform: otherTracksOpen ? 'rotate(90deg)' : 'none', display: 'inline-block', transition: 'transform 0.15s' }}>▶</span>
+                        Also available — not in your profile ({filteredOtherTracks.length})
+                    </button>
+                    {otherTracksOpen && filteredOtherTracks.map(track => (
+                        <div key={track.id} className="track-row" style={{ opacity: 0.55, borderLeft: '2px solid rgba(255,255,255,0.1)' }}>
+                            <div className="row-thumb">
+                                <img
+                                    src={track.thumbnail || '/music_placeholder.png'}
+                                    alt=""
+                                    onError={e => { e.target.onerror = null; e.target.src = '/music_placeholder.png'; }}
+                                    style={{ width: 36, height: 36, borderRadius: 4, objectFit: 'cover' }}
+                                />
+                            </div>
+                            <div className="row-info">
+                                <strong>{track.title}</strong>
+                                <span className="author">{track.author}</span>
+                            </div>
+                            <div className="row-meta" style={{ display: 'flex', gap: 6 }}>
+                                <span className="badge" style={{ fontSize: '0.65rem' }}>{track.category}</span>
+                            </div>
+                            <div className="row-actions">
+                                <button
+                                    disabled={addingToProfile.has(track.id)}
+                                    onClick={() => handleAddToProfile(track)}
+                                    style={{
+                                        background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)',
+                                        borderRadius: 5, padding: '3px 10px', cursor: 'pointer',
+                                        color: 'var(--primary)', fontSize: '0.75rem'
+                                    }}
+                                >
+                                    {addingToProfile.has(track.id) ? '…' : '+ Add to profile'}
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             )}
 
             {editingVideo && (
@@ -351,7 +448,7 @@ export default function Playlist({ playlist, onUpdate }) {
     );
 }
 
-function TrackCard({ track, onEdit, onDelete, onDownload, onSync, onFindAndPlay, onExpand, isDownloading, isSyncing, downloadMode }) {
+const TrackCard = React.memo(function TrackCard({ track, onEdit, onDelete, onDownload, onSync, onFindAndPlay, onExpand, isDownloading, isSyncing, downloadMode, isMasterProfile, onRemoveFromProfile }) {
     const playUrl = track.is_downloaded
         ? api.getPlayUrl(track.id)
         : (track.youtube_url ? api.getStreamUrl(track.id) : null);
@@ -393,7 +490,7 @@ function TrackCard({ track, onEdit, onDelete, onDownload, onSync, onFindAndPlay,
                 {!track.is_downloaded && track.youtube_url && (
                     <div className="streaming-badge">Streaming</div>
                 )}
-                <button className="play-overlay" onClick={onExpand}>
+                <button className="play-overlay" onClick={() => onExpand(track)}>
                     <Maximize2 size={32} />
                     <span>Open Full Mode</span>
                 </button>
@@ -401,7 +498,7 @@ function TrackCard({ track, onEdit, onDelete, onDownload, onSync, onFindAndPlay,
             <div className="track-main">
                 <div className="track-info">
                     <h3>{track.title}</h3>
-                    <p>{track.author}</p>
+                    <p>{track.author}{track.added_at && <span style={{ marginLeft: 8, fontSize: '0.7rem', opacity: 0.5 }}>· {new Date(track.added_at).toLocaleDateString()}</span>}</p>
                     <div className="track-meta">
                         <span className="badge">{track.category}</span>
                         <span className="badge">{track.speed}</span>
@@ -422,7 +519,7 @@ function TrackCard({ track, onEdit, onDelete, onDownload, onSync, onFindAndPlay,
                         />
                     ) : (
                         <div style={{ display: 'flex', justifyContent: 'center' }}>
-                            <button className="yt-play-link" onClick={onFindAndPlay} style={{ background: 'transparent' }}>
+                            <button className="yt-play-link" onClick={() => onFindAndPlay(track.id)} style={{ background: 'transparent' }}>
                                 ▶ Find Link & Play
                             </button>
                         </div>
@@ -431,18 +528,21 @@ function TrackCard({ track, onEdit, onDelete, onDownload, onSync, onFindAndPlay,
 
                 <div className="track-actions">
                     <div className="icon-group">
-                        <button onClick={onSync} title={`Sync ${downloadMode === 'spotify' ? 'Spotify' : 'YouTube'} metadata`}><RefreshCw size={14} /></button>
-                        <button onClick={onDownload} title="Download MP3" disabled={isDownloading}>
+                        <button onClick={() => onSync(track.id)} title={`Sync ${downloadMode === 'spotify' ? 'Spotify' : 'YouTube'} metadata`}><RefreshCw size={14} /></button>
+                        <button onClick={() => onDownload(track.id)} title="Download MP3" disabled={isDownloading}>
                             {isDownloading ? <Loader2 size={14} className="spin" /> : <Download size={14} />}
                         </button>
-                        <button onClick={onEdit} title="Edit"><Pencil size={14} /></button>
-                        <button onClick={onDelete} title="Delete"><Trash2 size={14} /></button>
+                        <button onClick={() => onEdit(track)} title="Edit"><Pencil size={14} /></button>
+                        <button onClick={() => onDelete(track.id)} title="Delete"><Trash2 size={14} /></button>
+                        {!isMasterProfile && (
+                            <button onClick={() => onRemoveFromProfile(track.id)} title="Remove from this profile" style={{ color: 'rgba(255,100,100,0.6)' }}><X size={14} /></button>
+                        )}
                     </div>
                 </div>
             </div>
         </div>
     );
-}
+});
 
 function InlineEditable({ value, onSave, className, type = "text", options = [] }) {
     const [isEditing, setIsEditing] = useState(false);
@@ -496,7 +596,7 @@ function InlineEditable({ value, onSave, className, type = "text", options = [] 
     );
 }
 
-function TrackRow({ track, onEdit, onDelete, onDownload, onSync, onFindAndPlay, onExpand, isDownloading, isSyncing, downloadMode }) {
+const TrackRow = React.memo(function TrackRow({ track, onEdit, onDelete, onDownload, onSync, onFindAndPlay, onExpand, isDownloading, isSyncing, downloadMode, isMasterProfile, onRemoveFromProfile }) {
     const playUrl = track.is_downloaded
         ? api.getPlayUrl(track.id)
         : (track.youtube_url ? api.getStreamUrl(track.id) : null);
@@ -520,7 +620,7 @@ function TrackRow({ track, onEdit, onDelete, onDownload, onSync, onFindAndPlay, 
                           : '3px solid transparent'
             }}
         >
-            <div className="row-thumb" onClick={onExpand} style={{ cursor: 'pointer', position: 'relative' }}>
+            <div className="row-thumb" onClick={() => onExpand(track)} style={{ cursor: 'pointer', position: 'relative' }}>
                 {track.thumbnail ? <img src={track.thumbnail} alt="" style={{ filter: needsDownload ? 'brightness(0.6) saturate(0.4)' : 'none' }} /> : <img src="/music_placeholder.png" alt="" style={{ filter: needsDownload ? 'brightness(0.6) saturate(0.4)' : 'none' }} />}
                 {needsDownload && !isDownloading && (
                     <Download size={14} style={{
@@ -531,7 +631,7 @@ function TrackRow({ track, onEdit, onDelete, onDownload, onSync, onFindAndPlay, 
                     }} />
                 )}
             </div>
-            <div className="row-info" onClick={onExpand} style={{ cursor: 'pointer' }}>
+            <div className="row-info" onClick={() => onExpand(track)} style={{ cursor: 'pointer' }}>
                 <strong>{track.title}</strong>
                 <span className="author">{track.author}</span>
             </div>
@@ -547,17 +647,15 @@ function TrackRow({ track, onEdit, onDelete, onDownload, onSync, onFindAndPlay, 
                                 : !hasUrl ? 'lm-badge lm-badge--needs-sync lm-badge--clickable'
                                     : 'lm-badge lm-badge--pending lm-badge--clickable'
                         }
-                        onClick={(e) => { e.stopPropagation(); onDownload(); }}
+                        onClick={(e) => { e.stopPropagation(); onDownload(track.id); }}
                         title={!hasUrl ? 'Click to find link and download' : 'Click to download'}
                         style={{ flexShrink: 0, marginRight: '6px' }}
                     >
                         {isSyncing
                             ? <><Loader2 size={10} className="spin" style={{ marginRight: 3 }} />Finding...</>
-                            : hasFailed
-                                ? '↺ Retry Download'
-                                : !hasUrl
-                                    ? '🔍 Find & Download'
-                                    : '⬇ Download Now'
+                            : hasFailed ? '↺ Retry Download'
+                            : !hasUrl ? '🔍 Find & Download'
+                            : '⬇ Download Now'
                         }
                     </span>
                 )}
@@ -571,7 +669,7 @@ function TrackRow({ track, onEdit, onDelete, onDownload, onSync, onFindAndPlay, 
                     ) : track.youtube_url ? (
                         <a className="yt-play-link" href={track.youtube_url} target="_blank" rel="noreferrer">▶ Play from YouTube</a>
                     ) : (
-                        <button className="yt-play-link" onClick={onFindAndPlay} style={{ border: '1px dashed rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--text-muted)' }}>
+                        <button className="yt-play-link" onClick={() => onFindAndPlay(track.id)} style={{ border: '1px dashed rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--text-muted)' }}>
                             ▶ Find Link & Play
                         </button>
                     )}
@@ -579,18 +677,21 @@ function TrackRow({ track, onEdit, onDelete, onDownload, onSync, onFindAndPlay, 
             </div>
             <div className="row-actions">
                 <div className="icon-group">
-                    <button onClick={onExpand} title="Expand"><Maximize2 size={16} /></button>
-                    <button onClick={onSync} title={`Sync ${downloadMode === 'spotify' ? 'Spotify' : 'YouTube'} metadata`}><RefreshCw size={16} /></button>
-                    <button onClick={onDownload} title="Download MP3" disabled={isDownloading}>
+                    <button onClick={() => onExpand(track)} title="Expand"><Maximize2 size={16} /></button>
+                    <button onClick={() => onSync(track.id)} title={`Sync ${downloadMode === 'spotify' ? 'Spotify' : 'YouTube'} metadata`}><RefreshCw size={16} /></button>
+                    <button onClick={() => onDownload(track.id)} title="Download MP3" disabled={isDownloading}>
                         {isDownloading ? <Loader2 size={16} className="spin" /> : <Download size={16} />}
                     </button>
-                    <button onClick={onEdit} title="Edit"><Pencil size={16} /></button>
-                    <button onClick={onDelete} title="Delete"><Trash2 size={16} /></button>
+                    <button onClick={() => onEdit(track)} title="Edit"><Pencil size={16} /></button>
+                    <button onClick={() => onDelete(track.id)} title="Delete"><Trash2 size={16} /></button>
+                    {!isMasterProfile && (
+                        <button onClick={() => onRemoveFromProfile(track.id)} title="Remove from this profile" style={{ color: 'rgba(255,100,100,0.6)' }}><X size={16} /></button>
+                    )}
                 </div>
             </div>
         </div>
     );
-}
+});
 
 function FullscreenCard({ track, onClose, onEdit, onDelete, onDownload, onSync, onFindAndPlay, onUpdate, downloadMode }) {
     const playUrl = track.is_downloaded

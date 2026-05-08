@@ -13,7 +13,7 @@ function getLicenseBadgeClass(license) {
     return 'cc-badge--default';
 }
 
-export default function CCBrowserModal({ isOpen, onClose }) {
+export default function CCBrowserModal({ isOpen, onClose, profileId }) {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
     const [searching, setSearching] = useState(false);
@@ -56,7 +56,7 @@ export default function CCBrowserModal({ isOpen, onClose }) {
             const res = await fetch(`${API_BASE}/cc/download`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ track, category: 'Uncategorized' }),
+                body: JSON.stringify({ track, category: 'Uncategorized', profile_id: profileId || 'master' }),
             });
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));

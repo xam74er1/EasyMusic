@@ -17,20 +17,22 @@ logger = logging.getLogger(__name__)
 class DBVideo(Base):
     __tablename__ = "videos"
     id = Column(String, primary_key=True, index=True)
-    title = Column(String, default="")
+    title = Column(String, default="", index=True)
     author = Column(String, default="")
     youtube_url = Column(String, default="")
     spotify_url = Column(String, default="")
-    category = Column(String, default="Uncategorized")
+    category = Column(String, default="Uncategorized", index=True)
     speed = Column(String, default="Medium")
     tags = Column(JSON, default=list)
     duration = Column(String, default="00:00")
-    is_downloaded = Column(Boolean, default=False)
+    is_downloaded = Column(Boolean, default=False, index=True)
     local_file = Column(String, default="")
     thumbnail = Column(String, default="")
     youtube_data = Column(JSON, default=dict)
     added_at = Column(String, default="")
     download_error = Column(String, nullable=True)
+    profile_id = Column(String, default="master", index=True)
+    additional_profile_ids = Column(JSON, default=list)
 
 class DBProfile(Base):
     __tablename__ = "profiles"
@@ -83,13 +85,52 @@ class Video(BaseModel):
     youtube_data: dict = {}
     added_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
     download_error: Optional[str] = None
+    profile_id: str = "master"
+    additional_profile_ids: List[str] = []
 
 class PlaylistRepo:
-    def get_all(self) -> List[Video]:
+    def get_all(self, profile_id: Optional[str] = None) -> List[Video]:
         db = SessionLocal()
         try:
             items = db.query(DBVideo).all()
-            return [Video(**{c.name: getattr(v, c.name) for c in DBVideo.__table__.columns}) for v in items]
+            videos = [Video(**{c.name: getattr(v, c.name) for c in DBVideo.__table__.columns}) for v in items]
+            if profile_id and profile_id != "master":
+                videos = [
+                    v for v in videos
+                    if v.profile_id == profile_id or profile_id in (v.additional_profile_ids or [])
+                ]
+            return videos
+        finally:
+            db.close()
+
+    def get_by_id(self, video_id: str) -> Optional[Video]:
+        db = SessionLocal()
+        try:
+            v = db.query(DBVideo).filter(DBVideo.id == video_id).first()
+            if v:
+                return Video(**{c.name: getattr(v, c.name) for c in DBVideo.__table__.columns})
+            return None
+        finally:
+            db.close()
+
+    def bulk_update_category(self, old_category: str, new_category: str) -> int:
+        """Rename category/subcategory for all matching tracks using a single SQL UPDATE."""
+        from sqlalchemy import text
+        db = SessionLocal()
+        try:
+            result = db.execute(
+                text(
+                    "UPDATE videos SET category = :new_cat || SUBSTR(category, LENGTH(:old_cat) + 1) "
+                    "WHERE category = :old_cat OR category LIKE :old_cat_prefix"
+                ),
+                {"new_cat": new_category, "old_cat": old_category, "old_cat_prefix": old_category + "/%"},
+            )
+            db.commit()
+            return result.rowcount
+        except Exception as e:
+            db.rollback()
+            logger.error(f"Failed to bulk update category: {e}")
+            raise
         finally:
             db.close()
 
@@ -494,8 +535,11 @@ class CustomPlaylistRepo:
         with open(self.path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
-    def get_all(self) -> List[CustomPlaylist]:
-        return [CustomPlaylist(**d) for d in self._load()]
+    def get_all(self, profile_id: Optional[str] = None) -> List[CustomPlaylist]:
+        playlists = [CustomPlaylist(**d) for d in self._load()]
+        if profile_id and profile_id != "master":
+            playlists = [p for p in playlists if p.profile_id == profile_id]
+        return playlists
 
     def get_by_id(self, playlist_id: str) -> Optional[CustomPlaylist]:
         for d in self._load():

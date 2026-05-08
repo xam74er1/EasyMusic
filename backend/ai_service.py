@@ -31,6 +31,9 @@ class FilenameAnalysisResult(BaseModel):
 # We will store debug logs globally so we can intercept calls
 _debug_calls = []
 
+# Active profile context for the current request (set by send_message)
+_current_profile_id: Optional[str] = None
+
 def add_videos_to_playlist(videos: list[VideoMeta]) -> str:
     """
     Adds one or more videos or songs to the playlist.
@@ -49,12 +52,13 @@ def add_videos_to_playlist(videos: list[VideoMeta]) -> str:
             id=str(uuid.uuid4()),
             title=v.title,
             author=v.author,
-            youtube_url="", # We don't search YouTube automatically right away
+            youtube_url="",
             category=v.category,
             speed="Medium",
             tags=v.tags + [f"Gender/Genre: {v.gender}"],
             duration="Unknown",
-            is_downloaded=False
+            is_downloaded=False,
+            profile_id=_current_profile_id or "master"
         )
         repo.add_video(new_video)
         added.append(f"'{v.title}' by {v.author}")
@@ -66,10 +70,10 @@ def get_current_playlist() -> str:
     Retrieves the current videos in the playlist. Use this to summarize the playlist or answer questions about what is currently in it.
     """
     _debug_calls.append({"function": "get_current_playlist"})
-    videos = repo.get_all()
+    videos = repo.get_all(profile_id=_current_profile_id)
     if not videos:
         return "The playlist is currently empty."
-    
+
     summary = []
     for v in videos:
         summary.append(f"- {v.title} by {v.author} (Category: {v.category})")
@@ -83,15 +87,15 @@ def get_library_hierarchy() -> str:
     Use this when the user asks what categories they have, or to understand the folder structure before reorganizing.
     """
     _debug_calls.append({"function": "get_library_hierarchy"})
-    videos = repo.get_all()
+    videos = repo.get_all(profile_id=_current_profile_id)
     categories = {}
     for v in videos:
         cat = v.category or "Uncategorized"
         categories[cat] = categories.get(cat, 0) + 1
-    
+
     if not categories:
         return "The library is empty."
-        
+
     summary = ["Library Categories:"]
     for cat, count in sorted(categories.items()):
         summary.append(f"- {cat}: {count} tracks")
@@ -103,12 +107,12 @@ def query_tags_availability() -> str:
     Use this to see what tags exist before suggesting tags to the user.
     """
     _debug_calls.append({"function": "query_tags_availability"})
-    videos = repo.get_all()
+    videos = repo.get_all(profile_id=_current_profile_id)
     tags = set()
     for v in videos:
         for t in v.tags:
             tags.add(t)
-    
+
     if not tags:
         return "No tags are currently used."
     return f"Available tags: {', '.join(sorted(list(tags)))}"
@@ -116,7 +120,7 @@ def query_tags_availability() -> str:
 def update_category_bulk(old_category: str, new_category: str) -> str:
     """
     Changes the category for all tracks that currently belong to 'old_category' (or are inside it as a subcategory)
-    to the 'new_category'. 
+    to the 'new_category'.
     Use this to rename folders or move entire categories of music to a different folder structure.
     """
     _debug_calls.append({
@@ -124,8 +128,8 @@ def update_category_bulk(old_category: str, new_category: str) -> str:
         "old_category": old_category,
         "new_category": new_category
     })
-    
-    videos = repo.get_all()
+
+    videos = repo.get_all(profile_id=_current_profile_id)
     count = 0
     for v in videos:
         if v.category == old_category or (v.category and v.category.startswith(old_category + "/")):
@@ -133,7 +137,7 @@ def update_category_bulk(old_category: str, new_category: str) -> str:
             v.category = new_cat
             repo.update_video(v.id, v)
             count += 1
-            
+
     return f"Successfully moved {count} tracks from '{old_category}' to '{new_category}'."
 
 class MoveOperation(BaseModel):
@@ -404,7 +408,9 @@ class ChatService:
             
         return self.sessions[session_id]
 
-    def send_message(self, message: str, session_id: str = "default") -> dict:
+    def send_message(self, message: str, session_id: str = "default", profile_id: str = None) -> dict:
+        global _current_profile_id
+        _current_profile_id = profile_id
         global _debug_calls
         if not self.client:
             return {

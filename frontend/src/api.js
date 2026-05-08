@@ -75,10 +75,11 @@ export const api = {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
     }),
     deleteSetlist: (id) => fetch(`${API_BASE}/setlists/${id}`, { method: 'DELETE' }),
-    importSetlist: (file) => {
+    importSetlist: (file, profileId) => {
         const fd = new FormData();
         fd.append('file', file);
-        return fetch(`${API_BASE}/setlists/import`, { method: 'POST', body: fd });
+        const url = `${API_BASE}/setlists/import${profileId ? `?profile_id=${encodeURIComponent(profileId)}` : ''}`;
+        return fetch(url, { method: 'POST', body: fd });
     },
     getSetlistExportUrl: (id) => `${API_BASE}/setlists/${id}/export`,
 
@@ -100,6 +101,8 @@ export const api = {
         method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
     }),
     deleteTrack: (id) => fetch(`${API_BASE}/playlist/${id}`, { method: 'DELETE' }),
+    addTrackToProfile: (id, profileId) => fetch(`${API_BASE}/playlist/${id}/add-to-profile?profile_id=${encodeURIComponent(profileId)}`, { method: 'POST' }),
+    removeTrackFromProfile: (id, profileId) => fetch(`${API_BASE}/playlist/${id}/remove-from-profile?profile_id=${encodeURIComponent(profileId)}`, { method: 'POST' }),
     updateTrack: (id, data) => fetch(`${API_BASE}/playlist/${id}`, {
         method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
     }),
@@ -126,11 +129,12 @@ export const api = {
     }),
     importLegacy: (formData) => fetch(`${API_BASE}/import`, { method: 'POST', body: formData }),
     // Custom Playlists
-    getCustomPlaylists: () => fetch(`${API_BASE}/custom-playlists`),
-    importCustomPlaylist: (file) => {
+    getCustomPlaylists: (profileId) => fetch(`${API_BASE}/custom-playlists${profileId ? `?profile_id=${encodeURIComponent(profileId)}` : ''}`),
+    importCustomPlaylist: (file, profileId) => {
         const fd = new FormData();
         fd.append('file', file);
-        return fetch(`${API_BASE}/custom-playlists/import`, { method: 'POST', body: fd });
+        const url = `${API_BASE}/custom-playlists/import${profileId ? `?profile_id=${encodeURIComponent(profileId)}` : ''}`;
+        return fetch(url, { method: 'POST', body: fd });
     },
     getCustomPlaylist: (id) => fetch(`${API_BASE}/custom-playlists/${id}`),
     getCustomPlaylistExportUrl: (id) => `${API_BASE}/custom-playlists/${id}/export`,

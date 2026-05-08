@@ -3,8 +3,21 @@
     height: 100%;
     width: 100%;
     background: var(--bg-darker);
-    gap: 1px;
-    /* Borders via gap */
+    gap: 0;
+}
+
+.lm-resize-handle {
+    flex: 0 0 4px;
+    background: rgba(255, 255, 255, 0.05);
+    cursor: col-resize;
+    transition: background 0.15s;
+    position: relative;
+    z-index: 1;
+}
+
+.lm-resize-handle:hover,
+.lm-resize-handle:active {
+    background: rgba(var(--primary-rgb, 99, 102, 241), 0.5);
 }
 
 .lm-panel {

@@ -23,6 +23,23 @@ _CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app_con
 
 _VALID_DOWNLOAD_MODES = {"youtube", "spotify", "cc"}
 
+# In-memory cache: video_id -> (file_path, timestamp). Avoids repeated os.walk on play.
+import time as _time
+_file_path_cache: dict = {}
+_FILE_CACHE_TTL = 60  # seconds
+
+def _cached_find_file(video_id: str, download_dir: str):
+    entry = _file_path_cache.get(video_id)
+    if entry and (_time.time() - entry[1]) < _FILE_CACHE_TTL:
+        return entry[0]
+    for root, _, files in os.walk(download_dir):
+        for filename in files:
+            if video_id in filename:
+                found = os.path.join(root, filename)
+                _file_path_cache[video_id] = (found, _time.time())
+                return found
+    return None
+
 
 def get_download_mode() -> str:
     """Returns the current download mode from app_config.json, defaulting to 'youtube'."""
@@ -296,9 +313,10 @@ def _download_via_ytdlp(video_id: str, url: str, overwrite: bool = False) -> boo
                 rel_path = os.path.join(category, f"{safe_name}.mp3").replace('\\', '/')
                 v.local_file = rel_path
                 v.is_downloaded = True
+                _file_path_cache.pop(video_id, None)
                 repo.update_video(video_id, v)
                 break
-                
+
         logger.info(f"Successfully finished all download tasks for video {video_id}")
         log_download_event("download_success", video_id, "success")
         
@@ -403,6 +421,7 @@ def _download_via_spotdl(video_id: str, url: str) -> bool:
                 v.local_file = rel_path
                 v.is_downloaded = True
                 v.download_error = None
+                _file_path_cache.pop(video_id, None)
                 repo.update_video(video_id, v)
                 break
 
@@ -504,6 +523,7 @@ def _download_via_pytubefix(video_id: str, url: str, overwrite: bool = False) ->
                 v.local_file = rel_path
                 v.is_downloaded = True
                 v.download_error = None
+                _file_path_cache.pop(video_id, None)
                 repo.update_video(video_id, v)
                 break
 

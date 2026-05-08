@@ -219,3 +219,9 @@
 }
 .ocm-btn--save:hover { background: linear-gradient(135deg, #b060f0, #9D4EDD); box-shadow: 0 4px 20px rgba(157, 78, 221, 0.5); }
 .ocm-btn--save:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
+
+@keyframes ocm-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+.ocm-spin { animation: ocm-spin 0.8s linear infinite; }

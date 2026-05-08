@@ -9,13 +9,17 @@ const DB_NAME = 'EasyMusicWaveCache';
 const STORE_NAME = 'peaks';
 const DB_VERSION = 1;
 
+let _dbPromise = null;
 function openDB() {
-    return new Promise((resolve, reject) => {
-        const req = indexedDB.open(DB_NAME, DB_VERSION);
-        req.onupgradeneeded = (e) => e.target.result.createObjectStore(STORE_NAME);
-        req.onsuccess = (e) => resolve(e.target.result);
-        req.onerror = (e) => reject(e.target.error);
-    });
+    if (!_dbPromise) {
+        _dbPromise = new Promise((resolve, reject) => {
+            const req = indexedDB.open(DB_NAME, DB_VERSION);
+            req.onupgradeneeded = (e) => e.target.result.createObjectStore(STORE_NAME);
+            req.onsuccess = (e) => resolve(e.target.result);
+            req.onerror = (e) => { _dbPromise = null; reject(e.target.error); };
+        });
+    }
+    return _dbPromise;
 }
 
 async function getCachedPeaks(url) {
@@ -53,7 +57,13 @@ export default function CustomAudioPlayer({ url, isStreaming, showVolume = true,
     const [currentTime, setCurrentTime] = useState('0:00');
     const [duration, setDuration] = useState('0:00');
     const [isLoaded, setIsLoaded] = useState(false);
+    const [hasError, setHasError] = useState(false);
     const audioElRef = useRef(null);
+    const lastSecRef = useRef(-1);
+    // Stable heights — computed once per mount, never on re-render
+    const fakeWaveHeights = useRef(
+        Array.from({ length: 40 }, () => 15 + Math.random() * 85)
+    );
 
     const formatTime = (seconds) => {
         if (!seconds || isNaN(seconds)) return '0:00';
@@ -143,7 +153,11 @@ export default function CustomAudioPlayer({ url, isStreaming, showVolume = true,
         });
 
         ws.on('audioprocess', () => {
-            setCurrentTime(formatTime(ws.getCurrentTime()));
+            const sec = Math.floor(ws.getCurrentTime());
+            if (sec !== lastSecRef.current) {
+                lastSecRef.current = sec;
+                setCurrentTime(formatTime(sec));
+            }
         });
 
         ws.on('error', (err) => {
@@ -151,6 +165,7 @@ export default function CustomAudioPlayer({ url, isStreaming, showVolume = true,
                 console.error('[CAP] WaveSurfer error:', err);
                 setIsPlaying(false);
                 setIsLoaded(false);
+                setHasError(true);
             }
         });
 
@@ -158,10 +173,18 @@ export default function CustomAudioPlayer({ url, isStreaming, showVolume = true,
         return ws;
     }, [url, isStreaming, isMuted, initialVolume]);
 
+    const handleLoadRef = useRef(null);
+
     const handleLoad = useCallback(async () => {
         LOG('handleLoad — isLoaded:', isLoaded, 'isStreaming:', isStreaming);
         if (isStreaming) {
             if (!wavesurferRef.current) initWaveSurfer();
+            const ws = wavesurferRef.current;
+            // For streaming audio, explicitly trigger WaveSurfer loading so the
+            // 'ready' event fires even when the media element already has a src set.
+            if (ws && !isLoaded) {
+                try { ws.load(url); } catch { }
+            }
             return;
         }
 
@@ -178,6 +201,9 @@ export default function CustomAudioPlayer({ url, isStreaming, showVolume = true,
             console.warn('[CAP] load error:', e);
         }
     }, [url, isStreaming, isLoaded, initWaveSurfer]);
+
+    // Keep ref in sync so url-change effect always calls the latest handleLoad
+    useEffect(() => { handleLoadRef.current = handleLoad; }, [handleLoad]);
 
     // Auto-load on mount
     useEffect(() => {
@@ -201,10 +227,12 @@ export default function CustomAudioPlayer({ url, isStreaming, showVolume = true,
         }
         setIsLoaded(false);
         setIsPlaying(false);
+        setHasError(false);
         setCurrentTime('0:00');
         setDuration('0:00');
+        lastSecRef.current = -1;
         destroyedRef.current = false;
-        if (autoLoad) handleLoad();
+        if (autoLoad) handleLoadRef.current?.();
     }, [url]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const togglePlay = async () => {
@@ -213,12 +241,13 @@ export default function CustomAudioPlayer({ url, isStreaming, showVolume = true,
             await handleLoad();
             const ws = wavesurferRef.current;
             if (!ws) return;
+            let unsubscribeReady;
             const onReady = () => {
-                ws.off('ready', onReady);
+                unsubscribeReady?.();
                 LOG('togglePlay/onReady — playing from:', ws.getCurrentTime().toFixed(3));
                 ws.play().catch(e => console.error('[CAP] Playback error:', e));
             };
-            ws.on('ready', onReady);
+            unsubscribeReady = ws.on('ready', onReady);
             return;
         }
 
@@ -264,16 +293,15 @@ export default function CustomAudioPlayer({ url, isStreaming, showVolume = true,
                 }}
                 style={{ cursor: isLoaded ? 'default' : 'pointer' }}
             >
-                {!isLoaded && (
+                {!isLoaded && !hasError && (
                     <div className="fake-waveform">
-                        {Array.from({ length: 40 }).map((_, i) => (
-                            <div
-                                key={i}
-                                className="fake-bar"
-                                style={{ height: `${15 + Math.random() * 85}%` }}
-                            />
+                        {fakeWaveHeights.current.map((h, i) => (
+                            <div key={i} className="fake-bar" style={{ height: `${h}%` }} />
                         ))}
                     </div>
+                )}
+                {hasError && (
+                    <div className="player-error">Failed to load audio</div>
                 )}
                 <div className={`waveform-container ${isLoaded ? 'loaded' : ''}`} ref={containerRef} />
             </div>

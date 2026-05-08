@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Volume2 } from 'lucide-react';
+import { Volume2, RefreshCw } from 'lucide-react';
 import useAudioDevices from './useAudioDevices';
 import './AudioOutputPicker.css';
 
@@ -14,9 +14,10 @@ import './AudioOutputPicker.css';
  *   className    – optional extra class for the wrapper
  */
 export default function AudioOutputPicker({ audioElement, className = '' }) {
-    const { devices, supported } = useAudioDevices();
+    const { devices, supported, requestLabels } = useAudioDevices();
     const [open, setOpen] = useState(false);
     const [selectedId, setSelectedId] = useState('default');
+    const [refreshing, setRefreshing] = useState(false);
     const wrapperRef = useRef(null);
 
     // Close dropdown on outside click
@@ -61,6 +62,13 @@ export default function AudioOutputPicker({ audioElement, className = '' }) {
     const hasNonDefault = devices.some(d => d.deviceId !== 'default');
     const isActive = selectedId !== 'default';
 
+    const handleRefresh = async (e) => {
+        e.stopPropagation();
+        setRefreshing(true);
+        await requestLabels();
+        setRefreshing(false);
+    };
+
     return (
         <div className={`aop-wrapper ${className}`} ref={wrapperRef}>
             <button
@@ -73,8 +81,16 @@ export default function AudioOutputPicker({ audioElement, className = '' }) {
 
             {open && (
                 <div className="aop-dropdown">
-                    <div className="aop-dropdown-header">
-                        {hasNonDefault ? 'Audio Output' : 'Default Only'}
+                    <div className="aop-dropdown-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span>{hasNonDefault ? 'Audio Output' : 'Default Only'}</span>
+                        <button
+                            className="aop-refresh-btn"
+                            onClick={handleRefresh}
+                            disabled={refreshing}
+                            title="Refresh device list"
+                        >
+                            <RefreshCw size={11} className={refreshing ? 'aop-spin' : ''} />
+                        </button>
                     </div>
 
                     {devices.length === 0 ? (

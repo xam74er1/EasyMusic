@@ -1039,6 +1039,66 @@
     box-shadow: 0 0 10px rgba(0, 245, 212, 0.2);
 }
 
+/* ── Vertical resize handle (between decks and bottom panels) ─── */
+.vertical-resize-handle {
+    height: 6px;
+    flex-shrink: 0;
+    cursor: row-resize;
+    background: rgba(255, 255, 255, 0.04);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    transition: background 0.15s;
+    position: relative;
+    z-index: 2;
+}
+
+.vertical-resize-handle:hover,
+.vertical-resize-handle:active {
+    background: rgba(157, 78, 221, 0.35);
+}
+
+/* ── DJLibrary profile tabs ───────────────────────────────────── */
+.dj-lib-tabs {
+    display: flex;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(8, 6, 18, 0.95);
+}
+
+.dj-lib-tab {
+    flex: 1;
+    padding: 6px 12px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.dj-lib-tab:hover {
+    color: var(--text);
+}
+
+.dj-lib-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+.dj-lib-tab-count {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1px 5px;
+    font-size: 0.65rem;
+    opacity: 0.8;
+}
+
 /* ── Library Panel ────────────────────────────────────────────── */
 .vdj-library {
     flex: 1;

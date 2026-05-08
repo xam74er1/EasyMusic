@@ -20,7 +20,9 @@ def apply_migrations(engine):
         expected = {
             "spotify_url": "TEXT DEFAULT ''",
             "download_error": "TEXT",
-            "added_at": "TEXT DEFAULT ''"
+            "added_at": "TEXT DEFAULT ''",
+            "profile_id": "TEXT DEFAULT 'master'",
+            "additional_profile_ids": "TEXT DEFAULT '[]'"
         }
         
         with engine.connect() as conn:
@@ -30,7 +32,17 @@ def apply_migrations(engine):
                     logger.info(self_name := f"Migration: Adding column {col_name} to videos table")
                     conn.execute(text(f"ALTER TABLE videos ADD COLUMN {col_name} {col_type}"))
                     changed = True
-            
+
+            indexes = {
+                "ix_videos_category": "CREATE INDEX IF NOT EXISTS ix_videos_category ON videos (category)",
+                "ix_videos_title": "CREATE INDEX IF NOT EXISTS ix_videos_title ON videos (title)",
+                "ix_videos_is_downloaded": "CREATE INDEX IF NOT EXISTS ix_videos_is_downloaded ON videos (is_downloaded)",
+                "ix_videos_profile_id": "CREATE INDEX IF NOT EXISTS ix_videos_profile_id ON videos (profile_id)",
+            }
+            for idx_name, ddl in indexes.items():
+                conn.execute(text(ddl))
+                changed = True
+
             if changed:
                 conn.commit()
                 logger.info("Database migrations applied successfully.")

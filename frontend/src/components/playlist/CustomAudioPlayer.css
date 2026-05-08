@@ -73,6 +73,14 @@
     min-height: 2px;
 }
 
+.player-error {
+    width: 100%;
+    font-size: 11px;
+    color: #f87171;
+    text-align: center;
+    opacity: 0.8;
+}
+
 .waveform-container {
     width: 100%;
     height: 100%;

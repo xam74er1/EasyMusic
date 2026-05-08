@@ -17,6 +17,8 @@ export default function SetlistPanel({
     playlist, // full track list for resolving IDs
     onLoadToDeck,
     currentPlayingId, // track currently playing on active deck
+    isMasterProfile = false,
+    profiles = [],
 }) {
     const [newName, setNewName] = useState('');
     const [showNewInput, setShowNewInput] = useState(false);
@@ -30,6 +32,17 @@ export default function SetlistPanel({
     const activeSetlist = setlists.find(s => s.id === activeSetlistId);
     const trackMap = {};
     for (const t of playlist) trackMap[t.id] = t;
+
+    const profileMap = {};
+    for (const p of profiles) profileMap[p.id] = p.name;
+    const getSetlistLabel = (s) => {
+        const trackCount = s.tracks.length + s.sublists.reduce((a, sub) => a + sub.tracks.length, 0);
+        if (isMasterProfile && s.profile_id && s.profile_id !== 'master') {
+            const pName = profileMap[s.profile_id] || s.profile_id;
+            return `${s.name} [${pName}] (${trackCount})`;
+        }
+        return `${s.name} (${trackCount})`;
+    };
 
     // ─── CRUD helpers ────────────────────────────
     const handleCreate = () => {
@@ -222,7 +235,7 @@ export default function SetlistPanel({
                 >
                     <option value="">— Select —</option>
                     {setlists.map(s => (
-                        <option key={s.id} value={s.id}>{s.name} ({s.tracks.length + s.sublists.reduce((a, sub) => a + sub.tracks.length, 0)})</option>
+                        <option key={s.id} value={s.id}>{getSetlistLabel(s)}</option>
                     ))}
                 </select>
                 <button className="sl-icon-btn" onClick={() => setShowNewInput(!showNewInput)} title="New Setlist"><Plus size={13} /></button>

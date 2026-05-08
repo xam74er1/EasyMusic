@@ -6,7 +6,8 @@ import api from '../../api';
 function buildCategoryTree(tracks) {
     const root = {};
     for (const t of tracks) {
-        const categories = (t.category || 'Uncategorized').split(';').map(c => c.trim()).filter(Boolean);
+        const rawCat = (!t.category || t.category === 'undefined') ? 'Uncategorized' : t.category;
+        const categories = rawCat.split(';').map(c => c.trim()).filter(Boolean);
         if (categories.length === 0) categories.push('Uncategorized');
 
         for (const cat of categories) {
@@ -26,17 +27,23 @@ function buildCategoryTree(tracks) {
     return root;
 }
 
-export default React.memo(function DJLibrary({ playlist, onLoadToDeck, showAddToSetlist = false, onAddToSetlist }) {
+export default React.memo(function DJLibrary({ playlist, onLoadToDeck, showAddToSetlist = false, onAddToSetlist, activeProfile, otherTracks = [] }) {
     const [viewMode, setViewMode] = useState('folder');
     const [search, setSearch] = useState('');
     const [filterCat, setFilterCat] = useState('All');
     const [sortCol, setSortCol] = useState('title');
     const [sortDir, setSortDir] = useState('asc');
     const [openFolders, setOpenFolders] = useState({});
+    const [activeTab, setActiveTab] = useState('mine');
+
+    const isNonMaster = activeProfile && activeProfile.id !== 'master';
+    const displayPlaylist = isNonMaster && activeTab === 'all' ? otherTracks : playlist;
+
+    const switchTab = (tab) => { setActiveTab(tab); setFilterCat('All'); setSearch(''); };
 
     const categories = useMemo(() => {
         const cats = new Set();
-        playlist.forEach(t => {
+        displayPlaylist.forEach(t => {
             if (t.category) {
                 t.category.split(';').forEach(c => {
                     const trimmed = c.trim();
@@ -45,10 +52,10 @@ export default React.memo(function DJLibrary({ playlist, onLoadToDeck, showAddTo
             }
         });
         return ['All', ...Array.from(cats).sort()];
-    }, [playlist]);
+    }, [displayPlaylist]);
 
     const filtered = useMemo(() => {
-        let arr = [...playlist];
+        let arr = [...displayPlaylist];
         if (search.trim()) {
             const q = search.toLowerCase();
             arr = arr.filter(t => {
@@ -65,7 +72,7 @@ export default React.memo(function DJLibrary({ playlist, onLoadToDeck, showAddTo
             });
         }
         return arr;
-    }, [playlist, search, filterCat]);
+    }, [displayPlaylist, search, filterCat]);
 
     const sorted = useMemo(() => {
         return [...filtered].sort((a, b) => {
@@ -182,8 +189,24 @@ export default React.memo(function DJLibrary({ playlist, onLoadToDeck, showAddTo
 
     return (
         <div className="vdj-library">
+            {isNonMaster && (
+                <div className="dj-lib-tabs">
+                    <button
+                        className={`dj-lib-tab${activeTab === 'mine' ? ' active' : ''}`}
+                        onClick={() => switchTab('mine')}
+                    >
+                        My Profile <span className="dj-lib-tab-count">{playlist.length}</span>
+                    </button>
+                    <button
+                        className={`dj-lib-tab${activeTab === 'all' ? ' active' : ''}`}
+                        onClick={() => switchTab('all')}
+                    >
+                        All Music <span className="dj-lib-tab-count">{otherTracks.length}</span>
+                    </button>
+                </div>
+            )}
             <div className="library-toolbar">
-                <span className="library-title">Library</span>
+                <span className="library-title">{isNonMaster ? (activeTab === 'mine' ? 'My Profile' : 'All Music') : 'Library'}</span>
 
                 <button className={`lib-view-btn ${viewMode === 'folder' ? 'active' : ''}`} onClick={() => setViewMode('folder')}>
                     <Folder size={13} /> Folders

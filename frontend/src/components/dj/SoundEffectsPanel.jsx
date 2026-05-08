@@ -15,6 +15,8 @@ export default function SoundEffectsPanel({
     const { addToast } = useToast();
     const [effects, setEffects] = useState([]);
     const [activeKeys, setActiveKeys] = useState(new Set());
+    // Which effect IDs are currently playing (for visual indicator)
+    const [playingIds, setPlayingIds] = useState(new Set());
 
     // Search state
     const [searchQuery, setSearchQuery] = useState('');
@@ -45,6 +47,26 @@ export default function SoundEffectsPanel({
 
     const keybindingsRef = useRef({});
     useEffect(() => { keybindingsRef.current = keybindings; }, [keybindings]);
+
+    // Keep global name registry up-to-date so VirtualDJ + SFXControlBar can look up names
+    useEffect(() => {
+        window.__sfxRegistry = Object.fromEntries(effects.map(e => [e.id, e.name]));
+    }, [effects]);
+
+    // Poll which effects are actively playing (for the playing indicator)
+    useEffect(() => {
+        const tick = () => {
+            const playing = new Set();
+            if (window.__activeAudioNodes) {
+                window.__activeAudioNodes.forEach(el => {
+                    if (!el.paused && el.__effectId) playing.add(el.__effectId);
+                });
+            }
+            setPlayingIds(playing);
+        };
+        const id = setInterval(tick, 100);
+        return () => clearInterval(id);
+    }, []);
 
     useEffect(() => {
         fetchEffects();
@@ -548,15 +570,17 @@ export default function SoundEffectsPanel({
                                                     )
                                                 }
 
+                                                const isPlaying = playingIds.has(effect.id);
+
                                                 return (
-                                                    <div key={effect.id} className={`se-item ${isSelected ? 'se-item-selected' : ''}`}>
-                                                        <button className="se-play-btn" onClick={() => onPlaySoundEffect(effect.id)} title="Play">
+                                                    <div key={effect.id} className={`se-item ${isSelected ? 'se-item-selected' : ''} ${isPlaying ? 'se-item-playing' : ''}`}>
+                                                        <button className="se-play-btn" onClick={() => onPlaySoundEffect(effect.id)} title="Play again">
                                                             <Play size={16} fill="currentColor" />
                                                         </button>
                                                         <button
-                                                            className="se-stop-btn"
+                                                            className={`se-stop-btn${isPlaying ? ' se-stop-btn--active' : ''}`}
                                                             onClick={() => onStopSoundEffect?.(effect.id)}
-                                                            title="Stop"
+                                                            title={isPlaying ? 'Stop (playing)' : 'Stop'}
                                                         >
                                                             <X size={14} />
                                                         </button>

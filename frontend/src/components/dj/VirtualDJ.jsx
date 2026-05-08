@@ -23,7 +23,7 @@ const DEFAULT_DECK = {
 };
 
 export default function VirtualDJ({ playlist }) {
-    const { activeProfile, updateProfileConfig } = useProfile();
+    const { activeProfile, profiles, updateProfileConfig } = useProfile();
     const [deckA, setDeckA] = useState({ ...DEFAULT_DECK });
     const [deckB, setDeckB] = useState({ ...DEFAULT_DECK });
     const [crossfader, setCrossfader] = useState(0.5);
@@ -47,11 +47,20 @@ export default function VirtualDJ({ playlist }) {
         }
     }, [activeProfile, updateProfileConfig]);
 
-    const playSoundEffect = useCallback((id) => {
+    const playSoundEffect = useCallback(async (id) => {
         if (!window.__activeAudioNodes) window.__activeAudioNodes = new Set();
         const el = new Audio(api.getSoundEffectPlayUrl(id));
-        el.__effectId = id; // Track which effect this is
+        el.__effectId   = id;
+        // Attach the human-readable name so SFXControlBar can display it
+        el.__effectName = window.__sfxRegistry?.[id] ?? null;
         window.__activeAudioNodes.add(el);
+
+        // Route SFX to the same output as the room device
+        const roomId = roomDeviceRef.current;
+        if ('setSinkId' in el && roomId && roomId !== 'default') {
+            try { await el.setSinkId(roomId); }
+            catch (e) { console.warn('[SFX] setSinkId failed:', e); }
+        }
 
         el.onended = () => window.__activeAudioNodes.delete(el);
         el.onerror = () => window.__activeAudioNodes.delete(el);
@@ -79,10 +88,51 @@ export default function VirtualDJ({ playlist }) {
     useEffect(() => { playSoundEffectRef.current = playSoundEffect; }, [playSoundEffect]);
     useEffect(() => { stopSoundEffectRef.current = stopSoundEffect; }, [stopSoundEffect]);
 
-    // Split panel resize
+    // Other downloaded tracks (non-profile) for non-master profiles
+    const [otherDjTracks, setOtherDjTracks] = useState([]);
+    useEffect(() => {
+        if (!activeProfile || activeProfile.id === 'master') { setOtherDjTracks([]); return; }
+        const profileIds = new Set(playlist.map(t => t.id));
+        api.getPlaylist('master')
+            .then(r => r.json())
+            .then(data => setOtherDjTracks(data.filter(t => t.is_downloaded && !profileIds.has(t.id))))
+            .catch(() => setOtherDjTracks([]));
+    }, [activeProfile?.id, playlist]);
+
+    // Horizontal split panel resize (setlist / library)
     const [splitRatio, setSplitRatio] = useState(0.5);
     const resizingRef = useRef(false);
     const splitContainerRef = useRef(null);
+
+    // Vertical resize — controls the TOP (decks) area height; bottom fills remaining space
+    const [deckAreaHeight, setDeckAreaHeight] = useState(null); // null = natural/auto height
+    const topSectionRef = useRef(null);
+    const verticalResizingRef = useRef(false);
+    const handleVerticalResizeStart = (e) => {
+        e.preventDefault();
+        verticalResizingRef.current = true;
+        const startY = e.clientY ?? e.touches?.[0]?.clientY ?? 0;
+        const startH = topSectionRef.current
+            ? topSectionRef.current.getBoundingClientRect().height
+            : 400;
+        const handleMove = (ev) => {
+            if (!verticalResizingRef.current) return;
+            const y = ev.clientY ?? ev.touches?.[0]?.clientY ?? 0;
+            // drag down = taller deck area; drag up = shorter deck area (more space for library)
+            setDeckAreaHeight(Math.max(120, Math.min(700, startH + (y - startY))));
+        };
+        const handleUp = () => {
+            verticalResizingRef.current = false;
+            window.removeEventListener('mousemove', handleMove);
+            window.removeEventListener('mouseup', handleUp);
+            window.removeEventListener('touchmove', handleMove);
+            window.removeEventListener('touchend', handleUp);
+        };
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleUp);
+        window.addEventListener('touchmove', handleMove);
+        window.addEventListener('touchend', handleUp);
+    };
 
     // Audio refs — one AudioContext PER DECK so each can setSinkId independently
     const audioCtxARef = useRef(null);
@@ -116,6 +166,16 @@ export default function VirtualDJ({ playlist }) {
     const [deckBMode, setDeckBMode] = useState('room');
     const [showOutputConfig, setShowOutputConfig] = useState(false);
 
+    // Stable refs so getAudioCtx can read the CURRENT values without a stale closure
+    const roomDeviceRef    = useRef(roomDevice);
+    const headsetDeviceRef = useRef(headsetDevice);
+    const deckAModeRef     = useRef(deckAMode);
+    const deckBModeRef     = useRef(deckBMode);
+    useEffect(() => { roomDeviceRef.current    = roomDevice;    }, [roomDevice]);
+    useEffect(() => { headsetDeviceRef.current = headsetDevice; }, [headsetDevice]);
+    useEffect(() => { deckAModeRef.current     = deckAMode;     }, [deckAMode]);
+    useEffect(() => { deckBModeRef.current     = deckBMode;     }, [deckBMode]);
+
     const deviceLabel = useCallback((id) => {
         if (!id || id === 'default') return 'Default';
         return audioDevices.find(d => d.deviceId === id)?.label ?? id.slice(0, 12) + '…';
@@ -125,8 +185,9 @@ export default function VirtualDJ({ playlist }) {
     const applySinkId = useCallback(async (ctxRef, deviceId) => {
         const ctx = ctxRef.current;
         if (!ctx?.setSinkId) return;
+        // AudioContext.setSinkId takes '' for system default, or the deviceId string
         try { await ctx.setSinkId(deviceId === 'default' ? '' : deviceId); }
-        catch (e) { console.warn('setSinkId:', e); }
+        catch (e) { console.warn('[DJ] setSinkId failed:', e); }
     }, []);
 
     // Switch a deck's mode and instantly re-route audio
@@ -154,6 +215,18 @@ export default function VirtualDJ({ playlist }) {
     // ─── Only show downloaded MP3 tracks ────────────────
     const djPlaylist = useMemo(() => playlist.filter(t => t.is_downloaded), [playlist]);
 
+    // ─── Reset decks on profile switch ───────────────────
+    useEffect(() => {
+        const elA = audioElARef.current;
+        const elB = audioElBRef.current;
+        if (elA) { elA.pause(); elA.src = ''; }
+        if (elB) { elB.pause(); elB.src = ''; }
+        setDeckA({ ...DEFAULT_DECK });
+        setDeckB({ ...DEFAULT_DECK });
+        setActiveSetlistId(null);
+        setAutoPlay(false);
+    }, [activeProfile?.id]);
+
     // ─── Fetch setlists on mount + create default ────────
     useEffect(() => {
         fetchSetlists();
@@ -166,7 +239,7 @@ export default function VirtualDJ({ playlist }) {
             setSetlists(data);
             // Create default setlist if none exists
             if (data.length === 0) {
-                const defaultRes = await api.createSetlist({ name: 'Default', tracks: [], sublists: [] });
+                const defaultRes = await api.createSetlist({ name: 'Default', profile_id: activeProfile?.id || 'default', tracks: [], sublists: [] });
                 const created = await defaultRes.json();
                 setSetlists([created]);
                 setActiveSetlistId(created.id);
@@ -213,7 +286,7 @@ export default function VirtualDJ({ playlist }) {
 
     const importSetlist = async (file) => {
         try {
-            const res = await api.importSetlist(file);
+            const res = await api.importSetlist(file, activeProfile?.id);
             const data = await res.json();
             if (!res.ok) throw new Error(data.detail || 'Import failed');
             await fetchSetlists();
@@ -241,6 +314,16 @@ export default function VirtualDJ({ playlist }) {
             masterGain.connect(ctx.destination);
             ctxRef.current = ctx;
             gainRef.current = masterGain;
+
+            // Apply the currently selected output device the moment the context is created,
+            // so the first track played already uses the right output.
+            if (ctx.setSinkId) {
+                const mode     = side === 'a' ? deckAModeRef.current : deckBModeRef.current;
+                const deviceId = mode === 'room' ? roomDeviceRef.current : headsetDeviceRef.current;
+                if (deviceId && deviceId !== 'default') {
+                    ctx.setSinkId(deviceId).catch(e => console.warn('[DJ] AudioContext init setSinkId:', e));
+                }
+            }
         }
         return ctxRef.current;
     }, []);
@@ -625,6 +708,8 @@ export default function VirtualDJ({ playlist }) {
 
     return (
         <div className="vdj-root">
+            {/* Top section: decks + crossfader — natural height, shrinks when library is resized */}
+            <div ref={topSectionRef} style={{ flexShrink: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', ...(deckAreaHeight !== null ? { height: deckAreaHeight } : {}) }}>
             {/* Decks */}
             <div className="vdj-decks-row">
                 <DJDeck side="a" deck={deckA}
@@ -723,12 +808,49 @@ export default function VirtualDJ({ playlist }) {
                 </button>
 
             </div>
+            </div>{/* end top flex:1 wrapper */}
 
-            {/* Bottom section: setlist + library */}
+            {/* Vertical resize handle (only when bottom section is visible) */}
             {(showSetlist || showLibrary) && (
-                showSetlist && showLibrary ? (
-                    <div className="library-split" ref={splitContainerRef}
-                        style={{ gridTemplateColumns: `${splitRatio}fr ${1 - splitRatio}fr` }}>
+                <div className="vertical-resize-handle"
+                    onMouseDown={handleVerticalResizeStart}
+                    onTouchStart={handleVerticalResizeStart} />
+            )}
+
+            {/* Bottom section: setlist + library — fills all remaining space */}
+            {(showSetlist || showLibrary) && (
+                <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex' }}>
+                    {showSetlist && showLibrary ? (
+                        <div className="library-split" ref={splitContainerRef}
+                            style={{ gridTemplateColumns: `${splitRatio}fr ${1 - splitRatio}fr` }}>
+                            <SetlistPanel
+                                setlists={setlists}
+                                activeSetlistId={activeSetlistId}
+                                onSelectSetlist={setActiveSetlistId}
+                                onUpdateSetlist={updateSetlist}
+                                onCreateSetlist={createSetlist}
+                                onDeleteSetlist={deleteSetlist}
+                                onImportSetlist={importSetlist}
+                                autoPlay={autoPlay}
+                                onAutoPlayToggle={() => setAutoPlay(!autoPlay)}
+                                playlist={djPlaylist}
+                                onLoadToDeck={loadToDeck}
+                                currentPlayingId={(activeDeckSide === 'a' ? deckA : deckB).track?.id}
+                                isMasterProfile={activeProfile?.id === 'master'}
+                                profiles={profiles}
+                            />
+                            {/* Horizontal resize handle */}
+                            <div className="split-resize-handle" onMouseDown={handleResizeStart} onTouchStart={handleResizeStart} />
+                            <DJLibrary
+                                playlist={djPlaylist}
+                                onLoadToDeck={loadToDeck}
+                                showAddToSetlist={!!activeSetlistId}
+                                onAddToSetlist={addToSetlist}
+                                activeProfile={activeProfile}
+                                otherTracks={otherDjTracks}
+                            />
+                        </div>
+                    ) : showSetlist ? (
                         <SetlistPanel
                             setlists={setlists}
                             activeSetlistId={activeSetlistId}
@@ -743,38 +865,17 @@ export default function VirtualDJ({ playlist }) {
                             onLoadToDeck={loadToDeck}
                             currentPlayingId={(activeDeckSide === 'a' ? deckA : deckB).track?.id}
                         />
-                        {/* Resize handle */}
-                        <div className="split-resize-handle" onMouseDown={handleResizeStart} onTouchStart={handleResizeStart} />
+                    ) : (
                         <DJLibrary
                             playlist={djPlaylist}
                             onLoadToDeck={loadToDeck}
                             showAddToSetlist={!!activeSetlistId}
                             onAddToSetlist={addToSetlist}
+                            activeProfile={activeProfile}
+                            otherTracks={otherDjTracks}
                         />
-                    </div>
-                ) : showSetlist ? (
-                    <SetlistPanel
-                        setlists={setlists}
-                        activeSetlistId={activeSetlistId}
-                        onSelectSetlist={setActiveSetlistId}
-                        onUpdateSetlist={updateSetlist}
-                        onCreateSetlist={createSetlist}
-                        onDeleteSetlist={deleteSetlist}
-                        onImportSetlist={importSetlist}
-                        autoPlay={autoPlay}
-                        onAutoPlayToggle={() => setAutoPlay(!autoPlay)}
-                        playlist={djPlaylist}
-                        onLoadToDeck={loadToDeck}
-                        currentPlayingId={(activeDeckSide === 'a' ? deckA : deckB).track?.id}
-                    />
-                ) : (
-                    <DJLibrary
-                        playlist={djPlaylist}
-                        onLoadToDeck={loadToDeck}
-                        showAddToSetlist={!!activeSetlistId}
-                        onAddToSetlist={addToSetlist}
-                    />
-                )
+                    )}
+                </div>
             )}
 
             {/* Audio Output Config Modal */}

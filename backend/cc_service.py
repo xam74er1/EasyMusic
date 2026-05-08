@@ -94,7 +94,7 @@ def search_cc_tracks(query: str, limit: int = 10) -> list[CCTrack]:
     return tracks
 
 
-def download_cc_track(track: CCTrack, category: str, existing_video_id: str = None) -> str:
+def download_cc_track(track: CCTrack, category: str, existing_video_id: str = None, profile_id: str = "master") -> str:
     """Download a CC track, write ID3 tags, save to disk, and register in PlaylistRepo.
 
     Args:
@@ -182,6 +182,7 @@ def download_cc_track(track: CCTrack, category: str, existing_video_id: str = No
         tags=video_tags,
         is_downloaded=True,
         local_file=rel_path,
+        profile_id=profile_id,
     )
 
     repo.add_video(video)

@@ -1,19 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import Chatbot from './components/Chatbot';
 import Playlist from './components/playlist/Playlist';
-import VirtualDJ from './components/dj/VirtualDJ';
-import LibraryManager from './components/library/LibraryManager';
-import SoundEffectsPanel from './components/dj/SoundEffectsPanel';
-import SimplifiedDJ from './components/dj/SimplifiedDJ';
 import ProfileMenu from './components/ProfileMenu';
 import { useProfile } from './components/ProfileContext';
 import { useToast } from './components/ToastContext';
 import ImportModal from './components/library/ImportModal';
-import Documentation from './components/Documentation';
 import { Bot, LibraryBig, Disc3, FolderTree, Settings2, LayoutGrid, Upload, HelpCircle } from 'lucide-react';
-
 import api from './api';
+
+const Chatbot = React.lazy(() => import('./components/Chatbot'));
+const VirtualDJ = React.lazy(() => import('./components/dj/VirtualDJ'));
+const LibraryManager = React.lazy(() => import('./components/library/LibraryManager'));
+const SoundEffectsPanel = React.lazy(() => import('./components/dj/SoundEffectsPanel'));
+const SimplifiedDJ = React.lazy(() => import('./components/dj/SimplifiedDJ'));
+const Documentation = React.lazy(() => import('./components/Documentation'));
+
+function RouteLoader() {
+  return <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>Loading…</div>;
+}
 
 function App() {
   const [playlist, setPlaylist] = useState([]);
@@ -24,17 +28,27 @@ function App() {
   const [droppedFiles, setDroppedFiles] = useState([]);
   const location = useLocation();
 
-  const fetchPlaylist = async () => {
+  const fetchPlaylist = useCallback(async () => {
     try {
       const res = await api.getPlaylist(activeProfile?.id);
       if (res.ok) {
         const data = await res.json();
-        setPlaylist(data);
+        setPlaylist(prev => {
+          // Only update reference when data actually changed — prevents Virtuoso from
+          // re-rendering all visible items on every 6s poll when nothing changed.
+          if (prev.length === data.length && prev.every((t, i) => {
+            const d = data[i];
+            return d && t.id === d.id && t.is_downloaded === d.is_downloaded &&
+                   t.download_error === d.download_error && t.title === d.title &&
+                   t.category === d.category && t.speed === d.speed;
+          })) return prev;
+          return data;
+        });
       }
     } catch (err) {
       console.error("Failed to fetch playlist", err);
     }
-  };
+  }, [activeProfile?.id]);
 
   useEffect(() => {
     if (!activeProfile) return;
@@ -109,7 +123,9 @@ function App() {
                   <h2>AI Improv Agent</h2>
                 </div>
               </div>
-              <Chatbot onUpdate={fetchPlaylist} />
+              <Suspense fallback={<RouteLoader />}>
+                <Chatbot onUpdate={fetchPlaylist} />
+              </Suspense>
             </div>
 
             <div className="right-panel">
@@ -202,59 +218,69 @@ function App() {
         } />
 
         <Route path="/manager" element={
-          <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <LibraryManager />
-          </div>
+          <Suspense fallback={<RouteLoader />}>
+            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <LibraryManager />
+            </div>
+          </Suspense>
         } />
 
         <Route path="/sfx" element={
-          <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <SoundEffectsPanel
-              keybindings={activeProfile?.config?.keybindings || {}}
-              onUpdateKeybindings={(newB) => updateProfileConfig(activeProfile.id, { keybindings: newB })}
-              onPlaySoundEffect={(id) => {
-                if (!window.__activeAudioNodes) window.__activeAudioNodes = new Set();
-                const el = new Audio(api.getSoundEffectPlayUrl(id));
-                el.__effectId = id;
-                window.__activeAudioNodes.add(el);
-                el.onended = () => window.__activeAudioNodes.delete(el);
-                el.onerror = () => window.__activeAudioNodes.delete(el);
-                el.play().catch(e => {
-                  console.warn('SFX Error:', e);
-                  window.__activeAudioNodes.delete(el);
-                });
-              }}
-              onStopSoundEffect={(id) => {
-                if (window.__activeAudioNodes) {
-                  window.__activeAudioNodes.forEach(el => {
-                    if (el.__effectId === id) {
-                      el.pause();
-                      el.src = '';
-                      window.__activeAudioNodes.delete(el);
-                    }
+          <Suspense fallback={<RouteLoader />}>
+            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <SoundEffectsPanel
+                keybindings={activeProfile?.config?.keybindings || {}}
+                onUpdateKeybindings={(newB) => updateProfileConfig(activeProfile.id, { keybindings: newB })}
+                onPlaySoundEffect={(id) => {
+                  if (!window.__activeAudioNodes) window.__activeAudioNodes = new Set();
+                  const el = new Audio(api.getSoundEffectPlayUrl(id));
+                  el.__effectId = id;
+                  window.__activeAudioNodes.add(el);
+                  el.onended = () => window.__activeAudioNodes.delete(el);
+                  el.onerror = () => window.__activeAudioNodes.delete(el);
+                  el.play().catch(e => {
+                    console.warn('SFX Error:', e);
+                    window.__activeAudioNodes.delete(el);
                   });
-                }
-              }}
-            />
-          </div>
+                }}
+                onStopSoundEffect={(id) => {
+                  if (window.__activeAudioNodes) {
+                    window.__activeAudioNodes.forEach(el => {
+                      if (el.__effectId === id) {
+                        el.pause();
+                        el.src = '';
+                        window.__activeAudioNodes.delete(el);
+                      }
+                    });
+                  }
+                }}
+              />
+            </div>
+          </Suspense>
         } />
 
         <Route path="/simplified-dj" element={
-          <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <SimplifiedDJ playlist={playlist} />
-          </div>
+          <Suspense fallback={<RouteLoader />}>
+            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <SimplifiedDJ playlist={playlist} />
+            </div>
+          </Suspense>
         } />
 
         <Route path="/dj" element={
-          <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <VirtualDJ playlist={playlist} />
-          </div>
+          <Suspense fallback={<RouteLoader />}>
+            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <VirtualDJ playlist={playlist} />
+            </div>
+          </Suspense>
         } />
 
         <Route path="/docs" element={
-          <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <Documentation />
-          </div>
+          <Suspense fallback={<RouteLoader />}>
+            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <Documentation />
+            </div>
+          </Suspense>
         } />
       </Routes>
 

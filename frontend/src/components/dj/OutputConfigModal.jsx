@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { Speaker, Headphones, X, Check } from 'lucide-react';
+import { Speaker, Headphones, X, Check, RefreshCw } from 'lucide-react';
 import useAudioDevices from '../useAudioDevices';
 import './OutputConfigModal.css';
 
@@ -20,6 +20,7 @@ export default function OutputConfigModal({ open, onClose, roomDevice, headsetDe
     const { devices, supported, requestLabels } = useAudioDevices();
     const [localRoom, setLocalRoom] = useState(roomDevice);
     const [localHeadset, setLocalHeadset] = useState(headsetDevice);
+    const [refreshing, setRefreshing] = useState(false);
 
     // Sync when parent values change (e.g. first open)
     useEffect(() => { setLocalRoom(roomDevice); }, [roomDevice]);
@@ -34,6 +35,12 @@ export default function OutputConfigModal({ open, onClose, roomDevice, headsetDe
 
     const handleSave = () => onSave(localRoom, localHeadset);
 
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        await requestLabels();
+        setRefreshing(false);
+    };
+
     const deviceLabel = (id) => {
         const d = devices.find(x => x.deviceId === id);
         return d?.label ?? 'Default';
@@ -45,11 +52,21 @@ export default function OutputConfigModal({ open, onClose, roomDevice, headsetDe
                 {/* Header */}
                 <div className="ocm-header">
                     <span className="ocm-title">Audio Output Configuration</span>
+                    <button
+                        className="ocm-close"
+                        onClick={handleRefresh}
+                        disabled={refreshing}
+                        title="Refresh device list"
+                        style={{ marginRight: 4 }}
+                    >
+                        <RefreshCw size={14} className={refreshing ? 'ocm-spin' : ''} />
+                    </button>
                     <button className="ocm-close" onClick={onClose} title="Close"><X size={16} /></button>
                 </div>
 
                 <p className="ocm-subtitle">
                     Assign your audio devices once — then switch any deck between Room and Headset instantly.
+                    {devices.length > 0 && <span style={{ opacity: 0.5 }}> ({devices.length} device{devices.length !== 1 ? 's' : ''} found)</span>}
                 </p>
 
                 {!supported && (

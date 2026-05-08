@@ -123,3 +123,24 @@
     color: var(--text-muted, #888);
     text-align: center;
 }
+
+.aop-refresh-btn {
+    background: none;
+    border: none;
+    color: #555;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s;
+    line-height: 1;
+}
+.aop-refresh-btn:hover { color: #9D4EDD; }
+.aop-refresh-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+@keyframes aop-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+.aop-spin { animation: aop-spin 0.8s linear infinite; }

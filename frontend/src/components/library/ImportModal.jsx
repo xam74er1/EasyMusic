@@ -3,7 +3,7 @@ import { X, Music, Check, Loader2, Bot, AlertCircle, Trash2, Folder } from 'luci
 import { useToast } from '../ToastContext';
 import './ImportModal.css';
 import api from '../../api';
-export default function ImportModal({ isOpen, onClose, files, onImportComplete }) {
+export default function ImportModal({ isOpen, onClose, files, onImportComplete, profileId }) {
     const { addToast } = useToast();
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isFinalizing, setIsFinalizing] = useState(false);
@@ -67,7 +67,7 @@ export default function ImportModal({ isOpen, onClose, files, onImportComplete }
     const handleConfirm = async () => {
         setIsFinalizing(true);
         try {
-            const response = await api.importConfirm({ tracks });
+            const response = await api.importConfirm({ tracks, profile_id: profileId || 'master' });
 
             if (!response.ok) throw new Error('Failed to import tracks');
             const data = await response.json();

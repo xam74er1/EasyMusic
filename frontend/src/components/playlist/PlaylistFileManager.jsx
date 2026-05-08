@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ListMusic, Upload, Download, Trash2, Pencil, Check, X, ChevronDown, ChevronRight, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import api from '../../api';
 import { useToast } from '../ToastContext';
+import { useProfile } from '../ProfileContext';
 
 export default function PlaylistFileManager() {
   const { addToast } = useToast();
+  const { activeProfile } = useProfile();
   const [playlists, setPlaylists] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
   const [expandedData, setExpandedData] = useState(null);
@@ -15,7 +17,7 @@ export default function PlaylistFileManager() {
 
   const fetchPlaylists = async () => {
     try {
-      const res = await api.getCustomPlaylists();
+      const res = await api.getCustomPlaylists(activeProfile?.id);
       if (res.ok) setPlaylists(await res.json());
     } catch (err) {
       addToast('Erreur lors du chargement des playlists', 'error');
@@ -24,14 +26,14 @@ export default function PlaylistFileManager() {
     }
   };
 
-  useEffect(() => { fetchPlaylists(); }, []);
+  useEffect(() => { fetchPlaylists(); }, [activeProfile?.id]);
 
   const handleImport = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     e.target.value = '';
     try {
-      const res = await api.importCustomPlaylist(file);
+      const res = await api.importCustomPlaylist(file, activeProfile?.id);
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || 'Import failed');
       addToast(`"${data.name}" importée — ${data.matched}/${data.total} pistes trouvées`, 'success');

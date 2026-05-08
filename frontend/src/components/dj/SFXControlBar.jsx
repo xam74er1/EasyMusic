@@ -1,184 +1,130 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { X, Volume2, VolumeX } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { X, VolumeX, Square } from 'lucide-react';
 import './SFXControlBar.css';
 
-/**
- * SFXControlBar - Floating bar at bottom showing active sound effects
- * Draggable, minimizable, shows all playing SFX and allows stopping them
- */
 export default function SFXControlBar() {
-    const [isHovering, setIsHovering] = useState(false);
-    const [isMinimized, setIsMinimized] = useState(true);
-    const [position, setPosition] = useState({ x: 20, y: -120 }); // Start at bottom, above the fold
     const [activeSounds, setActiveSounds] = useState([]);
     const [isDragging, setIsDragging] = useState(false);
+    const [position, setPosition] = useState({ x: 20, y: 20 }); // bottom-left, on-screen
     const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
     const containerRef = useRef(null);
-    const updateIntervalRef = useRef(null);
+    const prevCountRef = useRef(0);
 
-    // Track active sound effects
+    // Poll window.__activeAudioNodes every 80ms
     useEffect(() => {
-        const updateActiveSounds = () => {
-            if (window.__activeAudioNodes && window.__activeAudioNodes.size > 0) {
-                const sounds = Array.from(window.__activeAudioNodes).map((el, idx) => ({
-                    id: idx,
-                    playing: !el.paused,
-                    currentTime: el.currentTime.toFixed(1),
-                    duration: el.duration.toFixed(1),
-                    element: el
-                }));
-                setActiveSounds(sounds.filter(s => s.playing));
-            } else {
+        const tick = () => {
+            if (!window.__activeAudioNodes || window.__activeAudioNodes.size === 0) {
                 setActiveSounds([]);
+                return;
             }
+            const sounds = Array.from(window.__activeAudioNodes)
+                .filter(el => !el.paused)
+                .map(el => ({
+                    element: el,
+                    effectId: el.__effectId,
+                    name: el.__effectName
+                        || window.__sfxRegistry?.[el.__effectId]
+                        || 'Sound Effect',
+                    currentTime: el.currentTime,
+                    duration: isFinite(el.duration) && el.duration > 0 ? el.duration : null,
+                }));
+            setActiveSounds(sounds);
         };
 
-        // Update every 100ms to track progress
-        updateIntervalRef.current = setInterval(updateActiveSounds, 100);
-        return () => clearInterval(updateIntervalRef.current);
+        const id = setInterval(tick, 80);
+        return () => clearInterval(id);
     }, []);
 
-    const handleStopAll = () => {
-        if (window.__activeAudioNodes) {
-            window.__activeAudioNodes.forEach(el => {
-                el.pause();
-                el.src = '';
-            });
-            window.__activeAudioNodes.clear();
-            setActiveSounds([]);
-        }
-    };
+    // Auto-show bar when a new sound starts
+    useEffect(() => {
+        prevCountRef.current = activeSounds.length;
+    }, [activeSounds.length]);
 
-    const handleStopSound = (idx) => {
-        if (activeSounds[idx]) {
-            const el = activeSounds[idx].element;
+    const stopSound = useCallback((el) => {
+        el.pause();
+        el.src = '';
+        window.__activeAudioNodes?.delete(el);
+        setActiveSounds(prev => prev.filter(s => s.element !== el));
+    }, []);
+
+    const stopAll = useCallback(() => {
+        window.__activeAudioNodes?.forEach(el => {
             el.pause();
             el.src = '';
-            if (window.__activeAudioNodes) {
-                window.__activeAudioNodes.delete(el);
-            }
-        }
-    };
+        });
+        window.__activeAudioNodes?.clear();
+        setActiveSounds([]);
+    }, []);
 
-    // Dragging logic
-    const handleMouseDown = (e) => {
-        // Only drag from the header area
-        if (e.target.closest('.sfx-bar-header')) {
-            setIsDragging(true);
-            setDragOffset({
-                x: e.clientX - position.x,
-                y: e.clientY - position.y
-            });
-        }
-    };
+    // Drag handling
+    const handleMouseDown = useCallback((e) => {
+        if (!e.target.closest('.sfx-bar-header')) return;
+        setIsDragging(true);
+        setDragOffset({ x: e.clientX - position.x, y: e.clientY - position.y });
+    }, [position]);
 
     useEffect(() => {
         if (!isDragging) return;
-
-        const handleMouseMove = (e) => {
-            setPosition({
-                x: e.clientX - dragOffset.x,
-                y: e.clientY - dragOffset.y
-            });
+        const onMove = (e) => {
+            const newX = Math.max(0, Math.min(window.innerWidth - 240, e.clientX - dragOffset.x));
+            const newY = Math.max(0, Math.min(window.innerHeight - 60, e.clientY - dragOffset.y));
+            setPosition({ x: newX, y: newY });
         };
-
-        const handleMouseUp = () => {
-            setIsDragging(false);
-        };
-
-        window.addEventListener('mousemove', handleMouseMove);
-        window.addEventListener('mouseup', handleMouseUp);
-
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
-        };
+        const onUp = () => setIsDragging(false);
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+        return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
     }, [isDragging, dragOffset]);
 
-    if (activeSounds.length === 0 && isMinimized) {
-        return null; // Don't show if minimized and no sounds
-    }
+    if (activeSounds.length === 0) return null;
+
+    const pct = (s) => s.duration ? Math.min(100, (s.currentTime / s.duration) * 100) : 0;
+    const fmt = (t) => `${Math.floor(t)}:${String(Math.floor((t % 1) * 10)).padStart(1, '0')}`;
 
     return (
         <div
-            className={`sfx-control-bar ${isHovering || !isMinimized ? 'sfx-bar-expanded' : 'sfx-bar-minimized'}`}
             ref={containerRef}
-            onMouseEnter={() => setIsHovering(true)}
-            onMouseLeave={() => setIsHovering(false)}
+            className="sfx-bar"
             style={{
                 position: 'fixed',
-                left: `${position.x}px`,
-                bottom: `${position.y}px`,
-                zIndex: 5000,
+                left: position.x,
+                top: position.y,
+                zIndex: 9000,
+                cursor: isDragging ? 'grabbing' : 'default',
                 userSelect: isDragging ? 'none' : 'auto',
-                cursor: isDragging ? 'grabbing' : 'grab'
             }}
             onMouseDown={handleMouseDown}
         >
             <div className="sfx-bar-header">
                 <div className="sfx-bar-title">
-                    <Volume2 size={14} />
-                    <span>Sound Effects ({activeSounds.length})</span>
+                    <span className="sfx-bar-dot" />
+                    Playing ({activeSounds.length})
                 </div>
-                <button
-                    className="sfx-bar-minimize"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setIsMinimized(!isMinimized);
-                    }}
-                    title={isMinimized ? 'Show' : 'Hide'}
-                >
-                    {isMinimized ? '▲' : '▼'}
+                <button className="sfx-bar-stop-all-btn" onClick={stopAll} title="Stop all sounds">
+                    <VolumeX size={13} />
                 </button>
             </div>
 
-            {(isHovering || !isMinimized) && (
-                <div className="sfx-bar-content">
-                    {activeSounds.length > 0 ? (
-                        <>
-                            <div className="sfx-sounds-list">
-                                {activeSounds.map((sound, idx) => (
-                                    <div key={idx} className="sfx-sound-item">
-                                        <div className="sfx-sound-progress">
-                                            <div
-                                                className="sfx-sound-bar"
-                                                style={{
-                                                    width: `${(sound.currentTime / sound.duration) * 100}%`
-                                                }}
-                                            />
-                                        </div>
-                                        <span className="sfx-sound-time">
-                                            {sound.currentTime}s / {sound.duration}s
-                                        </span>
-                                        <button
-                                            className="sfx-sound-stop"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleStopSound(idx);
-                                            }}
-                                            title="Stop this sound"
-                                        >
-                                            <X size={12} />
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                            <button
-                                className="sfx-bar-stop-all"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleStopAll();
-                                }}
-                            >
-                                <VolumeX size={13} />
-                                Stop All
-                            </button>
-                        </>
-                    ) : (
-                        <div className="sfx-bar-empty">No sounds playing</div>
-                    )}
-                </div>
-            )}
+            <div className="sfx-bar-list">
+                {activeSounds.map((s, i) => (
+                    <div key={i} className="sfx-bar-item">
+                        <div className="sfx-bar-item-name" title={s.name}>{s.name}</div>
+                        <div className="sfx-bar-progress">
+                            <div className="sfx-bar-fill" style={{ width: `${pct(s)}%` }} />
+                        </div>
+                        <span className="sfx-bar-time">
+                            {fmt(s.currentTime)}{s.duration ? `/${fmt(s.duration)}` : ''}
+                        </span>
+                        <button
+                            className="sfx-bar-stop"
+                            onClick={(e) => { e.stopPropagation(); stopSound(s.element); }}
+                            title="Stop"
+                        >
+                            <Square size={10} fill="currentColor" />
+                        </button>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }

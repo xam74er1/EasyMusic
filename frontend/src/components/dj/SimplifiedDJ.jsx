@@ -198,6 +198,16 @@ export default function SimplifiedDJ({ playlist }) {
         };
     }, []);
 
+    // Reset all playback when the active profile changes
+    useEffect(() => {
+        Object.values(audioRefs.current).forEach(audio => {
+            audio.pause();
+            audio.currentTime = 0;
+        });
+        audioRefs.current = {};
+        setPlayingState({});
+    }, [activeProfile?.id]);
+
     return (
         <div className="simple-dj-root">
             <div className="simple-dj-main">

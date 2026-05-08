@@ -3,8 +3,10 @@ import PreviewChangesModal from './PreviewChangesModal';
 import './Chatbot.css';
 
 import api from '../api';
+import { useProfile } from './ProfileContext';
 
 export default function Chatbot({ onUpdate }) {
+    const { activeProfile } = useProfile();
     const [messages, setMessages] = useState([
         { role: 'bot', text: 'Hello! I am your Improv Assistant. I can help you find videos on YouTube and add them to your playlist.' }
     ]);
@@ -33,7 +35,7 @@ export default function Chatbot({ onUpdate }) {
         setIsLoading(true);
 
         try {
-            const res = await api.chat({ message: userMessage });
+            const res = await api.chat({ message: userMessage, profile_id: activeProfile?.id || 'master' });
 
             const data = await res.json();
 
