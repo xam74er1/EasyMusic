@@ -61,7 +61,8 @@ export default React.memo(function DJLibrary({ playlist, onLoadToDeck, showAddTo
             arr = arr.filter(t => {
                 return t.title?.toLowerCase().includes(q)
                     || t.author?.toLowerCase().includes(q)
-                    || t.tags?.some(tag => tag.toLowerCase().includes(q));
+                    || t.tags?.some(tag => tag.toLowerCase().includes(q))
+                    || (t.category || '').toLowerCase().includes(q);
             });
         }
         if (filterCat !== 'All') {

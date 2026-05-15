@@ -92,7 +92,8 @@ export default function Playlist({ playlist, onUpdate }) {
         return otherTracks.filter(t =>
             (t.title || '').toLowerCase().includes(q) ||
             (t.author || '').toLowerCase().includes(q) ||
-            (t.tags || []).some(tag => tag.toLowerCase().includes(q))
+            (t.tags || []).some(tag => tag.toLowerCase().includes(q)) ||
+            (t.category || '').toLowerCase().includes(q)
         );
     }, [otherTracks, debouncedSearch]);
 
@@ -120,7 +121,8 @@ export default function Playlist({ playlist, onUpdate }) {
             if (query) {
                 if (!v.title?.toLowerCase().includes(query) &&
                     !v.author?.toLowerCase().includes(query) &&
-                    !v.tags?.some(t => t.toLowerCase().includes(query))) return false;
+                    !v.tags?.some(t => t.toLowerCase().includes(query)) &&
+                    !(v.category || '').toLowerCase().includes(query)) return false;
             }
             if (highlightNewOn) {
                 if (!v.added_at || (now - new Date(v.added_at).getTime()) >= DAY_MS) return false;

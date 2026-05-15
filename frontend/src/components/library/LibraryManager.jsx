@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import { useLibrary } from '../LibraryContext';
 import { useToast } from '../ToastContext';
@@ -258,7 +258,8 @@ export default function LibraryManager() {
         return otherTracks.filter(t =>
             (t.title || '').toLowerCase().includes(q) ||
             (t.author || '').toLowerCase().includes(q) ||
-            (t.tags || []).some(tag => tag.toLowerCase().includes(q))
+            (t.tags || []).some(tag => tag.toLowerCase().includes(q)) ||
+            (t.category || '').toLowerCase().includes(q)
         );
     }, [otherTracks, debouncedSearch]);
 
@@ -282,6 +283,15 @@ export default function LibraryManager() {
     const [rightWidth, setRightWidth] = useState(260);
     const leftResizingRef = useRef(false);
     const rightResizingRef = useRef(false);
+    const wrapperRef = useRef(null);
+
+    // Initialize left panel at 50% of space available after the setlists panel
+    useLayoutEffect(() => {
+        if (!wrapperRef.current) return;
+        const totalW = wrapperRef.current.getBoundingClientRect().width;
+        const available = totalW - 260 - 8; // initial rightWidth + 2 × 4px handles
+        setLeftWidth(Math.max(140, Math.floor(available / 2)));
+    }, []);
 
     const handleLeftResizeStart = (e) => {
         e.preventDefault();
@@ -290,7 +300,8 @@ export default function LibraryManager() {
         const startW = leftWidth;
         const handleMove = (ev) => {
             if (!leftResizingRef.current) return;
-            setLeftWidth(Math.max(140, Math.min(480, startW + (ev.clientX - startX))));
+            const totalW = wrapperRef.current?.getBoundingClientRect().width ?? 1400;
+            setLeftWidth(Math.max(140, Math.min(totalW - 320, startW + (ev.clientX - startX))));
         };
         const handleUp = () => {
             leftResizingRef.current = false;
@@ -308,7 +319,8 @@ export default function LibraryManager() {
         const startW = rightWidth;
         const handleMove = (ev) => {
             if (!rightResizingRef.current) return;
-            setRightWidth(Math.max(160, Math.min(500, startW - (ev.clientX - startX))));
+            const totalW = wrapperRef.current?.getBoundingClientRect().width ?? 1400;
+            setRightWidth(Math.max(160, Math.min(totalW - 320, startW - (ev.clientX - startX))));
         };
         const handleUp = () => {
             rightResizingRef.current = false;
@@ -459,7 +471,8 @@ export default function LibraryManager() {
             filtered = filtered.filter(t =>
                 (t.title || '').toLowerCase().includes(query) ||
                 (t.author || '').toLowerCase().includes(query) ||
-                (t.tags || []).some(tag => tag.toLowerCase().includes(query))
+                (t.tags || []).some(tag => tag.toLowerCase().includes(query)) ||
+                (t.category || '').toLowerCase().includes(query)
             );
         }
 
@@ -607,7 +620,7 @@ export default function LibraryManager() {
     };
 
     return (
-        <div className="library-manager-wrapper" onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDropCategory(e, 'Uncategorized')}>
+        <div ref={wrapperRef} className="library-manager-wrapper" onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDropCategory(e, 'Uncategorized')}>
             {/* Pane 1: Categories Tree */}
             <div className="lm-panel" style={{ flex: `0 0 ${leftWidth}px`, display: 'flex', flexDirection: 'column' }}>
                 <div className="lm-panel-header" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 10 }}>
