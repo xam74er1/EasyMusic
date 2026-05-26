@@ -12,8 +12,8 @@ IF NOT EXIST ".venv" (
     python -m venv .venv
 )
 
-echo Starting backend service on port 8000...
-start "EasyMusic-Backend" cmd /c "call .venv\Scripts\activate.bat && pip install -r requirements.txt && uvicorn main:app --host 127.0.0.1 --port 8000 --reload"
+echo Starting backend service on port 8082...
+start "EasyMusic-Backend" cmd /c "call .venv\Scripts\activate.bat && pip install -r requirements.txt && uvicorn main:app --host 127.0.0.1 --port 8082 --reload"
 
 timeout /t 3
 
@@ -37,7 +37,7 @@ echo.
 echo =====================
 echo Application Starting
 echo =====================
-echo - Backend API: http://127.0.0.1:8000
+echo - Backend API: http://127.0.0.1:8082
 echo - Frontend: http://127.0.0.1:5173
 echo.
 echo Open http://127.0.0.1:5173 in your browser
