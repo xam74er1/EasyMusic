@@ -1,14 +1,21 @@
-// Resolve initial backend host: 
-// 1. In Electron, use the dynamically assigned port injected via contextBridge
-// 2. Fallback to localStorage (for web users who manually configured their backend)
-// 3. Fallback to VITE_API_HOST (for build-time remote servers)
-// 4. Fallback to localhost:8000
+// Resolve initial backend host:
+// 1. Electron  — dynamic port injected via contextBridge
+// 2. localStorage override — manual port saved by the user
+// 3. VITE_API_HOST — explicit build-time override (custom domain / reverse proxy)
+// 4. Auto-detect — use the same hostname the browser used, on port 8082 (Docker default)
+const DOCKER_BACKEND_PORT = 8082;
+
 let dynamicPort = window.electronAPI?.backendPort;
 const savedPort = localStorage.getItem('preferredBackendPort');
+const explicitHost = import.meta.env.VITE_API_HOST;
 
-export let API_HOST = dynamicPort 
-    ? `http://127.0.0.1:${dynamicPort}` 
-    : (savedPort ? `http://127.0.0.1:${savedPort}` : (import.meta.env.VITE_API_HOST || 'http://127.0.0.1:8000'));
+export let API_HOST = dynamicPort
+    ? `http://127.0.0.1:${dynamicPort}`
+    : savedPort
+        ? `http://127.0.0.1:${savedPort}`
+        : explicitHost
+            ? explicitHost
+            : `http://${window.location.hostname}:${DOCKER_BACKEND_PORT}`;
 export let API_BASE = `${API_HOST}/api`;
 
 // Listen for runtime port updates from Electron
