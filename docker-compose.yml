@@ -36,6 +36,8 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    environment:
+      - VITE_BACKEND_PORT=8082
     depends_on:
       - backend
     networks:
