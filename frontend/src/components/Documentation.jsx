@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import {
     Book, HelpCircle, ChevronRight, Library,
     FolderTree, Settings2, Disc3, Bot, LayoutGrid, Zap,
-    ArrowRight, List, ShieldCheck, Activity, Music, Heart
+    ArrowRight, List, ShieldCheck, Activity, Music, Heart,
+    MessageCircle
 } from 'lucide-react';
 
 // Import sub-components
@@ -14,6 +15,8 @@ import SFXDoc from './documentation/SFXDoc';
 import VirtualDJDoc from './documentation/VirtualDJDoc';
 import AIDoc from './documentation/AIDoc';
 import SimplifiedDJDoc from './documentation/SimplifiedDJDoc';
+import FAQDoc from './documentation/FAQDoc';
+import DocChat from './documentation/DocChat';
 
 const Documentation = () => {
     const [activeTab, setActiveTab] = useState('intro');
@@ -27,6 +30,8 @@ const Documentation = () => {
         { id: 'simplified', label: 'Simplified DJ', icon: <LayoutGrid size={18} />, color: '#ec4899' },
         { id: 'virtual', label: 'Virtual DJ', icon: <Disc3 size={18} />, color: 'var(--primary)' },
         { id: 'ai', label: 'Assistant IA', icon: <Bot size={18} />, color: '#ff6b6b' },
+        { id: 'faq', label: 'FAQ', icon: <HelpCircle size={18} />, color: '#fbbf24' },
+        { id: 'chat', label: 'Chat Doc', icon: <MessageCircle size={18} />, color: 'var(--primary)' },
     ];
 
     const renderContent = () => {
@@ -39,6 +44,8 @@ const Documentation = () => {
             case 'simplified': return <SimplifiedDJDoc />;
             case 'virtual': return <VirtualDJDoc />;
             case 'ai': return <AIDoc />;
+            case 'faq': return <FAQDoc />;
+            case 'chat': return <DocChat />;
             default: return <SimpleDoc />;
         }
     };
@@ -95,10 +102,15 @@ const Documentation = () => {
                     </button>
                 ))}
 
-                <div style={{ marginTop: 'auto', padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <h5 style={{ margin: '0 0 10px 0', fontSize: '0.8rem', opacity: 0.5, textTransform: 'uppercase' }}>Besoin d'aide ?</h5>
+                <div
+                    onClick={() => setActiveTab('chat')}
+                    style={{ marginTop: 'auto', padding: '20px', background: 'rgba(107,70,193,0.08)', borderRadius: '16px', border: '1px solid rgba(107,70,193,0.2)', cursor: 'pointer', transition: 'background 0.2s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(107,70,193,0.15)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'rgba(107,70,193,0.08)'}
+                >
+                    <h5 style={{ margin: '0 0 8px 0', fontSize: '0.8rem', opacity: 0.7, textTransform: 'uppercase', color: 'var(--primary)' }}>Besoin d'aide ?</h5>
                     <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>
-                        Utilisez l'Assistant IA pour des questions spécifiques sur votre bibliothèque.
+                        Cliquez ici pour ouvrir le <strong>Chat Documentation</strong> et poser vos questions en français ou en anglais.
                     </p>
                 </div>
             </div>
